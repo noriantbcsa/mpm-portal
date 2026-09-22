@@ -8,7 +8,7 @@ import type { Audience, ProductTagType } from "@/generated/prisma/enums";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { FiltersForm } from "@/components/catalog/filters-form";
 import { Pagination } from "@/components/catalog/pagination";
-import { CategoryChips } from "@/components/catalog/category-chips";
+import { CatalogExplorer } from "@/components/catalog/catalog-explorer";
 
 export const metadata: Metadata = {
   title: "Catálogo",
@@ -56,8 +56,8 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <header className="mb-6">
+    <>
+      <header className="mx-auto mb-6 max-w-6xl px-4 pt-8">
         <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">
           {q ? `Resultados para "${q}"` : "Catálogo completo"}
         </h1>
@@ -67,10 +67,8 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
             : "Ajusta la búsqueda o los filtros para ver más resultados."}
         </p>
       </header>
-
-      <CategoryChips categories={categories} activeSlug={undefined} />
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-[260px_1fr]">
+      <CatalogExplorer categories={categories} />
+      <div className="mx-auto mt-6 grid max-w-6xl gap-6 px-4 pb-8 lg:grid-cols-[260px_1fr]">
         <aside aria-label="Filtros">
           <FiltersForm
             active={{ q, publico, talla, color, etiqueta, orden }}
@@ -81,6 +79,6 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
           <Pagination page={page} pageCount={pageCount} buildHref={buildHref} />
         </div>
       </div>
-    </div>
+    </>
   );
 }

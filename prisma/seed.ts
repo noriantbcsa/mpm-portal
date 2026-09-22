@@ -25,8 +25,29 @@ const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) })
 const catalogRoot = join(process.cwd(), "public", "catalogo");
 const fallbackHeroImage = "/catalogo/DAMAS%20-%20PAGINA/CMLD/CHOCOLATE.jpg";
 const collections = [
-  { folder: "DAMAS - PAGINA", category: "Damas", slug: "damas", audience: "MUJER" as const, prefix: "DAM" },
-  { folder: "CABALLERO - PAGINA", category: "Caballero", slug: "caballero", audience: "HOMBRE" as const, prefix: "CAB" },
+  {
+    folder: "DAMAS - PAGINA",
+    category: "Damas",
+    slug: "damas",
+    referenceSlug: "damas-referencias",
+    referenceName: "Referencias Damas",
+    imageUrl: fallbackHeroImage,
+    audience: "MUJER" as const,
+    prefix: "DAM",
+  },
+  {
+    folder: "CABALLERO - PAGINA",
+    category: "Caballero",
+    slug: "caballero",
+    referenceSlug: "caballero-referencias",
+    referenceName: "Referencias Caballero",
+    // La foto de CMCRH original tiene fondo casi blanco: con la superposición
+    // semitransparente de CatalogExplorer se veía prácticamente en blanco.
+    // Esta tiene una prenda de color sólido, con mejor contraste.
+    imageUrl: "/catalogo/CABALLERO%20-%20PAGINA/CMCH/CHOCOLATE.jpg",
+    audience: "HOMBRE" as const,
+    prefix: "CAB",
+  },
 ];
 
 function asPublicUrl(filePath: string) {
@@ -60,9 +81,30 @@ function sizesFor(folder: string) {
 async function importRealCatalog() {
   const categories = await Promise.all(collections.map((item, order) => prisma.category.upsert({
     where: { slug: item.slug },
-    create: { name: item.category, slug: item.slug, description: `Referencias de ${item.category}.`, order },
-    update: { name: item.category, description: `Referencias de ${item.category}.`, order, isVisible: true },
+    create: { name: item.category, slug: item.slug, description: `Colecciones de ${item.category}.`, imageUrl: item.imageUrl, order },
+    update: { name: item.category, description: `Colecciones de ${item.category}.`, imageUrl: item.imageUrl, order, isVisible: true },
   })));
+  const referenceCategories = await Promise.all(collections.map(async (item) => {
+    const parent = categories.find((category) => category.slug === item.slug);
+    if (!parent) throw new Error(`No se pudo crear la categoría ${item.category}.`);
+    return prisma.category.upsert({
+      where: { slug: item.referenceSlug },
+      create: {
+        name: item.referenceName,
+        slug: item.referenceSlug,
+        description: `Modelos reales de ${item.category} con galería de fotos y especificaciones.`,
+        parentId: parent.id,
+        order: 0,
+      },
+      update: {
+        name: item.referenceName,
+        description: `Modelos reales de ${item.category} con galería de fotos y especificaciones.`,
+        parentId: parent.id,
+        order: 0,
+        isVisible: true,
+      },
+    });
+  }));
   const siteSettings = await prisma.siteSettings.upsert({
     where: { id: "default" },
     create: {
@@ -89,7 +131,7 @@ async function importRealCatalog() {
 
   let imported = 0;
   for (const collection of collections) {
-    const category = categories.find((item) => item.slug === collection.slug);
+    const category = referenceCategories.find((item) => item.slug === collection.referenceSlug);
     if (!category) continue;
     let categoryImageSet = Boolean(category.imageUrl);
     const collectionDir = join(catalogRoot, collection.folder);

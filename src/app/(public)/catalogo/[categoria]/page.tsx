@@ -9,7 +9,7 @@ import type { Audience, ProductTagType } from "@/generated/prisma/enums";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { FiltersForm } from "@/components/catalog/filters-form";
 import { Pagination } from "@/components/catalog/pagination";
-import { CategoryChips } from "@/components/catalog/category-chips";
+import { CatalogExplorer } from "@/components/catalog/catalog-explorer";
 
 type PageProps = {
   params: Promise<{ categoria: string }>;
@@ -68,15 +68,14 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <header className="mb-6">
-        <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">{category.name}</h1>
+    <>
+      <header className="mx-auto mb-6 max-w-6xl px-4 pt-8">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Colección del catálogo</p>
+        <h1 className="mt-1 font-display text-2xl font-black uppercase tracking-[-0.05em] text-ink sm:text-3xl">{category.name}</h1>
         {category.description && <p className="mt-1 max-w-2xl text-sm text-ink-soft">{category.description}</p>}
       </header>
-
-      <CategoryChips categories={categories} activeSlug={categoria} />
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-[260px_1fr]">
+      <CatalogExplorer categories={categories} activeSlug={categoria} />
+      <div className="mx-auto mt-6 grid max-w-6xl gap-6 px-4 pb-8 lg:grid-cols-[260px_1fr]">
         <aside aria-label="Filtros">
           <FiltersForm active={{ q, categoria, publico, talla, color, etiqueta, orden }} />
         </aside>
@@ -85,6 +84,6 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
           <Pagination page={page} pageCount={pageCount} buildHref={buildHref} />
         </div>
       </div>
-    </div>
+    </>
   );
 }

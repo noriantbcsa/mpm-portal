@@ -84,6 +84,16 @@ export default async function ProductoPage({ params }: PageProps) {
       <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-ink-soft">
         <Link href="/" className="hover:text-ink">Inicio</Link>
         {" / "}
+        <Link href="/catalogo" className="hover:text-ink">Catálogo</Link>
+        {" / "}
+        {product.category.parent && (
+          <>
+            <Link href={`/catalogo/${product.category.parent.slug}`} className="hover:text-ink">
+              {product.category.parent.name}
+            </Link>
+            {" / "}
+          </>
+        )}
         <Link href={`/catalogo/${product.category.slug}`} className="hover:text-ink">
           {product.category.name}
         </Link>

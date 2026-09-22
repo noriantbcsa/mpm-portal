@@ -35,7 +35,7 @@ const productListSelect = {
   tags: true,
   priceRef: true,
   categoryId: true,
-  category: { select: { id: true, name: true, slug: true } },
+  category: { select: { id: true, name: true, slug: true, parent: { select: { name: true, slug: true } } } },
   images: { orderBy: { order: "asc" as const }, take: 1 },
 } satisfies Prisma.ProductSelect;
 
@@ -112,7 +112,7 @@ export async function listProducts(filters: CatalogFilters = {}) {
 }
 
 const productDetailInclude = {
-  category: true,
+  category: { include: { parent: true } },
   campaign: true,
   images: { orderBy: { order: "asc" as const } },
 } satisfies Prisma.ProductInclude;

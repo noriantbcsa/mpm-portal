@@ -15,6 +15,7 @@ export function ProductCard({
 }) {
   const image = product.images[0];
   const price = showPrices ? formatPrice(product.priceRef ? Number(product.priceRef) : null) : null;
+  const categoryLabel = product.category.parent?.name ?? product.category.name;
 
   return (
     <Link
@@ -45,7 +46,7 @@ export function ProductCard({
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-soft">
-          {product.category.name}
+          {categoryLabel}
         </p>
         <h3 className="font-display text-base font-medium leading-snug text-ink line-clamp-2">
           {product.name}
