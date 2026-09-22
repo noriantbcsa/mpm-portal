@@ -57,3 +57,14 @@ export function buildCartRequestMessage(input: CartRequestMessageInput) {
 export function buildGeneralInquiryMessage(defaultMessage: string) {
   return defaultMessage;
 }
+
+/**
+ * Enlace que usa el equipo de ventas (panel /admin) para abrir WhatsApp
+ * directamente con el cliente que dejó la solicitud, con un mensaje inicial
+ * ya redactado.
+ */
+export function buildAdvisorWhatsAppLink(customerPhone: string, contactName: string, siteName: string) {
+  const firstName = contactName.trim().split(/\s+/)[0] || contactName;
+  const message = `Hola ${firstName}, te escribimos de ${siteName} por tu solicitud de pedido. ¿Tienes un momento para confirmar los detalles?`;
+  return buildWhatsAppLink(customerPhone, message);
+}

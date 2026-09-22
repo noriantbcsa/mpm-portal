@@ -34,11 +34,28 @@ export async function syncCartSessionAction(items: RawCartItem[]) {
     update: { sessionToken: token },
   });
 
+  const previousItems = await prisma.cartSessionItem.findMany({
+    where: { cartSessionId: session.id },
+    select: { productId: true },
+  });
+  const previousProductIds = new Set(previousItems.map((i) => i.productId).filter(Boolean));
+  const newlyAddedProductIds = [
+    ...new Set(resolved.map((i) => i.productId).filter((id) => !previousProductIds.has(id))),
+  ];
+
   await prisma.$transaction([
     prisma.cartSessionItem.deleteMany({ where: { cartSessionId: session.id } }),
     prisma.cartSessionItem.createMany({
       data: resolved.map((item) => ({ ...item, cartSessionId: session.id })),
     }),
+    ...(newlyAddedProductIds.length > 0
+      ? [
+          prisma.product.updateMany({
+            where: { id: { in: newlyAddedProductIds } },
+            data: { addToCartCount: { increment: 1 } },
+          }),
+        ]
+      : []),
   ]);
 }
 

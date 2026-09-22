@@ -1,5 +1,6 @@
 import type {
   Audience,
+  CartRequestEventType,
   CartRequestStatus,
   ProductStatus,
   ProductTagType,
@@ -58,6 +59,13 @@ export const CART_REQUEST_OPEN_STATUSES: CartRequestStatus[] = [
   "CONTACTADO",
   "EN_NEGOCIACION",
 ];
+
+export const CART_REQUEST_EVENT_LABELS: Record<CartRequestEventType, string> = {
+  NOTE: "Nota",
+  STATUS_CHANGE: "Cambio de estado",
+  ASSIGNMENT: "Asignación",
+  CREATED: "Solicitud creada",
+};
 
 export const ROLE_LABELS: Record<Role, string> = {
   ADMIN: "Administrador general",
