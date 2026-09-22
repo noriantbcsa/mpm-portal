@@ -87,6 +87,8 @@ export type SyntheticCategorySeed = {
   audience: Audience;
   baseNames: string[];
   priceRange: [number, number];
+  /** Solo se usa en las categorías raíz sintéticas (portada en "Compra por categoría"). */
+  imageUrl?: string;
 };
 
 export const SYNTHETIC_CATEGORIES: SyntheticCategorySeed[] = [
@@ -167,6 +169,7 @@ export const SYNTHETIC_CATEGORIES: SyntheticCategorySeed[] = [
     name: "Niños",
     description: "Ropa para niño, niña y bebé.",
     parentSlug: null,
+    imageUrl: "https://picsum.photos/seed/mpm-categoria-ninos/600/600",
     audience: "UNISEX",
     baseNames: [],
     priceRange: [29000, 69000],
@@ -203,6 +206,7 @@ export const SYNTHETIC_CATEGORIES: SyntheticCategorySeed[] = [
     name: "Dotación empresarial",
     description: "Prendas corporativas y uniformes por volumen.",
     parentSlug: null,
+    imageUrl: "https://picsum.photos/seed/mpm-categoria-dotacion/600/600",
     audience: "UNISEX",
     baseNames: [],
     priceRange: [35000, 89000],
@@ -230,6 +234,7 @@ export const SYNTHETIC_CATEGORIES: SyntheticCategorySeed[] = [
     name: "Accesorios",
     description: "Gorras, bolsos y medias.",
     parentSlug: null,
+    imageUrl: "https://picsum.photos/seed/mpm-categoria-accesorios/600/600",
     audience: "UNISEX",
     baseNames: [],
     priceRange: [15000, 59000],

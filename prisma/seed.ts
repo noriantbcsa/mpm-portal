@@ -91,6 +91,7 @@ async function importRealCatalog() {
   for (const collection of collections) {
     const category = categories.find((item) => item.slug === collection.slug);
     if (!category) continue;
+    let categoryImageSet = Boolean(category.imageUrl);
     const collectionDir = join(catalogRoot, collection.folder);
     const folders = readdirSync(collectionDir, { withFileTypes: true }).filter((item) => item.isDirectory());
     for (const folder of folders) {
@@ -113,6 +114,15 @@ async function importRealCatalog() {
         update: { name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors: colors.length ? colors : ["Consultar disponibilidad"], tags, images: { deleteMany: {}, create: images } },
       });
       imported += 1;
+
+      // La primera referencia con foto de la colección presta su primera
+      // imagen como portada de la categoría (Damas/Caballero), para que
+      // "Compra por categoría" en el inicio no se vea vacío. Si un admin ya
+      // puso una portada distinta desde /admin/categorias, no se toca.
+      if (!categoryImageSet && images[0]) {
+        await prisma.category.update({ where: { id: category.id }, data: { imageUrl: images[0].url } });
+        categoryImageSet = true;
+      }
     }
   }
   console.log(`Catálogo real importado: ${imported} referencias con fotos de public/catalogo.`);
@@ -142,7 +152,13 @@ async function seedCategoryTree() {
   for (const [order, root] of roots.entries()) {
     const category = await prisma.category.upsert({
       where: { slug: root.slug },
-      create: { name: root.name, slug: root.slug, description: root.description, order: 10 + order },
+      create: {
+        name: root.name,
+        slug: root.slug,
+        description: root.description,
+        imageUrl: root.imageUrl,
+        order: 10 + order,
+      },
       update: { name: root.name, description: root.description },
     });
     bySlug.set(root.slug, category.id);
