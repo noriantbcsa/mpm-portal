@@ -2,6 +2,7 @@ import "server-only";
 
 import { prisma } from "@/lib/prisma";
 import { getAbandonedCartsCount } from "@/lib/admin/carts";
+import { getActiveCampaign } from "@/lib/campaigns";
 
 export async function getDashboardStats() {
   const [
@@ -19,7 +20,7 @@ export async function getDashboardStats() {
     prisma.product.aggregate({ _sum: { addToCartCount: true } }),
     prisma.cartRequest.groupBy({ by: ["status"], _count: { _all: true } }),
     getAbandonedCartsCount(),
-    prisma.campaign.findFirst({ where: { isActive: true }, select: { name: true } }),
+    getActiveCampaign(),
   ]);
 
   const requestCountByStatus = Object.fromEntries(

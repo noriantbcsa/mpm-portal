@@ -4,7 +4,14 @@ import { requireRole } from "@/lib/auth/dal";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/format";
 import { AdminLinkButton } from "@/components/admin/ui/controls";
-import { AdminBadge, AdminEmptyState, AdminTable, AdminTd, AdminTh } from "@/components/admin/ui/display";
+import {
+  AdminBadge,
+  type AdminBadgeTone,
+  AdminEmptyState,
+  AdminTable,
+  AdminTd,
+  AdminTh,
+} from "@/components/admin/ui/display";
 
 export const metadata: Metadata = { title: "Campañas", robots: { index: false } };
 
@@ -14,6 +21,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
   await requireRole(["ADMIN"]);
   const sp = await searchParams;
   const campaigns = await prisma.campaign.findMany({ orderBy: { createdAt: "desc" } });
+  const now = new Date();
 
   return (
     <div>
@@ -31,6 +39,11 @@ export default async function CampanasPage({ searchParams }: PageProps) {
         </p>
       )}
 
+      <p className="mt-4 text-sm text-slate-500">
+        La vigencia se aplica automáticamente: una campaña marcada como activa deja de mostrarse en el sitio en
+        cuanto pasa su fecha de fin, sin necesidad de desactivarla a mano.
+      </p>
+
       <div className="mt-6">
         {campaigns.length === 0 ? (
           <AdminEmptyState title="Aún no hay campañas" />
@@ -47,28 +60,44 @@ export default async function CampanasPage({ searchParams }: PageProps) {
               </tr>
             </thead>
             <tbody>
-              {campaigns.map((campaign) => (
-                <tr key={campaign.id}>
-                  <AdminTd className="font-medium text-slate-900">{campaign.name}</AdminTd>
-                  <AdminTd>
-                    {campaign.startDate ? formatDate(campaign.startDate) : "—"}
-                    {campaign.endDate ? ` a ${formatDate(campaign.endDate)}` : ""}
-                  </AdminTd>
-                  <AdminTd>
-                    <AdminBadge tone={campaign.isActive ? "green" : "neutral"}>
-                      {campaign.isActive ? "Activa" : "Inactiva"}
-                    </AdminBadge>
-                  </AdminTd>
-                  <AdminTd>
-                    <a
-                      href={`/admin/campanas/${campaign.id}/editar`}
-                      className="text-sm font-medium text-blue-700 hover:underline"
-                    >
-                      Editar
-                    </a>
-                  </AdminTd>
-                </tr>
-              ))}
+              {campaigns.map((campaign) => {
+                const isScheduled = Boolean(campaign.startDate && campaign.startDate > now);
+                const isExpired = Boolean(campaign.endDate && campaign.endDate < now);
+                let statusTone: AdminBadgeTone = "neutral";
+                let statusLabel = "Inactiva";
+                if (campaign.isActive) {
+                  if (isExpired) {
+                    statusTone = "red";
+                    statusLabel = "Vencida";
+                  } else if (isScheduled) {
+                    statusTone = "amber";
+                    statusLabel = "Programada";
+                  } else {
+                    statusTone = "green";
+                    statusLabel = "Activa";
+                  }
+                }
+                return (
+                  <tr key={campaign.id}>
+                    <AdminTd className="font-medium text-slate-900">{campaign.name}</AdminTd>
+                    <AdminTd>
+                      {campaign.startDate ? formatDate(campaign.startDate) : "—"}
+                      {campaign.endDate ? ` a ${formatDate(campaign.endDate)}` : ""}
+                    </AdminTd>
+                    <AdminTd>
+                      <AdminBadge tone={statusTone}>{statusLabel}</AdminBadge>
+                    </AdminTd>
+                    <AdminTd>
+                      <a
+                        href={`/admin/campanas/${campaign.id}/editar`}
+                        className="text-sm font-medium text-blue-700 hover:underline"
+                      >
+                        Editar
+                      </a>
+                    </AdminTd>
+                  </tr>
+                );
+              })}
             </tbody>
           </AdminTable>
         )}
