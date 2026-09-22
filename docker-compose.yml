@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mpm_portal_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mpm
+      POSTGRES_PASSWORD: mpm_dev_password
+      POSTGRES_DB: mpm_portal
+    ports:
+      - "5544:5432"
+    volumes:
+      - mpm_portal_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mpm -d mpm_portal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mpm_portal_db_data:
