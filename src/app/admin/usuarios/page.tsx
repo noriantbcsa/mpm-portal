@@ -50,6 +50,11 @@ export default async function UsuariosPage({ searchParams }: PageProps) {
                     <AdminBadge tone={user.active ? "green" : "neutral"}>
                       {user.active ? "Activo" : "Inactivo"}
                     </AdminBadge>
+                    {user.lockedUntil && user.lockedUntil > new Date() && (
+                      <AdminBadge tone="red" className="ml-1">
+                        Bloqueada
+                      </AdminBadge>
+                    )}
                   </AdminTd>
                   <AdminTd>
                     <a href={`/admin/usuarios/${user.id}`} className="text-sm font-medium text-blue-700 hover:underline">

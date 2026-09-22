@@ -17,6 +17,24 @@ import { JsonLd } from "@/components/seo/json-ld";
 // tardarían en reflejar cambios de /admin hasta el próximo despliegue.
 export const dynamic = "force-dynamic";
 
+const steps = [
+  {
+    number: "1",
+    title: "Explora el catálogo",
+    description: "Filtra por categoría, público, talla o color hasta encontrar lo que necesitas.",
+  },
+  {
+    number: "2",
+    title: "Arma tu pedido",
+    description: "Agrega las prendas que quieras a tu carrito. No se realiza ningún cobro en línea.",
+  },
+  {
+    number: "3",
+    title: "Un asesor te contacta",
+    description: "Déjanos tu nombre y WhatsApp. Confirmamos disponibilidad y cerramos el pedido contigo.",
+  },
+];
+
 const benefits = [
   {
     icon: Ruler,
@@ -107,6 +125,30 @@ export default async function HomePage() {
             </div>
           )}
         </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <h2 className="text-center font-display text-xl font-semibold text-ink sm:text-2xl">
+          Cómo funciona
+        </h2>
+        <p className="mx-auto mt-1 max-w-xl text-center text-sm text-ink-soft">
+          Sin pagos en línea ni registros complicados: eliges, dejas tus datos y un asesor se
+          encarga del resto.
+        </p>
+        <ol className="mt-8 grid gap-6 sm:grid-cols-3">
+          {steps.map((step) => (
+            <li key={step.number} className="flex flex-col items-center text-center">
+              <span
+                aria-hidden="true"
+                className="flex h-12 w-12 items-center justify-center bg-brand-primary font-display text-lg font-bold text-white"
+              >
+                {step.number}
+              </span>
+              <h3 className="mt-3 font-display text-base font-medium text-ink">{step.title}</h3>
+              <p className="mt-1 max-w-xs text-sm text-ink-soft">{step.description}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {activeCampaign && (

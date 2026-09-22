@@ -21,7 +21,13 @@ export default async function EditarUsuarioPage({ params }: PageProps) {
       <p className="mt-1 text-sm text-slate-500">{user.email}</p>
       <div className="mt-6">
         <EditUserForm
-          user={{ id: user.id, name: user.name, role: user.role, active: user.active }}
+          user={{
+            id: user.id,
+            name: user.name,
+            role: user.role,
+            active: user.active,
+            lockedUntil: user.lockedUntil,
+          }}
           isSelf={user.id === currentUser.id}
         />
       </div>

@@ -110,7 +110,11 @@ ventas reales el orden no siempre es lineal (un cliente puede escribir
 
 ## Migraciones
 
-Una sola migración hasta ahora: `prisma/migrations/20260922031350_init`.
+- `20260922031350_init`: esquema inicial completo.
+- `20260922043619_add_login_lockout`: agrega `User.failedLoginAttempts` y
+  `User.lockedUntil` (bloqueo de cuenta tras intentos fallidos de login, ver
+  `docs/SECURITY.md`).
+
 Prisma 7 requiere un archivo `prisma.config.ts` (ya no se admite
 `datasource.url` dentro de `schema.prisma`); ver
 [docs/DEPLOYMENT.md](DEPLOYMENT.md) para cómo correr `prisma migrate deploy`

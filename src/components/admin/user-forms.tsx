@@ -2,8 +2,14 @@
 
 import { useActionState } from "react";
 
-import { createUserAction, updateUserAction, type UserFormState } from "@/app/admin/usuarios/actions";
+import {
+  createUserAction,
+  unlockUserAction,
+  updateUserAction,
+  type UserFormState,
+} from "@/app/admin/usuarios/actions";
 import { ROLE_LABELS } from "@/lib/constants";
+import { formatDateTime } from "@/lib/format";
 import { AdminButton, AdminCheckbox, AdminSelectField, AdminTextField } from "@/components/admin/ui/controls";
 
 const initialState: UserFormState = { status: "idle" };
@@ -47,14 +53,34 @@ export function EditUserForm({
   user,
   isSelf,
 }: {
-  user: { id: string; name: string; role: "ADMIN" | "SALES"; active: boolean };
+  user: {
+    id: string;
+    name: string;
+    role: "ADMIN" | "SALES";
+    active: boolean;
+    lockedUntil: Date | null;
+  };
   isSelf: boolean;
 }) {
   const [state, formAction, pending] = useActionState(updateUserAction, initialState);
+  const isLocked = Boolean(user.lockedUntil && user.lockedUntil > new Date());
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="id" value={user.id} />
+      {isLocked && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <span>
+            Cuenta bloqueada por intentos fallidos hasta {formatDateTime(user.lockedUntil as Date)}.
+          </span>
+          <form action={unlockUserAction}>
+            <input type="hidden" name="id" value={user.id} />
+            <AdminButton type="submit" size="sm" variant="secondary">
+              Desbloquear ahora
+            </AdminButton>
+          </form>
+        </div>
+      )}
       <AdminTextField label="Nombre" name="name" defaultValue={user.name} required />
       <AdminSelectField label="Rol" name="role" defaultValue={user.role} disabled={isSelf}>
         {Object.entries(ROLE_LABELS).map(([value, label]) => (

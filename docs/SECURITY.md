@@ -15,6 +15,16 @@
   porque las Server Actions de Next.js son alcanzables por POST directo
   aunque el botón correspondiente esté oculto en la UI.
 - Un usuario no puede desactivarse ni quitarse el rol `ADMIN` a sí mismo.
+- **Bloqueo por intentos fallidos**: tras 5 contraseñas incorrectas seguidas,
+  la cuenta se bloquea 15 minutos (`User.failedLoginAttempts`/`lockedUntil`,
+  `src/lib/auth/actions.ts`). Mientras está bloqueada, ni siquiera la
+  contraseña correcta la desbloquea antes de tiempo — evita que alguien con
+  la contraseña real pero comprometida por fuerza bruta se cuele por la
+  ventana de bloqueo. Cualquier `ADMIN` puede desbloquear una cuenta antes de
+  los 15 minutos desde `/admin/usuarios/[id]` (botón "Desbloquear ahora").
+  Probado con un usuario de prueba real en el navegador (5 intentos fallidos
+  → bloqueo → la contraseña correcta sigue rechazada → desbloqueo manual) y
+  con pruebas unitarias (`tests/login-lockout.test.ts`).
 
 ## Datos personales
 
@@ -95,6 +105,7 @@ paquete lo pide y por qué.
   desarrollo).
 - Cambiar o eliminar las credenciales de demostración (`admin@mpm.local` /
   `CambiaEsto123!`).
-- Decidir si se quiere rate-limiting en `/login` (hoy no lo hay más allá de
-  la validación de credenciales; para un panel interno de bajo tráfico es un
-  riesgo menor, pero es una mejora razonable antes de exponerlo ampliamente).
+- El bloqueo por intentos fallidos es por cuenta, no por IP: alguien podría
+  seguir intentando contra *otras* cuentas sin límite global. Para un panel
+  interno de bajo tráfico es un riesgo menor; si el panel se expone más
+  ampliamente, considera además un límite por IP a nivel de proxy/CDN.

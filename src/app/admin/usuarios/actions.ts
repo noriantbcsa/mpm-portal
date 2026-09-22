@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/dal";
@@ -78,4 +79,17 @@ export async function updateUserAction(
   });
 
   redirect("/admin/usuarios?guardado=1");
+}
+
+export async function unlockUserAction(formData: FormData): Promise<void> {
+  await requireRole(["ADMIN"]);
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return;
+
+  await prisma.user.update({
+    where: { id },
+    data: { failedLoginAttempts: 0, lockedUntil: null },
+  });
+
+  revalidatePath(`/admin/usuarios/${id}`);
 }
