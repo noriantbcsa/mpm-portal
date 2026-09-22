@@ -154,15 +154,37 @@ Postgres administrado + variables de entorno + primer `db:migrate:deploy` +
 
 ## Pruebas y calidad
 
-- `npm test` corre 50 pruebas unitarias (Vitest) sobre la lógica sin efectos
-  secundarios: construcción de enlaces/mensajes de WhatsApp, formateo de
-  precios/fechas, generación de slugs, parseo del CSV de carga masiva,
-  esquemas de validación (zod) y el store de carrito (Zustand). Las
-  consultas que dependen directamente de la base de datos (`src/lib/products.ts`,
-  `categories.ts`, las acciones de `/admin`) se verificaron manualmente
-  navegando la aplicación real (ver docs/AUDIT_LOOP_1.md y AUDIT_LOOP_2.md);
-  un siguiente paso razonable es añadir pruebas de integración contra una
-  base de datos de pruebas en CI.
+`npm test` corre dos tipos de pruebas (Vitest):
+
+- **Unitarias** (`tests/*.test.ts`, sin base de datos): construcción de
+  enlaces/mensajes de WhatsApp, formateo de precios/fechas, generación de
+  slugs, parseo del CSV de carga masiva, esquemas de validación (zod), el
+  store de carrito (Zustand) y el bloqueo de cuenta tras intentos fallidos de
+  login (con Prisma mockeado). `npm run test:unit` corre solo estas.
+- **De integración** (`tests/integration/*.integration.test.ts`, contra una
+  base de datos PostgreSQL real): filtros y paginación del catálogo
+  (`listProducts`), recorrido del árbol de categorías
+  (`getCategorySubtreeIds`) y la detección de carritos abandonados vs.
+  activos vs. ya convertidos en solicitud. Necesitan una base de datos de
+  pruebas **separada** de la de desarrollo (para no mezclar datos):
+
+  ```bash
+  docker compose up -d db        # ya crea mpm_portal_test automáticamente
+                                   # en una instalación nueva (ver
+                                   # docker/postgres-init/); si tu volumen ya
+                                   # existía de antes, créala una vez con:
+                                   # docker exec mpm_portal_postgres psql -U mpm -d postgres -c "CREATE DATABASE mpm_portal_test;"
+  npm run db:test:migrate        # aplica las migraciones a mpm_portal_test
+  npm run test:integration       # o npm test para correr todo
+  ```
+
+  Si `mpm_portal_test` no existe o no es alcanzable, estas pruebas se
+  saltan automáticamente (no rompen `npm test` en una máquina sin Docker).
+  Las consultas/acciones de `/admin` que además dependen de `cookies()`,
+  `redirect()` o `FormData` de una request real (la mayoría de las Server
+  Actions) se verificaron manualmente navegando la aplicación — ver
+  docs/AUDIT_LOOP_1.md y AUDIT_LOOP_2.md; llevarlas a pruebas automatizadas
+  requeriría separar esa lógica de negocio del envoltorio de Next.js primero.
 - `npm run typecheck` y `npm run lint` deben quedar sin errores/warnings.
 - `npm run build` debe completar sin errores. Revisa la lista de rutas que
   imprime: cualquier página que dependa de datos editables desde `/admin`
