@@ -42,7 +42,7 @@ export default async function NosotrosPage() {
         href={whatsappHref}
         target="_blank"
         rel="noopener noreferrer"
-        className="focus-ring mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-base font-semibold text-white hover:brightness-95"
+        className="focus-ring mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-base font-semibold text-[#0b3d24] hover:brightness-95"
       >
         Escribir por WhatsApp
       </a>

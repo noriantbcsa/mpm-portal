@@ -51,7 +51,7 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
           href={whatsappHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-md bg-[#25D366] px-4 py-2 text-sm font-semibold text-white hover:brightness-95"
+          className="inline-flex items-center gap-2 rounded-md bg-[#25D366] px-4 py-2 text-sm font-semibold text-[#0b3d24] hover:brightness-95"
         >
           <MessageCircle className="h-4 w-4" aria-hidden="true" />
           Abrir WhatsApp con el cliente

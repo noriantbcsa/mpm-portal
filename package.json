@@ -44,16 +44,12 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.6.0",
     "@tailwindcss/postcss": "^4",
-    "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/react": "^16.3.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.20.4",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^6.1.1",
     "dotenv": "^18.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
