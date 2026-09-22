@@ -9,8 +9,8 @@ import type {
 } from "react";
 import { useId } from "react";
 import Link from "next/link";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+
+import { cx } from "@/components/admin/ui/cx";
 
 /**
  * Kit de UI del panel administrativo, deliberadamente separado de
@@ -18,9 +18,7 @@ import { twMerge } from "tailwind-merge";
  * Tailwind) y no depende de los tokens de marca que está iterando el equipo
  * de diseño de la tienda, para no volver a pisarnos los mismos archivos.
  */
-export function cx(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export { cx };
 
 const buttonVariants = {
   primary: "bg-slate-900 text-white hover:bg-slate-700 disabled:bg-slate-400",

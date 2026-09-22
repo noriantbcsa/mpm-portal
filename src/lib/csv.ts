@@ -46,6 +46,14 @@ export function splitMultiValue(value: string): string[] {
     .filter(Boolean);
 }
 
+/** Envuelve en comillas y escapa comillas internas si el valor lo requiere (RFC 4180). */
+function csvField(value: string): string {
+  if (/[",\n]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
 export function buildProductCsvTemplate(): string {
   const header = PRODUCT_CSV_COLUMNS.join(",");
   const example = [
@@ -63,6 +71,8 @@ export function buildProductCsvTemplate(): string {
     "nuevo;recomendado",
     "",
     "39900",
-  ].join(",");
+  ]
+    .map(csvField)
+    .join(",");
   return `${header}\n${example}\n`;
 }

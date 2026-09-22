@@ -1,7 +1,7 @@
 import type { HTMLAttributes, ReactNode, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from "react";
 import Link from "next/link";
 
-import { cx } from "@/components/admin/ui/controls";
+import { cx } from "@/components/admin/ui/cx";
 
 const toneClasses = {
   neutral: "bg-slate-100 text-slate-700",

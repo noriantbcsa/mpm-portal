@@ -64,7 +64,12 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
             <h2 className="text-sm font-semibold text-slate-900">Estado</h2>
             <form action={changeStatusAction} className="mt-2">
               <input type="hidden" name="cartRequestId" value={request.id} />
-              <AutoSubmitSelect name="status" defaultValue={request.status} className="w-full">
+              <AutoSubmitSelect
+                key={request.status}
+                name="status"
+                defaultValue={request.status}
+                className="w-full"
+              >
                 {CART_REQUEST_STATUS_ORDER.map((status) => (
                   <option key={status} value={status}>
                     {CART_REQUEST_STATUS_LABELS[status]}
@@ -80,7 +85,12 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
             <h2 className="text-sm font-semibold text-slate-900">Asesor responsable</h2>
             <form action={assignRequestAction} className="mt-2">
               <input type="hidden" name="cartRequestId" value={request.id} />
-              <AutoSubmitSelect name="assignedToId" defaultValue={request.assignedToId ?? ""} className="w-full">
+              <AutoSubmitSelect
+                key={request.assignedToId ?? "unassigned"}
+                name="assignedToId"
+                defaultValue={request.assignedToId ?? ""}
+                className="w-full"
+              >
                 <option value="">Sin asignar</option>
                 {team.map((member) => (
                   <option key={member.id} value={member.id}>

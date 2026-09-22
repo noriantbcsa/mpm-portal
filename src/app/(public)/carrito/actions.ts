@@ -46,7 +46,19 @@ export async function syncCartSessionAction(items: RawCartItem[]) {
   await prisma.$transaction([
     prisma.cartSessionItem.deleteMany({ where: { cartSessionId: session.id } }),
     prisma.cartSessionItem.createMany({
-      data: resolved.map((item) => ({ ...item, cartSessionId: session.id })),
+      // CartSessionItem no guarda precio (a diferencia de CartRequestItem):
+      // se listan los campos explícitamente en vez de esparcir todo `item`,
+      // que ya nos rompió esto una vez con un PrismaClientValidationError
+      // por incluir `priceRefSnapshot` (columna que no existe en esta tabla).
+      data: resolved.map((item) => ({
+        cartSessionId: session.id,
+        productId: item.productId,
+        productNameSnapshot: item.productNameSnapshot,
+        productSkuSnapshot: item.productSkuSnapshot,
+        size: item.size,
+        color: item.color,
+        quantity: item.quantity,
+      })),
     }),
     ...(newlyAddedProductIds.length > 0
       ? [
