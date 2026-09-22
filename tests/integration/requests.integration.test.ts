@@ -112,4 +112,11 @@ describe.skipIf(!dbAvailable)("listCartRequests (integración, base de datos rea
     expect(items[0].assignedTo?.name).toBe("IT Asesora");
     expect(Array.isArray(items[0].items)).toBe(true);
   });
+
+  it("una página más allá del total sirve la última página válida, no una tabla vacía", async () => {
+    const result = await listCartRequests({ pageSize: 1, page: 99, assignedToId: advisorId });
+    expect(result.pageCount).toBe(1);
+    expect(result.page).toBe(1);
+    expect(result.items).toHaveLength(1);
+  });
 });

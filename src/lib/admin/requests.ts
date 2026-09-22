@@ -13,7 +13,7 @@ export type RequestFilters = {
 };
 
 export async function listCartRequests(filters: RequestFilters = {}) {
-  const page = Math.max(1, filters.page ?? 1);
+  const requestedPage = Math.max(1, filters.page ?? 1);
   const pageSize = filters.pageSize ?? 20;
 
   const where: Prisma.CartRequestWhereInput = {};
@@ -29,21 +29,39 @@ export async function listCartRequests(filters: RequestFilters = {}) {
     ];
   }
 
-  const [items, total] = await Promise.all([
+  const include = {
+    assignedTo: { select: { id: true, name: true } },
+    items: true,
+  } satisfies Prisma.CartRequestInclude;
+  const orderBy = { createdAt: "desc" } satisfies Prisma.CartRequestOrderByWithRelationInput;
+
+  const [firstItems, total] = await Promise.all([
     prisma.cartRequest.findMany({
       where,
-      include: {
-        assignedTo: { select: { id: true, name: true } },
-        items: true,
-      },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * pageSize,
+      include,
+      orderBy,
+      skip: (requestedPage - 1) * pageSize,
       take: pageSize,
     }),
     prisma.cartRequest.count({ where }),
   ]);
 
-  return { items, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  // Igual que en listProducts: una página fuera de rango sirve la última
+  // válida en vez de una tabla vacía con "Página 13 de 12".
+  const page = Math.min(requestedPage, pageCount);
+  const items =
+    page === requestedPage
+      ? firstItems
+      : await prisma.cartRequest.findMany({
+          where,
+          include,
+          orderBy,
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        });
+
+  return { items, total, page, pageSize, pageCount };
 }
 
 export async function getCartRequestById(id: string) {

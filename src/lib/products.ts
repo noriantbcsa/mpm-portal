@@ -93,22 +93,38 @@ function buildOrderBy(sort?: CatalogSort): Prisma.ProductOrderByWithRelationInpu
 }
 
 export async function listProducts(filters: CatalogFilters = {}) {
-  const page = Math.max(1, filters.page ?? 1);
+  const requestedPage = Math.max(1, filters.page ?? 1);
   const pageSize = filters.pageSize ?? CATALOG_PAGE_SIZE;
   const where = await buildWhere(filters);
+  const orderBy = buildOrderBy(filters.sort);
 
-  const [items, total] = await Promise.all([
+  const [firstItems, total] = await Promise.all([
     prisma.product.findMany({
       where,
       select: productListSelect,
-      orderBy: buildOrderBy(filters.sort),
-      skip: (page - 1) * pageSize,
+      orderBy,
+      skip: (requestedPage - 1) * pageSize,
       take: pageSize,
     }),
     prisma.product.count({ where }),
   ]);
 
-  return { items, total, page, pageSize, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  // Una página más allá del total (enlace viejo, URL editada a mano) no debe
+  // devolver una grilla vacía en silencio: se sirve la última página válida.
+  const page = Math.min(requestedPage, pageCount);
+  const items =
+    page === requestedPage
+      ? firstItems
+      : await prisma.product.findMany({
+          where,
+          select: productListSelect,
+          orderBy,
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        });
+
+  return { items, total, page, pageSize, pageCount };
 }
 
 const productDetailInclude = {

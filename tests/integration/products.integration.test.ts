@@ -144,4 +144,14 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
     expect(page2.items).toHaveLength(1);
     expect(page1.items[0].id).not.toBe(page2.items[0].id);
   });
+
+  it("una página más allá del total sirve la última página válida, no una grilla vacía", async () => {
+    // q coincide con las 3 referencias visibles (IT-0004 filtra por sí solo
+    // más abajo); con pageSize 1 hay 1 sola página real.
+    const result = await listProducts({ pageSize: 1, page: 99, q: "IT-0004" });
+    expect(result.pageCount).toBe(1);
+    expect(result.page).toBe(1);
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].sku).toBe("IT-0004");
+  });
 });
