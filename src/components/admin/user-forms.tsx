@@ -66,13 +66,14 @@ export function EditUserForm({
   const isLocked = Boolean(user.lockedUntil && user.lockedUntil > new Date());
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      <input type="hidden" name="id" value={user.id} />
+    <div className="flex flex-col gap-4">
       {isLocked && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
           <span>
             Cuenta bloqueada por intentos fallidos hasta {formatDateTime(user.lockedUntil as Date)}.
           </span>
+          {/* Fuera del <form> principal: un <form> anidado es HTML inválido
+              y el navegador termina enviando el formulario equivocado. */}
           <form action={unlockUserAction}>
             <input type="hidden" name="id" value={user.id} />
             <AdminButton type="submit" size="sm" variant="secondary">
@@ -81,31 +82,34 @@ export function EditUserForm({
           </form>
         </div>
       )}
-      <AdminTextField label="Nombre" name="name" defaultValue={user.name} required />
-      <AdminSelectField label="Rol" name="role" defaultValue={user.role} disabled={isSelf}>
-        {Object.entries(ROLE_LABELS).map(([value, label]) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </AdminSelectField>
-      <AdminCheckbox label="Cuenta activa" name="active" defaultChecked={user.active} disabled={isSelf} />
-      <AdminTextField
-        label="Nueva contraseña (opcional)"
-        name="password"
-        type="text"
-        hint="Déjalo en blanco para no cambiarla."
-      />
-      {state.status === "error" && (
-        <p role="alert" className="text-sm font-medium text-red-600">
-          {state.message}
-        </p>
-      )}
-      <div className="flex justify-end">
-        <AdminButton type="submit" disabled={pending}>
-          {pending ? "Guardando…" : "Guardar cambios"}
-        </AdminButton>
-      </div>
-    </form>
+      <form action={formAction} className="flex flex-col gap-4">
+        <input type="hidden" name="id" value={user.id} />
+        <AdminTextField label="Nombre" name="name" defaultValue={user.name} required />
+        <AdminSelectField label="Rol" name="role" defaultValue={user.role} disabled={isSelf}>
+          {Object.entries(ROLE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </AdminSelectField>
+        <AdminCheckbox label="Cuenta activa" name="active" defaultChecked={user.active} disabled={isSelf} />
+        <AdminTextField
+          label="Nueva contraseña (opcional)"
+          name="password"
+          type="text"
+          hint="Déjalo en blanco para no cambiarla."
+        />
+        {state.status === "error" && (
+          <p role="alert" className="text-sm font-medium text-red-600">
+            {state.message}
+          </p>
+        )}
+        <div className="flex justify-end">
+          <AdminButton type="submit" disabled={pending}>
+            {pending ? "Guardando…" : "Guardar cambios"}
+          </AdminButton>
+        </div>
+      </form>
+    </div>
   );
 }
