@@ -5,7 +5,7 @@ import Image from "next/image";
 
 import { cn } from "@/lib/cn";
 
-export type GalleryImage = { url: string; alt: string };
+export type GalleryImage = { url: string; alt: string; color?: string | null };
 
 function viewLabel(image: GalleryImage, index: number) {
   const match = image.alt.match(/·\s*(color .+|vista \d+)/i);

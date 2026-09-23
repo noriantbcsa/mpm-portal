@@ -124,6 +124,10 @@ model ProductImage {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   url       String
   alt       String
+  // Color al que pertenece esta foto (ej. "AGUA"), cuando el producto tiene
+  // una foto real por color. Null para el catálogo sintético, donde las
+  // fotos de stock no corresponden a ningún color en particular.
+  color     String?
   order     Int      @default(0)
   publicId  String?
   createdAt DateTime @default(now())

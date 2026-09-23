@@ -148,7 +148,7 @@ async function importRealCatalog() {
       const description = [`Referencia ${folder.name}.`, colors.length ? `Colores registrados: ${colors.join(", ")}.` : `Galería con ${files.length} vistas registradas.`, "Consulta disponibilidad de talla y color con un asesor MPM."].join(" ");
       const images = files.map((file, order) => {
         const color = filenameColor(file);
-        return { url: asPublicUrl(join(productDir, file)), alt: `${name}${color ? ` · color ${color}` : ` · vista ${order + 1}`}`, order };
+        return { url: asPublicUrl(join(productDir, file)), alt: `${name}${color ? ` · color ${color}` : ` · vista ${order + 1}`}`, color, order };
       });
       await prisma.product.upsert({
         where: { sku },

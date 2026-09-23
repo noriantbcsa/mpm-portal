@@ -14,6 +14,8 @@ export function AddToCartForm({
   imageUrl,
   sizes,
   colors,
+  color,
+  onColorChange,
   priceRef,
   canOrder,
 }: {
@@ -24,12 +26,13 @@ export function AddToCartForm({
   imageUrl: string | null;
   sizes: string[];
   colors: string[];
+  color: string;
+  onColorChange: (color: string) => void;
   priceRef: number | null;
   canOrder: boolean;
 }) {
   const addItem = useCartStore((s) => s.addItem);
   const [size, setSize] = useState(sizes[0] ?? "");
-  const [color, setColor] = useState(colors[0] ?? "");
   const [quantity, setQuantity] = useState(1);
   const [confirmation, setConfirmation] = useState<string | null>(null);
 
@@ -100,7 +103,7 @@ export function AddToCartForm({
                   name="color"
                   value={c}
                   checked={color === c}
-                  onChange={() => setColor(c)}
+                  onChange={() => onColorChange(c)}
                   className="sr-only"
                 />
                 {c}

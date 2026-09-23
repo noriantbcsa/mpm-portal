@@ -16,8 +16,7 @@ import {
 } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
-import { ProductGallery } from "@/components/product/product-gallery";
-import { AddToCartForm } from "@/components/cart/add-to-cart-form";
+import { ProductPurchasePanel } from "@/components/product/product-purchase-panel";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { JsonLd } from "@/components/seo/json-ld";
 
@@ -101,68 +100,57 @@ export default async function ProductoPage({ params }: PageProps) {
         <span className="text-ink">{product.name}</span>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <ProductGallery
-          images={product.images.map((i) => ({ url: i.url, alt: i.alt }))}
-          productName={product.name}
-        />
-
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge tone={product.status === "AGOTADO" ? "danger" : "neutral"}>
-              {PRODUCT_STATUS_LABELS[product.status]}
+      <ProductPurchasePanel
+        images={product.images.map((i) => ({ url: i.url, alt: i.alt, color: i.color }))}
+        productName={product.name}
+        productId={product.id}
+        slug={product.slug}
+        sku={product.sku}
+        sizes={product.sizes}
+        colors={product.colors}
+        priceRef={product.priceRef ? Number(product.priceRef) : null}
+        canOrder={canOrder}
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone={product.status === "AGOTADO" ? "danger" : "neutral"}>
+            {PRODUCT_STATUS_LABELS[product.status]}
+          </Badge>
+          {product.tags.map((tag) => (
+            <Badge key={tag} tone="brand">
+              {PRODUCT_TAG_LABELS[tag]}
             </Badge>
-            {product.tags.map((tag) => (
-              <Badge key={tag} tone="brand">
-                {PRODUCT_TAG_LABELS[tag]}
-              </Badge>
-            ))}
-          </div>
-
-          <h1 className="mt-3 font-display text-2xl font-black uppercase tracking-[-0.05em] text-ink sm:text-3xl">
-            {product.name}
-          </h1>
-          <p className="mt-1 text-sm text-ink-soft">Referencia {product.sku}</p>
-          {price && <p className="mt-3 text-2xl font-semibold text-brand-primary">{price}</p>}
-
-          <p className="mt-4 whitespace-pre-line text-ink-soft">{product.description}</p>
-
-          <dl className="mt-5 grid grid-cols-2 border-y border-line text-sm sm:grid-cols-4">
-            <div className="border-b border-r border-line p-3 sm:border-b-0">
-              <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Público</dt>
-              <dd className="text-ink-soft">{AUDIENCE_LABELS[product.audience]}</dd>
-            </div>
-            {product.material && (
-              <div className="border-b border-r border-line p-3 sm:border-b-0">
-                <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Material</dt>
-                <dd className="text-ink-soft">{product.material}</dd>
-              </div>
-            )}
-            <div className="border-b border-r border-line p-3 sm:border-b-0">
-              <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Vistas</dt>
-              <dd className="text-ink-soft">{product.images.length} fotos reales</dd>
-            </div>
-            <div className="border-b border-line p-3 sm:border-b-0">
-              <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Colores</dt>
-              <dd className="text-ink-soft">{product.colors.length} registrados</dd>
-            </div>
-          </dl>
-
-          <div className="mt-6 border-t border-line pt-6">
-            <AddToCartForm
-              productId={product.id}
-              slug={product.slug}
-              name={product.name}
-              sku={product.sku}
-              imageUrl={product.images[0]?.url ?? null}
-              sizes={product.sizes}
-              colors={product.colors}
-              priceRef={product.priceRef ? Number(product.priceRef) : null}
-              canOrder={canOrder}
-            />
-          </div>
+          ))}
         </div>
-      </div>
+
+        <h1 className="mt-3 font-display text-2xl font-black uppercase tracking-[-0.05em] text-ink sm:text-3xl">
+          {product.name}
+        </h1>
+        <p className="mt-1 text-sm text-ink-soft">Referencia {product.sku}</p>
+        {price && <p className="mt-3 text-2xl font-semibold text-brand-primary">{price}</p>}
+
+        <p className="mt-4 whitespace-pre-line text-ink-soft">{product.description}</p>
+
+        <dl className="mt-5 grid grid-cols-2 border-y border-line text-sm sm:grid-cols-4">
+          <div className="border-b border-r border-line p-3 sm:border-b-0">
+            <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Público</dt>
+            <dd className="text-ink-soft">{AUDIENCE_LABELS[product.audience]}</dd>
+          </div>
+          {product.material && (
+            <div className="border-b border-r border-line p-3 sm:border-b-0">
+              <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Material</dt>
+              <dd className="text-ink-soft">{product.material}</dd>
+            </div>
+          )}
+          <div className="border-b border-r border-line p-3 sm:border-b-0">
+            <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Vistas</dt>
+            <dd className="text-ink-soft">{product.images.length} fotos reales</dd>
+          </div>
+          <div className="border-b border-line p-3 sm:border-b-0">
+            <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Colores</dt>
+            <dd className="text-ink-soft">{product.colors.length} registrados</dd>
+          </div>
+        </dl>
+      </ProductPurchasePanel>
 
       {related.length > 0 && (
         <section className="mt-14">
