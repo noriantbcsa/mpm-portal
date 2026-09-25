@@ -37,7 +37,8 @@ Vercel detecta Next.js automáticamente. Verifica en el proyecto:
 - **Build Command**: `next build` (por defecto).
 - **Install Command**: `npm install` (por defecto).
 - **Node.js Version**: 22.x (Project Settings → General). El `package.json`
-  declara `engines.node >= 22`.
+  declara `engines.node 22.x` para evitar que el proveedor suba
+  automáticamente a una versión mayor incompatible.
 
 `next build` corre `prisma generate` automáticamente porque `@prisma/client`
 está declarado con un script `postinstall` propio de Prisma 7 — si alguna
