@@ -6,7 +6,7 @@
 // Node y ya falla de forma explícita si el bundler intenta incluirlo en el
 // cliente.
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 // Un solo pool/cliente por proceso. En desarrollo, Next.js recarga módulos en
 // cada cambio: guardamos la instancia en `globalThis` para no abrir un pool de

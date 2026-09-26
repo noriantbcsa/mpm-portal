@@ -6,7 +6,7 @@
  * fotografías de stock (picsum.photos) y debe reemplazarse por carga masiva
  * (CSV) o el panel de productos cuando exista contenido real.
  */
-import type { Audience, ProductTagType } from "../src/generated/prisma/enums";
+import type { Audience, ProductTagType } from "@prisma/client";
 
 // PRNG determinista (mulberry32): mismos resultados en cada `db:seed`, para
 // que el catálogo de demostración no cambie de una corrida a otra.

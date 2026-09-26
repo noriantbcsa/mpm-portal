@@ -5,7 +5,7 @@ import type {
   ProductStatus,
   ProductTagType,
   Role,
-} from "@/generated/prisma/enums";
+} from "@prisma/client";
 
 export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
   DISPONIBLE: "Disponible",

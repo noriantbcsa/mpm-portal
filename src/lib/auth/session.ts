@@ -2,7 +2,7 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
-import type { Role } from "@/generated/prisma/enums";
+import type { Role } from "@prisma/client";
 
 const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 7; // 7 días
 

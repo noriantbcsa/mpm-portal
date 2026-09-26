@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import { cx } from "@/components/admin/ui/controls";
-import type { Role } from "@/generated/prisma/enums";
+import type { Role } from "@prisma/client";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Panel", icon: LayoutDashboard, roles: ["ADMIN", "SALES"] as Role[] },

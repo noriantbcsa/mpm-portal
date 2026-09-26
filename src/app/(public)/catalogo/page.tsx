@@ -4,7 +4,7 @@ import { listProducts, type CatalogSort } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
 import { getCategoryTree } from "@/lib/categories";
 import { toArray, toPositiveInt, toSingle, type RawSearchParams } from "@/lib/search-params";
-import type { Audience, ProductTagType } from "@/generated/prisma/enums";
+import type { Audience, ProductTagType } from "@prisma/client";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { FiltersForm } from "@/components/catalog/filters-form";
 import { Pagination } from "@/components/catalog/pagination";

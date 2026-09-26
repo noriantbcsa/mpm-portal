@@ -2,8 +2,7 @@
 // Ver docs/DATA_MODEL.md para el diagrama y la justificación de cada decisión.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {

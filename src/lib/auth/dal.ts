@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { getSessionFromCookies } from "@/lib/auth/session";
-import type { Role } from "@/generated/prisma/enums";
+import type { Role } from "@prisma/client";
 
 export type CurrentUser = {
   id: string;

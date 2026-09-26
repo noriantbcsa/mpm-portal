@@ -6,7 +6,7 @@ import { CART_REQUEST_STATUS_LABELS, CART_REQUEST_STATUS_ORDER } from "@/lib/con
 import { formatDateTime } from "@/lib/format";
 import { toSingle, toPositiveInt, type RawSearchParams } from "@/lib/search-params";
 import { AdminBadge, AdminEmptyState, AdminPagination, AdminTable, AdminTd, AdminTh } from "@/components/admin/ui/display";
-import type { CartRequestStatus } from "@/generated/prisma/enums";
+import type { CartRequestStatus } from "@prisma/client";
 
 export const metadata: Metadata = { title: "Solicitudes", robots: { index: false } };
 

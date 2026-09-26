@@ -4,7 +4,7 @@ import {
   SUGGESTED_COLORS,
   SUGGESTED_SIZES,
 } from "@/lib/constants";
-import type { Audience, ProductTagType } from "@/generated/prisma/enums";
+import type { Audience, ProductTagType } from "@prisma/client";
 import { Button, LinkButton } from "@/components/ui/button";
 
 export type ActiveFilters = {

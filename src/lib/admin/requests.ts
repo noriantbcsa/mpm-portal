@@ -1,7 +1,6 @@
 import "server-only";
 
-import type { Prisma } from "@/generated/prisma/client";
-import type { CartRequestStatus } from "@/generated/prisma/enums";
+import type { Prisma, CartRequestStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type RequestFilters = {

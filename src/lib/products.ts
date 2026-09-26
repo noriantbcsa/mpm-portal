@@ -1,7 +1,6 @@
 import "server-only";
 
-import type { Prisma } from "@/generated/prisma/client";
-import type { Audience, ProductStatus, ProductTagType } from "@/generated/prisma/enums";
+import type { Prisma, Audience, ProductStatus, ProductTagType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCategorySubtreeIds } from "@/lib/categories";
 import { CATALOG_PAGE_SIZE, PUBLIC_PRODUCT_STATUSES } from "@/lib/constants";

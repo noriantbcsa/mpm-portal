@@ -15,7 +15,7 @@ import "dotenv/config";
 import { readdirSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/lib/auth/passwords";
 import { generateSyntheticProducts, SYNTHETIC_CATEGORIES } from "./seed-helpers";
 
