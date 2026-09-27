@@ -24,6 +24,7 @@ export async function Footer() {
             <li><Link className="hover:text-ink" href="/carrito">Carrito de pedidos</Link></li>
             <li><Link className="hover:text-ink" href="/nosotros">Nosotros</Link></li>
             <li><Link className="hover:text-ink" href="/politica-de-datos">Política de tratamiento de datos</Link></li>
+            <li><Link className="hover:text-ink" href="/login">Acceso equipo MPM</Link></li>
           </ul>
         </nav>
 

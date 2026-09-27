@@ -3,7 +3,9 @@ services:
     name: mpm-portal
     runtime: node
     plan: free
-    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run db:seed:catalog && npm run build
+    # Ambiente de pruebas: carga usuarios y catálogo de demostración para que
+    # el recorrido público y administrativo pueda validarse de punta a punta.
+    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run db:seed && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION

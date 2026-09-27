@@ -46,6 +46,9 @@ export default async function AdminDashboardPage() {
             <Link href="/admin/campanas" className="text-sm font-medium text-blue-700 hover:underline">
               Gestionar campañas →
             </Link>
+            <Link href="/admin/festividades" className="text-sm font-medium text-blue-700 hover:underline">
+              Cambiar diseño festivo →
+            </Link>
           </>
         )}
       </div>

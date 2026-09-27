@@ -71,7 +71,7 @@ export default async function HomePage() {
           )}
           <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/5" />
           <div className="relative z-10 flex min-h-[590px] max-w-xl flex-col justify-end px-6 py-10 text-white sm:min-h-[680px] sm:px-12 sm:py-14 lg:px-16">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-secondary">Nueva colección · MPM</p>
+            <p className="seasonal-highlight text-[10px] font-bold uppercase tracking-[0.18em] text-brand-secondary">Nueva colección · MPM</p>
             <h1 className="mt-4 font-display text-4xl font-semibold leading-[0.92] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
               {settings.heroTitle}
             </h1>
@@ -130,7 +130,7 @@ export default async function HomePage() {
       {menResult.items.length > 0 && <ProductShelf title="Caballero" description="Una selección de la colección para él." seeAllHref="/catalogo/caballero" products={menResult.items} showPrices={settings.showPrices} />}
 
       <section className="mx-auto max-w-7xl px-4 pb-14 pt-8 sm:px-6 sm:pb-20">
-        <div className="grid border border-line bg-[#f7f7f5] sm:grid-cols-[1fr_auto] sm:items-center">
+        <div className="seasonal-soft-surface grid border border-line bg-[#f7f7f5] sm:grid-cols-[1fr_auto] sm:items-center">
           <div className="p-7 sm:p-10">
             <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink-soft">Compra acompañada</p>
             <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-ink">¿Quieres ayuda para elegir?</h2>

@@ -30,9 +30,9 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  assignedRequests CartRequest[]      @relation("AssignedSalesRep")
-  handledCartSessions CartSession[]   @relation("HandledCartSession")
-  events           CartRequestEvent[] @relation("EventAuthor")
+  assignedRequests    CartRequest[]      @relation("AssignedSalesRep")
+  handledCartSessions CartSession[]      @relation("HandledCartSession")
+  events              CartRequestEvent[] @relation("EventAuthor")
 
   @@index([role])
 }
@@ -85,22 +85,22 @@ enum Audience {
 }
 
 model Product {
-  id          String        @id @default(cuid())
-  sku         String        @unique
+  id          String           @id @default(cuid())
+  sku         String           @unique
   name        String
-  slug        String        @unique
+  slug        String           @unique
   description String
   categoryId  String
-  category    Category      @relation(fields: [categoryId], references: [id])
-  audience    Audience      @default(UNISEX)
+  category    Category         @relation(fields: [categoryId], references: [id])
+  audience    Audience         @default(UNISEX)
   sizes       String[]
   colors      String[]
   material    String?
-  status      ProductStatus @default(DISPONIBLE)
+  status      ProductStatus    @default(DISPONIBLE)
   tags        ProductTagType[]
   campaignId  String?
-  campaign    Campaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  priceRef    Decimal?      @db.Decimal(12, 2)
+  campaign    Campaign?        @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  priceRef    Decimal?         @db.Decimal(12, 2)
 
   viewCount      Int @default(0)
   addToCartCount Int @default(0)
@@ -140,18 +140,18 @@ model ProductImage {
 // ---------------------------------------------------------------------------
 
 model Campaign {
-  id               String    @id @default(cuid())
-  name             String
-  slug             String    @unique
-  description      String?
-  bannerImageUrl   String?
-  colorPrimary     String?
-  colorSecondary   String?
-  startDate        DateTime?
-  endDate          DateTime?
-  isActive         Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  name           String
+  slug           String    @unique
+  description    String?
+  bannerImageUrl String?
+  colorPrimary   String?
+  colorSecondary String?
+  startDate      DateTime?
+  endDate        DateTime?
+  isActive       Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   products           Product[]
   priorityCategories Category[] @relation("CampaignPriorityCategories")
@@ -159,35 +159,54 @@ model Campaign {
   @@index([isActive])
 }
 
+enum SeasonalThemeMode {
+  AUTOMATIC
+  MANUAL
+  OFF
+}
+
+enum SeasonalThemePreset {
+  DEFAULT
+  NEGROS_Y_BLANCOS
+  CARNAVAL
+  SAN_PEDRO
+  COLOMBIA
+  AMOR_Y_AMISTAD
+  VELITAS
+  NAVIDAD
+}
+
 // ---------------------------------------------------------------------------
 // Configuración del sitio (identidad provisional, contacto, textos editables)
 // ---------------------------------------------------------------------------
 
 model SiteSettings {
-  id                    String   @id @default("default")
-  siteName              String   @default("MPM")
-  tagline               String   @default("Ropa hecha para acompañar tu día a día")
-  logoUrl               String?
-  primaryColor          String   @default("#1F4D3D")
-  secondaryColor        String   @default("#D9A441")
-  accentColor           String   @default("#F4EFE7")
-  whatsappNumber        String   @default("573000000000")
-  whatsappDefaultMessage String  @default("Hola MPM, quiero más información sobre sus prendas.")
-  contactEmail          String?
-  contactPhone          String?
-  address               String?
-  instagramUrl          String?
-  facebookUrl           String?
-  tiktokUrl             String?
-  heroTitle             String   @default("Prendas que se sienten bien")
-  heroSubtitle          String   @default("Encuentra referencias para tu negocio, tu equipo o tu día a día. Te asesoramos para elegir.")
-  heroImageUrl          String?
-  heroCtaLabel          String   @default("Ver catálogo")
-  heroCtaHref           String   @default("/catalogo")
-  footerText            String   @default("MPM Fábrica de ropa. Atención comercial personalizada.")
-  dataPolicyText        String?
-  showPrices            Boolean  @default(false)
-  updatedAt             DateTime @updatedAt
+  id                     String              @id @default("default")
+  siteName               String              @default("MPM")
+  tagline                String              @default("Ropa hecha para acompañar tu día a día")
+  logoUrl                String?
+  primaryColor           String              @default("#1F4D3D")
+  secondaryColor         String              @default("#D9A441")
+  accentColor            String              @default("#F4EFE7")
+  whatsappNumber         String              @default("573000000000")
+  whatsappDefaultMessage String              @default("Hola MPM, quiero más información sobre sus prendas.")
+  contactEmail           String?
+  contactPhone           String?
+  address                String?
+  instagramUrl           String?
+  facebookUrl            String?
+  tiktokUrl              String?
+  heroTitle              String              @default("Prendas que se sienten bien")
+  heroSubtitle           String              @default("Encuentra referencias para tu negocio, tu equipo o tu día a día. Te asesoramos para elegir.")
+  heroImageUrl           String?
+  heroCtaLabel           String              @default("Ver catálogo")
+  heroCtaHref            String              @default("/catalogo")
+  footerText             String              @default("MPM Fábrica de ropa. Atención comercial personalizada.")
+  dataPolicyText         String?
+  showPrices             Boolean             @default(false)
+  seasonalThemeMode      SeasonalThemeMode   @default(AUTOMATIC)
+  seasonalThemePreset    SeasonalThemePreset @default(DEFAULT)
+  updatedAt              DateTime            @updatedAt
 }
 
 // ---------------------------------------------------------------------------
@@ -195,21 +214,21 @@ model SiteSettings {
 // ---------------------------------------------------------------------------
 
 model CartSession {
-  id                  String   @id @default(cuid())
-  sessionToken        String   @unique
+  id                  String             @id @default(cuid())
+  sessionToken        String             @unique
   contactNamePartial  String?
   contactPhonePartial String?
   // Estado comercial que asigna el equipo al recuperar un carrito. Null
   // significa que se muestra su estado automático: activo o abandonado.
-  commercialStatus   CartRequestStatus?
-  handledById        String?
-  handledBy          User?            @relation("HandledCartSession", fields: [handledById], references: [id], onDelete: SetNull)
-  handledAt          DateTime?
-  createdAt           DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  commercialStatus    CartRequestStatus?
+  handledById         String?
+  handledBy           User?              @relation("HandledCartSession", fields: [handledById], references: [id], onDelete: SetNull)
+  handledAt           DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
 
-  items             CartSessionItem[]
-  convertedRequest  CartRequest?
+  items            CartSessionItem[]
+  convertedRequest CartRequest?
 
   @@index([updatedAt])
   @@index([commercialStatus])
@@ -243,24 +262,24 @@ enum CartRequestStatus {
 }
 
 model CartRequest {
-  id            String            @id @default(cuid())
-  cartSessionId String?           @unique
-  cartSession   CartSession?      @relation(fields: [cartSessionId], references: [id], onDelete: SetNull)
+  id            String       @id @default(cuid())
+  cartSessionId String?      @unique
+  cartSession   CartSession? @relation(fields: [cartSessionId], references: [id], onDelete: SetNull)
 
-  contactName   String
-  contactPhone  String
-  city          String
-  companyName   String?
-  comment       String?
-  dataConsent   Boolean           @default(false)
-  consentedAt   DateTime?
+  contactName  String
+  contactPhone String
+  city         String
+  companyName  String?
+  comment      String?
+  dataConsent  Boolean   @default(false)
+  consentedAt  DateTime?
 
-  status        CartRequestStatus @default(NUEVO)
-  assignedToId  String?
-  assignedTo    User?             @relation("AssignedSalesRep", fields: [assignedToId], references: [id], onDelete: SetNull)
+  status       CartRequestStatus @default(NUEVO)
+  assignedToId String?
+  assignedTo   User?             @relation("AssignedSalesRep", fields: [assignedToId], references: [id], onDelete: SetNull)
 
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   items  CartRequestItem[]
   events CartRequestEvent[]
@@ -275,7 +294,7 @@ model CartRequestItem {
   cartRequestId       String
   cartRequest         CartRequest @relation(fields: [cartRequestId], references: [id], onDelete: Cascade)
   productId           String?
-  product              Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  product             Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
   productNameSnapshot String
   productSkuSnapshot  String
   size                String?

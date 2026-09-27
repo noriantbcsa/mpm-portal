@@ -23,10 +23,10 @@ export async function Header() {
   const whatsappHref = buildWhatsAppLink(settings.whatsappNumber, settings.whatsappDefaultMessage);
 
   return (
-    <header className="relative z-30 border-b border-line bg-paper">
+    <header className="public-header relative z-30 border-b border-line bg-paper">
       {activeCampaign && (
         <div className="bg-brand-primary px-4 py-2 text-center text-xs font-medium text-white sm:text-sm">
-          {activeCampaign.name}: {activeCampaign.description ?? "conoce nuestra campaña activa"}{" "}
+          <span className="font-bold">Campaña activa ·</span> {activeCampaign.name}: {activeCampaign.description ?? "conoce la selección"}{" "}
           <Link href={`/campanas/${activeCampaign.slug}`} className="underline underline-offset-2">
             ver más
           </Link>

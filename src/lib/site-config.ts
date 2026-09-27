@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 
 import { prisma } from "@/lib/prisma";
+import type { SeasonalThemeModeValue, SeasonalThemePresetValue } from "@/lib/seasonal-themes";
 
 /**
  * Identidad provisional del portal. Todo lo que aparece aquí se puede
@@ -35,6 +36,8 @@ export const DEFAULT_SITE_SETTINGS = {
   footerText: "MPM Fábrica de ropa. Atención comercial personalizada.",
   dataPolicyText: null as string | null,
   showPrices: false,
+  seasonalThemeMode: "AUTOMATIC" as SeasonalThemeModeValue,
+  seasonalThemePreset: "DEFAULT" as SeasonalThemePresetValue,
   updatedAt: new Date(0),
 };
 

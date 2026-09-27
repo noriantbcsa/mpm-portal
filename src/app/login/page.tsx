@@ -23,6 +23,14 @@ export default async function LoginPage() {
         <div className="mt-6">
           <LoginForm />
         </div>
+        {process.env.NODE_ENV !== "production" && (
+          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-950">
+            <p className="font-semibold">Acceso de demostración</p>
+            <p className="mt-1">Administrador: admin@mpm.local</p>
+            <p>Ventas: ventas@mpm.local</p>
+            <p>Contraseña: CambiaEsto123!</p>
+          </div>
+        )}
       </div>
     </div>
   );

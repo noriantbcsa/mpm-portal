@@ -6,6 +6,13 @@ equipo de ventas. Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) para el
 detalle de módulos y [docs/DATA_MODEL.md](docs/DATA_MODEL.md) para el modelo
 de datos.
 
+El panel incluye una sección de **Diseño festivo** (`/admin/festividades`):
+puede aplicar automáticamente acentos visuales discretos según el calendario
+colombiano, forzar una celebración de forma manual o mantener siempre el
+diseño normal. Incluye Carnaval de Negros y Blancos, Carnaval de Barranquilla,
+San Juan/San Pedro/San Pablo, fiestas patrias, Amor y Amistad, Velitas y
+Navidad. Las fechas se interpretan en la zona horaria de Colombia.
+
 > **Nota de contexto:** este proyecto se construyó con dos agentes de IA
 > trabajando en paralelo sobre el mismo repositorio: uno a cargo de la capa
 > de datos/backend/panel administrativo (este documento y la mayoría de
@@ -69,6 +76,9 @@ npm run dev
 ```
 
 Abre http://localhost:3000.
+
+El acceso del equipo está disponible en `/login` y también desde el enlace
+"Acceso equipo MPM" del pie de página.
 
 ### Credenciales de acceso al panel (`/login`), solo para desarrollo
 
@@ -154,7 +164,8 @@ Postgres administrado + variables de entorno + primer `db:migrate:deploy` +
 
 ## Pruebas y calidad
 
-`npm test` corre dos tipos de pruebas (Vitest):
+`npm test` corre dos tipos de pruebas (Vitest), incluyendo la resolución del
+calendario festivo y sus modos automático/manual/apagado:
 
 - **Unitarias** (`tests/*.test.ts`, sin base de datos): construcción de
   enlaces/mensajes de WhatsApp, formateo de precios/fechas, generación de
