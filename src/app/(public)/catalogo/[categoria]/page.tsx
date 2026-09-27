@@ -69,13 +69,16 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
 
   return (
     <>
-      <header className="mx-auto mb-6 max-w-6xl px-4 pt-8">
+      <header className="mx-auto max-w-7xl border-b border-line px-4 pb-6 pt-10 sm:px-6 sm:pt-14">
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Colección del catálogo</p>
-        <h1 className="mt-1 font-display text-2xl font-black uppercase tracking-[-0.05em] text-ink sm:text-3xl">{category.name}</h1>
-        {category.description && <p className="mt-1 max-w-2xl text-sm text-ink-soft">{category.description}</p>}
+        <div className="mt-2 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+          <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-5xl">{category.name}</h1>
+          <p className="text-sm text-ink-soft">{items.length} {items.length === 1 ? "referencia" : "referencias"}</p>
+        </div>
+        {category.description && <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-soft">{category.description}</p>}
       </header>
       <CatalogExplorer categories={categories} activeSlug={categoria} />
-      <div className="mx-auto mt-6 grid max-w-6xl gap-6 px-4 pb-8 lg:grid-cols-[260px_1fr]">
+      <div className="mx-auto mt-8 grid max-w-7xl gap-8 px-4 pb-14 sm:px-6 lg:grid-cols-[220px_1fr]">
         <aside aria-label="Filtros">
           <FiltersForm active={{ q, categoria, publico, talla, color, etiqueta, orden }} />
         </aside>

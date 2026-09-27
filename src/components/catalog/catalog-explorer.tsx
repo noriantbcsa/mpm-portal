@@ -30,12 +30,12 @@ export function CatalogExplorer({
   if (categories.length === 0) return null;
 
   return (
-    <section aria-label="Explorar catálogo" className="border-y border-line bg-brand-accent/40">
-      <div className="mx-auto max-w-6xl px-4 py-5">
+    <section aria-label="Explorar catálogo" className="border-b border-line bg-[#f7f7f5]">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
         <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Explora por niveles</p>
-            <h2 className="mt-1 text-base font-black uppercase tracking-[-0.03em] text-ink">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Explora por categoría</p>
+            <h2 className="mt-1 text-base font-semibold tracking-[-0.02em] text-ink">
               {activeRoot ? `${activeRoot.name} · colecciones` : "1. Categoría · 2. Colección · 3. Referencia"}
             </h2>
           </div>
@@ -51,8 +51,8 @@ export function CatalogExplorer({
                 href={`/catalogo/${category.slug}`}
                 aria-current={activeRoot?.slug === category.slug ? "page" : undefined}
                 className={cn(
-                  "focus-ring group relative flex min-h-28 overflow-hidden border bg-paper p-3",
-                  activeRoot?.slug === category.slug ? "border-brand-primary ring-1 ring-brand-primary" : "border-line hover:border-brand-primary",
+                  "focus-ring group relative flex min-h-24 overflow-hidden border bg-paper p-3",
+                  activeRoot?.slug === category.slug ? "border-ink ring-1 ring-ink" : "border-line hover:border-ink",
                 )}
               >
                 {category.imageUrl && (
@@ -60,7 +60,7 @@ export function CatalogExplorer({
                 )}
                 <span className="relative mt-auto">
                   <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-soft">Categoría</span>
-                  <span className="block text-base font-black uppercase tracking-[-0.03em] text-ink">{category.name}</span>
+                  <span className="block text-base font-semibold tracking-[-0.03em] text-ink">{category.name}</span>
                 </span>
               </Link>
             </li>
@@ -76,7 +76,7 @@ export function CatalogExplorer({
                   href={`/catalogo/${activeRoot.slug}`}
                   className={cn(
                     "focus-ring inline-flex border px-3 py-2 text-xs font-bold uppercase tracking-[0.08em]",
-                    activeSlug === activeRoot.slug ? "border-brand-primary bg-brand-primary text-white" : "border-line bg-paper text-ink hover:border-brand-primary",
+                    activeSlug === activeRoot.slug ? "border-ink bg-ink text-white" : "border-line bg-paper text-ink hover:border-ink",
                   )}
                 >
                   Todas
@@ -88,7 +88,7 @@ export function CatalogExplorer({
                     href={`/catalogo/${collection.slug}`}
                     className={cn(
                       "focus-ring inline-flex border px-3 py-2 text-xs font-bold uppercase tracking-[0.08em]",
-                      activeSlug === collection.slug ? "border-brand-primary bg-brand-primary text-white" : "border-line bg-paper text-ink hover:border-brand-primary",
+                      activeSlug === collection.slug ? "border-ink bg-ink text-white" : "border-line bg-paper text-ink hover:border-ink",
                     )}
                   >
                     {collection.name}

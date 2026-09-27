@@ -4,7 +4,6 @@ import Link from "next/link";
 import type { ProductListItem } from "@/lib/products";
 import { PRODUCT_STATUS_LABELS, PRODUCT_TAG_LABELS } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
-import { Badge } from "@/components/ui/badge";
 
 export function ProductCard({
   product,
@@ -14,54 +13,59 @@ export function ProductCard({
   showPrices: boolean;
 }) {
   const image = product.images[0];
+  const alternateImage = product.images[1];
   const price = showPrices ? formatPrice(product.priceRef ? Number(product.priceRef) : null) : null;
   const categoryLabel = product.category.parent?.name ?? product.category.name;
 
   return (
     <Link
       href={`/producto/${product.slug}`}
-      className="focus-ring group flex flex-col overflow-hidden border border-line bg-paper transition-shadow hover:border-brand-primary hover:shadow-md"
+      className="focus-ring group flex min-w-0 flex-col bg-paper"
     >
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-brand-accent">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#f5f5f2]">
         {image ? (
-          <Image
-            src={image.url}
-            alt={image.alt}
-            fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+          <>
+            <Image
+              src={image.url}
+              alt={image.alt}
+              fill
+              sizes="(min-width: 1280px) 25vw, (min-width: 640px) 33vw, 50vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+            />
+            {alternateImage && (
+              <Image
+                src={alternateImage.url}
+                alt=""
+                fill
+                sizes="(min-width: 1280px) 25vw, (min-width: 640px) 33vw, 50vw"
+                className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              />
+            )}
+          </>
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-ink-soft">
             Sin foto disponible
           </div>
         )}
         {product.status !== "DISPONIBLE" && (
-          <span className="absolute left-2 top-2">
-            <Badge tone={product.status === "AGOTADO" ? "danger" : "secondary"}>
-              {PRODUCT_STATUS_LABELS[product.status]}
-            </Badge>
+          <span className="absolute left-3 top-3 bg-paper px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-ink shadow-sm">
+            {PRODUCT_STATUS_LABELS[product.status]}
           </span>
         )}
+        <span className="absolute bottom-3 right-3 translate-y-2 bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ink opacity-0 shadow-sm transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+          Ver prenda
+        </span>
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-3.5">
-        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-soft">
+      <div className="flex flex-1 flex-col gap-1 px-0 pb-5 pt-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
           {categoryLabel}
         </p>
-        <h3 className="font-display text-base font-medium leading-snug text-ink line-clamp-2">
+        <h3 className="font-display text-sm font-semibold leading-snug text-ink line-clamp-2 sm:text-base">
           {product.name}
         </h3>
         <p className="text-xs text-ink-soft">Ref. {product.sku}</p>
-        {product.tags.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-1">
-            {product.tags.map((tag) => (
-              <Badge key={tag} tone="brand">
-                {PRODUCT_TAG_LABELS[tag]}
-              </Badge>
-            ))}
-          </div>
-        )}
-        {price && <p className="mt-auto pt-2 font-semibold text-brand-primary">{price}</p>}
+        {product.tags.length > 0 && <p className="pt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-soft">{product.tags.map((tag) => PRODUCT_TAG_LABELS[tag]).join(" · ")}</p>}
+        {price && <p className="mt-auto pt-2 text-sm font-semibold text-ink">{price}</p>}
       </div>
     </Link>
   );

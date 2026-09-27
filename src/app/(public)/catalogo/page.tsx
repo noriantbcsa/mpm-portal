@@ -57,18 +57,22 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
 
   return (
     <>
-      <header className="mx-auto mb-6 max-w-6xl px-4 pt-8">
-        <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">
+      <header className="mx-auto max-w-7xl border-b border-line px-4 pb-6 pt-10 sm:px-6 sm:pt-14">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-ink-soft">MPM · Colección actual</p>
+        <div className="mt-2 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+          <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-5xl">
           {q ? `Resultados para "${q}"` : "Catálogo completo"}
-        </h1>
-        <p className="mt-1 text-sm text-ink-soft">
+          </h1>
+          <p className="text-sm text-ink-soft">{items.length} {items.length === 1 ? "referencia" : "referencias"}</p>
+        </div>
+        <p className="mt-3 max-w-xl text-sm leading-6 text-ink-soft">
           {items.length > 0
-            ? "Filtra por categoría, público, talla, color o etiqueta para encontrar justo lo que necesitas."
+            ? "Prendas hechas para acompañar tu ritmo. Elige una referencia para ver sus fotos, colores y tallas disponibles."
             : "Ajusta la búsqueda o los filtros para ver más resultados."}
         </p>
       </header>
       <CatalogExplorer categories={categories} />
-      <div className="mx-auto mt-6 grid max-w-6xl gap-6 px-4 pb-8 lg:grid-cols-[260px_1fr]">
+      <div className="mx-auto mt-8 grid max-w-7xl gap-8 px-4 pb-14 sm:px-6 lg:grid-cols-[220px_1fr]">
         <aside aria-label="Filtros">
           <FiltersForm
             active={{ q, publico, talla, color, etiqueta, orden }}

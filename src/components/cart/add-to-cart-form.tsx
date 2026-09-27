@@ -64,15 +64,15 @@ export function AddToCartForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {sizes.length > 0 && (
         <div>
-          <span className="text-sm font-medium text-ink">Talla</span>
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink">Talla</span>
           <div className="mt-1.5 flex flex-wrap gap-2">
             {sizes.map((s) => (
               <label
                 key={s}
-                className="has-[:checked]:border-brand-primary has-[:checked]:bg-brand-primary has-[:checked]:text-white focus-within:ring-2 focus-within:ring-brand-secondary cursor-pointer border border-line px-3 py-1.5 text-xs font-bold uppercase tracking-[0.06em] text-ink-soft"
+                className="has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white focus-within:ring-2 focus-within:ring-brand-secondary cursor-pointer border border-line px-3 py-2 text-xs font-bold uppercase tracking-[0.06em] text-ink-soft"
               >
                 <input
                   type="radio"
@@ -91,12 +91,12 @@ export function AddToCartForm({
 
       {colors.length > 0 && (
         <div>
-          <span className="text-sm font-medium text-ink">Color</span>
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink">Color: <span className="font-medium normal-case tracking-normal">{color}</span></span>
           <div className="mt-1.5 flex flex-wrap gap-2">
             {colors.map((c) => (
               <label
                 key={c}
-                className="has-[:checked]:border-brand-primary has-[:checked]:bg-brand-primary has-[:checked]:text-white focus-within:ring-2 focus-within:ring-brand-secondary cursor-pointer border border-line px-3 py-1.5 text-xs font-bold uppercase tracking-[0.06em] text-ink-soft"
+                className="has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white focus-within:ring-2 focus-within:ring-brand-secondary cursor-pointer border border-line px-3 py-2 text-xs font-bold uppercase tracking-[0.06em] text-ink-soft"
               >
                 <input
                   type="radio"
@@ -114,7 +114,7 @@ export function AddToCartForm({
       )}
 
       <div>
-        <label htmlFor="quantity" className="text-sm font-medium text-ink">
+        <label htmlFor="quantity" className="text-xs font-bold uppercase tracking-[0.12em] text-ink">
           Cantidad
         </label>
         <div className="mt-1.5 flex w-fit items-center border border-line">
@@ -146,7 +146,7 @@ export function AddToCartForm({
         </div>
       </div>
 
-      <Button type="submit" size="lg">
+      <Button type="submit" size="lg" className="w-full uppercase tracking-[0.08em]">
         <ShoppingBag className="h-4 w-4" aria-hidden="true" />
         Agregar al carrito
       </Button>

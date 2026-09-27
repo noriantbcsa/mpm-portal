@@ -54,7 +54,7 @@ export default async function ProductoPage({ params }: PageProps) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -80,7 +80,7 @@ export default async function ProductoPage({ params }: PageProps) {
         }}
       />
 
-      <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-ink-soft">
+      <nav aria-label="Ruta de navegación" className="mb-6 text-xs text-ink-soft">
         <Link href="/" className="hover:text-ink">Inicio</Link>
         {" / "}
         <Link href="/catalogo" className="hover:text-ink">Catálogo</Link>
@@ -122,40 +122,40 @@ export default async function ProductoPage({ params }: PageProps) {
           ))}
         </div>
 
-        <h1 className="mt-3 font-display text-2xl font-black uppercase tracking-[-0.05em] text-ink sm:text-3xl">
+        <h1 className="mt-4 font-display text-3xl font-semibold leading-none tracking-[-0.045em] text-ink sm:text-4xl">
           {product.name}
         </h1>
-        <p className="mt-1 text-sm text-ink-soft">Referencia {product.sku}</p>
-        {price && <p className="mt-3 text-2xl font-semibold text-brand-primary">{price}</p>}
+        <p className="mt-2 text-xs font-medium uppercase tracking-[0.12em] text-ink-soft">Ref. {product.sku}</p>
+        {price && <p className="mt-5 text-xl font-semibold text-ink">{price}</p>}
 
-        <p className="mt-4 whitespace-pre-line text-ink-soft">{product.description}</p>
+        <p className="mt-5 whitespace-pre-line text-sm leading-6 text-ink-soft">{product.description}</p>
 
-        <dl className="mt-5 grid grid-cols-2 border-y border-line text-sm sm:grid-cols-4">
-          <div className="border-b border-r border-line p-3 sm:border-b-0">
-            <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Público</dt>
-            <dd className="text-ink-soft">{AUDIENCE_LABELS[product.audience]}</dd>
-          </div>
-          {product.material && (
-            <div className="border-b border-r border-line p-3 sm:border-b-0">
-              <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Material</dt>
-              <dd className="text-ink-soft">{product.material}</dd>
-            </div>
-          )}
-          <div className="border-b border-r border-line p-3 sm:border-b-0">
-            <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Vistas</dt>
-            <dd className="text-ink-soft">{product.images.length} fotos reales</dd>
-          </div>
-          <div className="border-b border-line p-3 sm:border-b-0">
-            <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Colores</dt>
-            <dd className="text-ink-soft">{product.colors.length} registrados</dd>
-          </div>
-        </dl>
+        <div className="mt-6 divide-y border-y border-line">
+          <details className="group py-4" open>
+            <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold uppercase tracking-[0.12em] text-ink">
+              Detalles de la prenda <span className="text-lg font-normal transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+              <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Público</dt><dd className="mt-1 text-ink">{AUDIENCE_LABELS[product.audience]}</dd></div>
+              {product.material && <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Material</dt><dd className="mt-1 text-ink">{product.material}</dd></div>}
+              <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Referencia</dt><dd className="mt-1 text-ink">{product.sku}</dd></div>
+              <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Variantes</dt><dd className="mt-1 text-ink">{product.colors.length} colores</dd></div>
+            </dl>
+          </details>
+          <details className="group py-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold uppercase tracking-[0.12em] text-ink">
+              Compra y entrega <span className="text-lg font-normal transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <p className="mt-3 text-sm leading-6 text-ink-soft">Agrega tus prendas al carrito y envía tu solicitud. Nuestro equipo confirma disponibilidad, valores y entrega por WhatsApp.</p>
+          </details>
+        </div>
       </ProductPurchasePanel>
 
       {related.length > 0 && (
-        <section className="mt-14">
-          <h2 className="font-display text-xl font-semibold text-ink">También te puede interesar</h2>
-          <div className="mt-4">
+        <section className="mt-16 border-t border-line pt-8">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Para combinar</p>
+          <h2 className="mt-1 font-display text-2xl font-semibold tracking-[-0.03em] text-ink">También te puede interesar</h2>
+          <div className="mt-6">
             <ProductGrid products={related} showPrices={settings.showPrices} />
           </div>
         </section>

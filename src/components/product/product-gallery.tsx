@@ -34,16 +34,30 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
   }
 
   return (
-    <section aria-label={`Galería de ${productName}`}>
-      <div className="mb-3 flex items-end justify-between border-b border-line pb-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Galería del producto</p>
-          <p className="mt-0.5 text-sm font-semibold text-ink">{viewLabel(current, active)}</p>
+    <section aria-label={`Galería de ${productName}`} className="grid gap-3 sm:grid-cols-[72px_minmax(0,1fr)] sm:items-start">
+      {images.length > 1 && (
+        <div className="order-2 flex gap-2 overflow-x-auto pb-1 sm:order-1 sm:max-h-[calc(100vh-9rem)] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden" role="tablist" aria-label="Vistas del producto">
+          {images.map((image, index) => (
+            <button
+              key={image.url}
+              type="button"
+              role="tab"
+              aria-selected={index === active}
+              aria-label={`Ver ${viewLabel(image, index)}`}
+              onClick={() => setActive(index)}
+              className={cn(
+                "focus-ring relative aspect-[3/4] w-14 shrink-0 overflow-hidden border bg-[#f5f5f2] sm:w-[72px]",
+                index === active ? "border-ink" : "border-transparent opacity-60 hover:opacity-100",
+              )}
+            >
+              <Image src={image.url} alt="" fill sizes="72px" className="object-cover" />
+              <span className="sr-only">{viewLabel(image, index)}</span>
+            </button>
+          ))}
         </div>
-        <p className="font-mono text-xs text-ink-soft">{String(active + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}</p>
-      </div>
+      )}
 
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-brand-accent sm:aspect-square">
+      <div className="order-1 relative aspect-[3/4] w-full overflow-hidden bg-[#f5f5f2] sm:order-2">
         <Image
           src={current.url}
           alt={current.alt}
@@ -60,28 +74,6 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           Ampliar foto
         </button>
       </div>
-
-      {images.length > 1 && (
-        <div className="mt-3 grid grid-cols-5 gap-2 sm:grid-cols-6" role="tablist" aria-label="Vistas del producto">
-          {images.map((image, index) => (
-            <button
-              key={image.url}
-              type="button"
-              role="tab"
-              aria-selected={index === active}
-              aria-label={`Ver ${viewLabel(image, index)}`}
-              onClick={() => setActive(index)}
-              className={cn(
-                "focus-ring relative aspect-square overflow-hidden border-2 bg-brand-accent",
-                index === active ? "border-brand-primary" : "border-transparent opacity-70 hover:opacity-100",
-              )}
-            >
-              <Image src={image.url} alt="" fill sizes="112px" className="object-cover" />
-              <span className="sr-only">{viewLabel(image, index)}</span>
-            </button>
-          ))}
-        </div>
-      )}
 
       {isExpanded && (
         <div

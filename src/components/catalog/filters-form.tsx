@@ -25,7 +25,7 @@ export function FiltersForm({ active }: { active: ActiveFilters }) {
     <form
       method="GET"
       action={active.categoria ? `/catalogo/${active.categoria}` : "/catalogo"}
-      className="flex flex-col gap-6 border border-line bg-paper p-4"
+      className="flex flex-col gap-6 border-y border-line bg-paper py-4 lg:border"
       aria-label="Filtros del catálogo"
     >
       {active.q && <input type="hidden" name="q" value={active.q} />}
