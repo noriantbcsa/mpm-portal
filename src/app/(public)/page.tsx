@@ -1,76 +1,41 @@
 import Image from "next/image";
 import Link from "next/link";
-import { PackageCheck, MessageCircleHeart, Ruler, Truck } from "lucide-react";
+import { ArrowUpRight, MessageCircle, ShoppingBag } from "lucide-react";
 
 import { getSiteSettings } from "@/lib/site-config";
 import { getActiveCampaign } from "@/lib/campaigns";
 import { getCategoryTree } from "@/lib/categories";
-import { getFeaturedProducts } from "@/lib/products";
+import { listProducts } from "@/lib/products";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { LinkButton } from "@/components/ui/button";
 import { CategoryCard } from "@/components/catalog/category-card";
 import { ProductShelf } from "@/components/catalog/product-shelf";
 import { JsonLd } from "@/components/seo/json-ld";
 
-// Sin esto, Next congela esta página como HTML estático en el build (no usa
-// ninguna API de request): la campaña activa, el banner o los destacados
-// tardarían en reflejar cambios de /admin hasta el próximo despliegue.
+// La portada consulta datos actuales: imágenes, colecciones y campaña se
+// actualizan desde el administrador sin esperar al siguiente despliegue.
 export const dynamic = "force-dynamic";
 
-const steps = [
-  {
-    number: "1",
-    title: "Explora el catálogo",
-    description: "Filtra por categoría, público, talla o color hasta encontrar lo que necesitas.",
-  },
-  {
-    number: "2",
-    title: "Arma tu pedido",
-    description: "Agrega las prendas que quieras a tu carrito. No se realiza ningún cobro en línea.",
-  },
-  {
-    number: "3",
-    title: "Un asesor te contacta",
-    description: "Déjanos tu nombre y WhatsApp. Confirmamos disponibilidad y cerramos el pedido contigo.",
-  },
-];
-
-const benefits = [
-  {
-    icon: Ruler,
-    title: "Guía de tallas clara",
-    description: "Encuentra la talla correcta para cada prenda antes de pedir.",
-  },
-  {
-    icon: PackageCheck,
-    title: "Catálogo amplio",
-    description: "Más de 300 referencias organizadas por categoría y ocasión.",
-  },
-  {
-    icon: MessageCircleHeart,
-    title: "Atención personalizada",
-    description: "Un asesor humano confirma disponibilidad y cierra tu pedido.",
-  },
-  {
-    icon: Truck,
-    title: "Pedidos por WhatsApp",
-    description: "Sin pagos en línea: coordinamos todo directamente contigo.",
-  },
-];
-
 export default async function HomePage() {
-  const [settings, activeCampaign, categories, recomendados, ofertas, tendencias] = await Promise.all([
+  const [settings, activeCampaign, categories, latestResult] = await Promise.all([
     getSiteSettings(),
     getActiveCampaign(),
     getCategoryTree(),
-    getFeaturedProducts("RECOMENDADO", 8),
-    getFeaturedProducts("OFERTA", 8),
-    getFeaturedProducts("TENDENCIA", 8),
+    listProducts({ pageSize: 8, sort: "recientes" }),
   ]);
 
+  const women = categories.find((category) => category.slug === "damas");
+  const men = categories.find((category) => category.slug === "caballero");
+  const [womenResult, menResult] = await Promise.all([
+    women ? listProducts({ categorySlug: women.slug, pageSize: 4, sort: "recientes" }) : Promise.resolve({ items: [] }),
+    men ? listProducts({ categorySlug: men.slug, pageSize: 4, sort: "recientes" }) : Promise.resolve({ items: [] }),
+  ]);
+
+  const latestProducts = latestResult.items;
+  const heroImage = settings.heroImageUrl ?? latestProducts[0]?.images[0]?.url ?? null;
   const whatsappHref = buildWhatsAppLink(settings.whatsappNumber, settings.whatsappDefaultMessage);
-  const topCategories = categories.slice(0, 6);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const spotlightCategories = [women, men].filter((category): category is NonNullable<typeof category> => Boolean(category));
 
   return (
     <div>
@@ -88,166 +53,94 @@ export default async function HomePage() {
         }}
       />
 
-      <section className="relative overflow-hidden bg-brand-primary">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-14 sm:py-20 lg:grid-cols-2">
-          <div className="relative z-10">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-secondary">
-              {settings.siteName}
-            </p>
-            <h1 className="mt-2 font-display text-3xl font-black uppercase tracking-[-0.06em] text-white sm:text-5xl">
+      <section className="border-b border-line bg-ink px-4 py-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-white sm:px-6">
+        MPM · prendas para todos los días · atención personalizada por WhatsApp
+      </section>
+
+      <section className="mx-auto max-w-[1440px] px-0 sm:px-6 sm:pt-6">
+        <div className="relative isolate min-h-[590px] overflow-hidden bg-[#242824] sm:min-h-[680px]">
+          {heroImage && (
+            <Image
+              src={heroImage}
+              alt=""
+              fill
+              priority
+              sizes="(min-width: 1280px) 1440px, 100vw"
+              className="object-cover object-center"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/5" />
+          <div className="relative z-10 flex min-h-[590px] max-w-xl flex-col justify-end px-6 py-10 text-white sm:min-h-[680px] sm:px-12 sm:py-14 lg:px-16">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-secondary">Nueva colección · MPM</p>
+            <h1 className="mt-4 font-display text-4xl font-semibold leading-[0.92] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
               {settings.heroTitle}
             </h1>
-            <p className="mt-4 max-w-md text-base text-white/85">{settings.heroSubtitle}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <p className="mt-5 max-w-md text-sm leading-6 text-white/85 sm:text-base">{settings.heroSubtitle}</p>
+            <div className="mt-7 flex flex-wrap gap-3">
               <LinkButton href={settings.heroCtaHref} variant="secondary" size="lg">
-                {settings.heroCtaLabel}
+                {settings.heroCtaLabel} <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </LinkButton>
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="focus-ring inline-flex items-center justify-center gap-2 border border-white/40 px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-white hover:bg-white/10"
-              >
-                Hablar con un asesor
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 border border-white/70 px-5 py-3 text-xs font-bold uppercase tracking-[0.1em] hover:bg-white hover:text-ink">
+                <MessageCircle className="h-4 w-4" aria-hidden="true" /> Asesoría
               </a>
             </div>
           </div>
-          {settings.heroImageUrl && (
-            <div className="relative aspect-[4/3] w-full overflow-hidden border border-white/20 lg:aspect-square">
-              <Image
-                src={settings.heroImageUrl}
-                alt=""
-                fill
-                priority
-                sizes="(min-width: 1024px) 40vw, 90vw"
-                className="object-cover"
-              />
-            </div>
-          )}
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <h2 className="text-center font-display text-xl font-semibold text-ink sm:text-2xl">
-          Cómo funciona
-        </h2>
-        <p className="mx-auto mt-1 max-w-xl text-center text-sm text-ink-soft">
-          Sin pagos en línea ni registros complicados: eliges, dejas tus datos y un asesor se
-          encarga del resto.
-        </p>
-        <ol className="mt-8 grid gap-6 sm:grid-cols-3">
-          {steps.map((step) => (
-            <li key={step.number} className="flex flex-col items-center text-center">
-              <span
-                aria-hidden="true"
-                className="flex h-12 w-12 items-center justify-center bg-brand-primary font-display text-lg font-bold text-white"
-              >
-                {step.number}
-              </span>
-              <h3 className="mt-3 font-display text-base font-medium text-ink">{step.title}</h3>
-              <p className="mt-1 max-w-xs text-sm text-ink-soft">{step.description}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {activeCampaign && (
-        <section className="mx-auto max-w-6xl px-4 py-10">
-          <Link
-            href={`/campanas/${activeCampaign.slug}`}
-            className="focus-ring group flex flex-col items-center gap-6 overflow-hidden border border-line bg-brand-accent/60 p-6 sm:flex-row sm:p-8"
-          >
-            {activeCampaign.bannerImageUrl && (
-              <div className="relative h-40 w-full shrink-0 overflow-hidden sm:h-32 sm:w-48">
-                <Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="192px" className="object-cover" />
-              </div>
-            )}
+      {spotlightCategories.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+          <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary">
-                Campaña activa
-              </p>
-              <h2 className="mt-1 font-display text-xl font-semibold text-ink sm:text-2xl">
-                {activeCampaign.name}
-              </h2>
-              {activeCampaign.description && (
-                <p className="mt-1 max-w-xl text-sm text-ink-soft">{activeCampaign.description}</p>
-              )}
-              <span className="mt-3 inline-block text-sm font-medium text-brand-primary group-hover:underline">
-                Ver colección de la campaña →
-              </span>
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink-soft">Comprar por colección</p>
+              <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-4xl">Encuentra tu estilo</h2>
             </div>
-          </Link>
-        </section>
-      )}
-
-      {topCategories.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-10">
-          <h2 className="mb-4 font-display text-xl font-semibold text-ink sm:text-2xl">
-            Compra por categoría
-          </h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {topCategories.map((category) => (
+            <Link href="/catalogo" className="focus-ring mb-1 text-xs font-bold uppercase tracking-[0.1em] text-ink hover:underline">Ver catálogo →</Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+            {spotlightCategories.map((category) => (
               <CategoryCard
                 key={category.id}
                 name={category.name}
                 slug={category.slug}
-                imageUrl={category.imageUrl}
+                imageUrl={category.imageUrl ?? (category.slug === "damas" ? womenResult.items[0]?.images[0]?.url ?? null : menResult.items[0]?.images[0]?.url ?? null)}
               />
             ))}
           </div>
         </section>
       )}
 
-      <ProductShelf
-        title="Recomendados"
-        description="Selección del equipo MPM."
-        seeAllHref="/catalogo?etiqueta=RECOMENDADO"
-        products={recomendados}
-        showPrices={settings.showPrices}
-      />
-      <ProductShelf
-        title="Ofertas"
-        description="Precios especiales por tiempo limitado."
-        seeAllHref="/catalogo?etiqueta=OFERTA"
-        products={ofertas}
-        showPrices={settings.showPrices}
-      />
-      <ProductShelf
-        title="Tendencias"
-        description="Lo que más se está pidiendo esta temporada."
-        seeAllHref="/catalogo?etiqueta=TENDENCIA"
-        products={tendencias}
-        showPrices={settings.showPrices}
-      />
-
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {benefits.map((benefit) => (
-            <div key={benefit.title} className="border border-line p-5">
-              <benefit.icon className="h-6 w-6 text-brand-primary" aria-hidden="true" />
-              <h3 className="mt-3 font-display text-base font-medium text-ink">{benefit.title}</h3>
-              <p className="mt-1 text-sm text-ink-soft">{benefit.description}</p>
+      {activeCampaign && (
+        <section className="mx-auto max-w-7xl px-4 pb-5 sm:px-6 sm:pb-8">
+          <Link href={`/campanas/${activeCampaign.slug}`} className="focus-ring group grid overflow-hidden bg-[#eff2e9] sm:grid-cols-[minmax(0,1fr)_minmax(260px,0.8fr)]">
+            <div className="flex min-h-64 flex-col justify-end p-7 sm:p-10">
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink-soft">Selección MPM</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-ink">{activeCampaign.name}</h2>
+              {activeCampaign.description && <p className="mt-3 max-w-lg text-sm leading-6 text-ink-soft">{activeCampaign.description}</p>}
+              <span className="mt-6 text-xs font-bold uppercase tracking-[0.1em] text-ink group-hover:underline">Explorar colección →</span>
             </div>
-          ))}
-        </div>
-      </section>
+            {activeCampaign.bannerImageUrl && <div className="relative min-h-64"><Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="(min-width: 640px) 40vw, 100vw" className="object-cover" /></div>}
+          </Link>
+        </section>
+      )}
 
-      <section className="mx-auto max-w-6xl px-4 pb-16">
-        <div className="flex flex-col items-center gap-4 border border-line bg-brand-accent/60 p-8 text-center sm:p-12">
-          <h2 className="font-display text-2xl font-semibold text-ink sm:text-3xl">
-            ¿Buscas algo puntual?
-          </h2>
-          <p className="max-w-xl text-ink-soft">
-            Cuéntanos qué necesitas por WhatsApp y te ayudamos a encontrarlo en nuestro catálogo.
-          </p>
-          <a
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="focus-ring inline-flex items-center justify-center gap-2 bg-[#25D366] px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-[#0b3d24] hover:brightness-95"
-          >
-            Escribir por WhatsApp
-          </a>
+      <ProductShelf title="Lo nuevo" description="Referencias recién incorporadas al catálogo MPM." seeAllHref="/catalogo" products={latestProducts} showPrices={settings.showPrices} />
+
+      {womenResult.items.length > 0 && <ProductShelf title="Damas" description="Una selección de la colección para ella." seeAllHref="/catalogo/damas" products={womenResult.items} showPrices={settings.showPrices} />}
+      {menResult.items.length > 0 && <ProductShelf title="Caballero" description="Una selección de la colección para él." seeAllHref="/catalogo/caballero" products={menResult.items} showPrices={settings.showPrices} />}
+
+      <section className="mx-auto max-w-7xl px-4 pb-14 pt-8 sm:px-6 sm:pb-20">
+        <div className="grid border border-line bg-[#f7f7f5] sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="p-7 sm:p-10">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink-soft">Compra acompañada</p>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-ink">¿Quieres ayuda para elegir?</h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-ink-soft">Guarda tus prendas en el carrito o habla con el equipo MPM para confirmar colores, tallas y disponibilidad.</p>
+          </div>
+          <div className="px-7 pb-7 sm:px-10 sm:pb-0">
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 bg-ink px-5 py-3 text-xs font-bold uppercase tracking-[0.1em] text-white hover:bg-brand-primary-dark">
+              <ShoppingBag className="h-4 w-4" aria-hidden="true" /> Hablar con MPM
+            </a>
+          </div>
         </div>
       </section>
     </div>

@@ -35,7 +35,9 @@ const productListSelect = {
   priceRef: true,
   categoryId: true,
   category: { select: { id: true, name: true, slug: true, parent: { select: { name: true, slug: true } } } },
-  images: { orderBy: { order: "asc" as const }, take: 1 },
+  // La segunda imagen permite una vista alternativa al pasar por una ficha,
+  // sin cargar la galería completa del detalle de producto.
+  images: { orderBy: { order: "asc" as const }, take: 2 },
 } satisfies Prisma.ProductSelect;
 
 export type ProductListItem = Prisma.ProductGetPayload<{ select: typeof productListSelect }>;
