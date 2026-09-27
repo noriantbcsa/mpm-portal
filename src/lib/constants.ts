@@ -40,18 +40,18 @@ export const CART_REQUEST_STATUS_LABELS: Record<CartRequestStatus, string> = {
   NUEVO: "Nuevo",
   CONTACTADO: "Contactado",
   EN_NEGOCIACION: "En negociación",
-  CONFIRMADO: "Confirmado",
+  VENDIDO: "Vendido",
   CERRADO: "Cerrado",
-  PERDIDO: "Perdido",
+  CANCELADO: "Cancelado",
 };
 
 export const CART_REQUEST_STATUS_ORDER: CartRequestStatus[] = [
   "NUEVO",
   "CONTACTADO",
   "EN_NEGOCIACION",
-  "CONFIRMADO",
+  "VENDIDO",
   "CERRADO",
-  "PERDIDO",
+  "CANCELADO",
 ];
 
 export const CART_REQUEST_OPEN_STATUSES: CartRequestStatus[] = [

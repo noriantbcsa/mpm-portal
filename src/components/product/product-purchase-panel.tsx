@@ -41,7 +41,7 @@ export function ProductPurchasePanel({
   const visibleImages = filteredByColor.length > 0 ? filteredByColor : images;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(330px,0.65fr)] lg:gap-12">
+    <div className="grid w-full min-w-0 gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(330px,0.65fr)] lg:gap-12">
       {/* key: al cambiar de color, remonta la galería en vez de arrastrar el
           índice/estado de la foto anterior (evita setState dentro de un
           efecto solo para resetear un prop que ya cambió). */}

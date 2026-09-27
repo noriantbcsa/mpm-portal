@@ -14,9 +14,9 @@ const STATUS_TONE: Record<CartRequestStatus, "neutral" | "blue" | "green" | "amb
   NUEVO: "blue",
   CONTACTADO: "amber",
   EN_NEGOCIACION: "amber",
-  CONFIRMADO: "green",
+  VENDIDO: "green",
   CERRADO: "neutral",
-  PERDIDO: "red",
+  CANCELADO: "red",
 };
 
 type PageProps = { searchParams: Promise<RawSearchParams> };

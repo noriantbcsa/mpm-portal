@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth/dal";
 import {
   cartRequestAssignSchema,
   cartRequestNoteSchema,
+  cartSessionStatusChangeSchema,
   cartRequestStatusChangeSchema,
 } from "@/lib/validation/cart-request";
 
@@ -100,4 +101,37 @@ export async function assignRequestAction(formData: FormData): Promise<void> {
 
   revalidatePath(`/admin/solicitudes/${parsed.data.cartRequestId}`);
   revalidatePath("/admin/solicitudes");
+}
+
+/**
+ * Un carrito anónimo no crea una solicitud hasta que el visitante deja sus
+ * datos. Aun así el equipo puede clasificarlo para evitar que se pierda un
+ * posible negocio y saber qué vendedor lo está gestionando.
+ */
+export async function changeCartSessionStatusAction(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const parsed = cartSessionStatusChangeSchema.safeParse({
+    cartSessionId: formData.get("cartSessionId"),
+    status: formData.get("status"),
+  });
+  if (!parsed.success) return;
+
+  const cart = await prisma.cartSession.findUnique({
+    where: { id: parsed.data.cartSessionId },
+    select: { convertedRequest: { select: { id: true } } },
+  });
+  // Al convertirse, el seguimiento pasa a Solicitudes comerciales para no
+  // tener dos fuentes de verdad del mismo pedido.
+  if (!cart || cart.convertedRequest) return;
+
+  await prisma.cartSession.update({
+    where: { id: parsed.data.cartSessionId },
+    data: {
+      commercialStatus: parsed.data.status,
+      handledById: user.id,
+      handledAt: new Date(),
+    },
+  });
+
+  revalidatePath("/admin/carritos-abandonados");
 }

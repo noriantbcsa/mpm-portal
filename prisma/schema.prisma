@@ -31,6 +31,7 @@ model User {
   updatedAt           DateTime  @updatedAt
 
   assignedRequests CartRequest[]      @relation("AssignedSalesRep")
+  handledCartSessions CartSession[]   @relation("HandledCartSession")
   events           CartRequestEvent[] @relation("EventAuthor")
 
   @@index([role])
@@ -198,6 +199,12 @@ model CartSession {
   sessionToken        String   @unique
   contactNamePartial  String?
   contactPhonePartial String?
+  // Estado comercial que asigna el equipo al recuperar un carrito. Null
+  // significa que se muestra su estado automático: activo o abandonado.
+  commercialStatus   CartRequestStatus?
+  handledById        String?
+  handledBy          User?            @relation("HandledCartSession", fields: [handledById], references: [id], onDelete: SetNull)
+  handledAt          DateTime?
   createdAt           DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
@@ -205,6 +212,8 @@ model CartSession {
   convertedRequest  CartRequest?
 
   @@index([updatedAt])
+  @@index([commercialStatus])
+  @@index([handledById])
 }
 
 model CartSessionItem {
@@ -228,9 +237,9 @@ enum CartRequestStatus {
   NUEVO
   CONTACTADO
   EN_NEGOCIACION
-  CONFIRMADO
+  VENDIDO
   CERRADO
-  PERDIDO
+  CANCELADO
 }
 
 model CartRequest {

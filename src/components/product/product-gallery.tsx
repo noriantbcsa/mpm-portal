@@ -34,7 +34,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
   }
 
   return (
-    <section aria-label={`Galería de ${productName}`} className="grid gap-3 sm:grid-cols-[72px_minmax(0,1fr)] sm:items-start">
+    <section aria-label={`Galería de ${productName}`} className="grid w-full min-w-0 gap-3 sm:grid-cols-[72px_minmax(0,1fr)] sm:items-start">
       {images.length > 1 && (
         <div className="order-2 flex gap-2 overflow-x-auto pb-1 sm:order-1 sm:max-h-[calc(100vh-9rem)] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden" role="tablist" aria-label="Vistas del producto">
           {images.map((image, index) => (
@@ -57,7 +57,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
         </div>
       )}
 
-      <div className="order-1 relative aspect-[3/4] w-full overflow-hidden bg-[#f5f5f2] sm:order-2">
+      <div className="order-1 relative min-h-96 w-full min-w-0 overflow-hidden bg-[#f5f5f2] sm:order-2 sm:min-h-0 sm:aspect-[3/4]">
         <Image
           src={current.url}
           alt={current.alt}

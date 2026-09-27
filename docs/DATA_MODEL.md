@@ -89,7 +89,7 @@ hoy. Si en el futuro las etiquetas necesitan ser gestionables por el admin
 | `ProductStatus` | `DISPONIBLE`, `BAJO_PEDIDO`, `AGOTADO`, `OCULTO` | Catálogo. `OCULTO` nunca se muestra al público; los otros tres sí (con badge) |
 | `ProductTagType` | `OFERTA`, `TENDENCIA`, `NUEVO`, `RECOMENDADO` | Vitrinas de inicio y filtros |
 | `Audience` | `HOMBRE`, `MUJER`, `NINO`, `NINA`, `UNISEX` | Filtro "Público" |
-| `CartRequestStatus` | `NUEVO` → `CONTACTADO` → `EN_NEGOCIACION` → `CONFIRMADO` / `CERRADO` / `PERDIDO` | Seguimiento comercial |
+| `CartRequestStatus` | `NUEVO` → `CONTACTADO` → `EN_NEGOCIACION` → `VENDIDO` / `CERRADO` / `CANCELADO` | Seguimiento comercial |
 | `CartRequestEventType` | `CREATED`, `NOTE`, `STATUS_CHANGE`, `ASSIGNMENT` | Timeline de una solicitud |
 
 `CartRequestStatus` no tiene una transición forzada (un asesor puede pasar

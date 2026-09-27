@@ -22,6 +22,7 @@ export async function listAbandonedCarts() {
     where: abandonedWhere,
     include: {
       items: { include: { product: { select: { slug: true } } } },
+      handledBy: { select: { id: true, name: true } },
     },
     orderBy: { updatedAt: "asc" },
   });
@@ -34,7 +35,7 @@ export async function listActiveCartSessions() {
       updatedAt: { gte: abandonedSinceDate() },
       items: { some: {} },
     },
-    include: { items: true },
+    include: { items: true, handledBy: { select: { id: true, name: true } } },
     orderBy: { updatedAt: "desc" },
   });
 }

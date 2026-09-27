@@ -58,7 +58,7 @@ if (dbAvailable) {
       contactPhone: "3005556666",
       city: "Cali",
       dataConsent: true,
-      status: "CONFIRMADO",
+      status: "VENDIDO",
     },
   });
   confirmedUnassignedId = confirmado.id;

@@ -54,9 +54,21 @@ export const cartRequestStatusChangeSchema = z.object({
     "NUEVO",
     "CONTACTADO",
     "EN_NEGOCIACION",
-    "CONFIRMADO",
+    "VENDIDO",
     "CERRADO",
-    "PERDIDO",
+    "CANCELADO",
+  ]),
+});
+
+export const cartSessionStatusChangeSchema = z.object({
+  cartSessionId: z.string().min(1),
+  status: z.enum([
+    "NUEVO",
+    "CONTACTADO",
+    "EN_NEGOCIACION",
+    "VENDIDO",
+    "CERRADO",
+    "CANCELADO",
   ]),
 });
 
