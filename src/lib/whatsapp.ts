@@ -32,7 +32,7 @@ export function buildCartRequestMessage(input: CartRequestMessageInput) {
   lines.push(`*Nueva solicitud MPM*`);
   lines.push(`Cliente: ${input.contactName}`);
   lines.push(`Ciudad: ${input.city}`);
-  if (input.companyName) lines.push(`Empresa: ${input.companyName}`);
+  if (input.companyName) lines.push(`Modalidad de compra: ${input.companyName}`);
   lines.push("");
   lines.push("*Prendas solicitadas:*");
   for (const item of input.items) {

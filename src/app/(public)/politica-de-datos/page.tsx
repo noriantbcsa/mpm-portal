@@ -19,7 +19,7 @@ producción.
 1. Responsable del tratamiento: MPM (fábrica de ropa), en el marco de la Ley 1581 de 2012 y
 sus decretos reglamentarios sobre protección de datos personales en Colombia.
 
-2. Datos que recolectamos: nombre, número de teléfono o WhatsApp, ciudad, empresa (si aplica)
+2. Datos que recolectamos: nombre, número de teléfono o WhatsApp, ciudad y modalidad de compra (si aplica)
 y el detalle de los productos que seleccionas en el carrito de pedidos.
 
 3. Finalidad: usamos estos datos exclusivamente para que un asesor comercial de MPM te

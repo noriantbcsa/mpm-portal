@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,16 +34,18 @@ export default async function CampanaPage({ params }: PageProps) {
   const [campaign, settings] = await Promise.all([getCampaign(slug), getSiteSettings()]);
   if (!campaign) notFound();
 
-  const { items } = await listProducts({ campaignSlug: slug, pageSize: 60 });
+  const { items, total } = await listProducts({ campaignSlug: slug, pageSize: 60 });
+  const campaignStyle = {
+    "--campaign-primary": campaign.colorPrimary ?? "var(--brand-primary)",
+    "--campaign-secondary": campaign.colorSecondary ?? "var(--brand-secondary)",
+  } as CSSProperties;
 
   return (
-    <div>
-      <section className="relative overflow-hidden bg-brand-primary">
+    <div className="campaign-page" style={campaignStyle}>
+      <section className="campaign-showcase relative overflow-hidden">
         <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-14 lg:grid-cols-2">
           <div className="relative z-10 text-white">
-            <p className="text-sm font-medium uppercase tracking-wide text-brand-secondary">
-              Campaña
-            </p>
+            <p className="campaign-kicker">Campaña especial</p>
             <h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">{campaign.name}</h1>
             {campaign.description && <p className="mt-4 max-w-md text-white/85">{campaign.description}</p>}
             {(campaign.startDate || campaign.endDate) && (
@@ -52,6 +55,9 @@ export default async function CampanaPage({ params }: PageProps) {
                 {campaign.endDate ? ` al ${formatDate(campaign.endDate)}` : ""}
               </p>
             )}
+            <p className="mt-6 inline-flex w-fit border border-white/30 bg-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-white">
+              {total} {total === 1 ? "referencia seleccionada" : "referencias seleccionadas"}
+            </p>
           </div>
           {campaign.bannerImageUrl && (
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
@@ -78,7 +84,7 @@ export default async function CampanaPage({ params }: PageProps) {
       )}
 
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <h2 className="mb-4 font-display text-xl font-semibold text-ink">Prendas de la campaña</h2>
+        <h2 className="mb-4 font-display text-xl font-semibold text-ink">Prendas seleccionadas para esta campaña</h2>
         <ProductGrid products={items} showPrices={settings.showPrices} />
       </div>
     </div>

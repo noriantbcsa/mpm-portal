@@ -11,6 +11,7 @@ export const campaignFormSchema = z
     endDate: z.string().optional().nullable(),
     isActive: z.boolean().default(false),
     priorityCategoryIds: z.array(z.string()).default([]),
+    productIds: z.array(z.string()).default([]),
   })
   .refine(
     (data) =>

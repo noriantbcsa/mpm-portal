@@ -175,7 +175,14 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
             hint="Te contactaremos por este medio."
           />
           <TextField label="Ciudad" name="city" required autoComplete="address-level2" />
-          <TextField label="Empresa (opcional)" name="companyName" autoComplete="organization" />
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+            Modalidad de compra <span className="font-normal text-ink-soft">(opcional)</span>
+            <select name="companyName" defaultValue="" className="focus-ring border border-line bg-paper px-3 py-2 text-sm font-normal text-ink">
+              <option value="">Selecciona una opción</option>
+              <option value="Al detal">Al detal</option>
+              <option value="Al por mayor">Al por mayor</option>
+            </select>
+          </label>
           <TextAreaField label="Comentario (opcional)" name="comment" rows={3} />
 
           <label className="flex items-start gap-2 text-sm text-ink-soft">

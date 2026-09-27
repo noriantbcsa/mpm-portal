@@ -27,6 +27,7 @@ export async function saveCampaignAction(
     endDate: String(formData.get("endDate") ?? "").trim() || null,
     isActive: formData.get("isActive") === "on",
     priorityCategoryIds: formData.getAll("priorityCategoryIds").map(String),
+    productIds: formData.getAll("productIds").map(String),
   });
 
   if (!parsed.success) {
@@ -58,12 +59,25 @@ export async function saveCampaignAction(
   };
 
   if (id) {
-    await prisma.campaign.update({
-      where: { id },
-      data: {
-        ...commonData,
-        priorityCategories: { set: data.priorityCategoryIds.map((cid) => ({ id: cid })) },
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.campaign.update({
+        where: { id },
+        data: {
+          ...commonData,
+          priorityCategories: { set: data.priorityCategoryIds.map((cid) => ({ id: cid })) },
+        },
+      });
+      // Quita las referencias que ya no fueron elegidas y asocia las nuevas.
+      await tx.product.updateMany({
+        where: { campaignId: id, id: { notIn: data.productIds } },
+        data: { campaignId: null },
+      });
+      if (data.productIds.length > 0) {
+        await tx.product.updateMany({
+          where: { id: { in: data.productIds } },
+          data: { campaignId: id },
+        });
+      }
     });
     await applyActivation(id);
     redirect("/admin/campanas?guardado=1");
@@ -74,12 +88,18 @@ export async function saveCampaignAction(
     return Boolean(existing);
   });
 
-  const created = await prisma.campaign.create({
-    data: {
-      ...commonData,
-      slug,
-      priorityCategories: { connect: data.priorityCategoryIds.map((cid) => ({ id: cid })) },
-    },
+  const created = await prisma.$transaction(async (tx) => {
+    const campaign = await tx.campaign.create({
+      data: {
+        ...commonData,
+        slug,
+        priorityCategories: { connect: data.priorityCategoryIds.map((cid) => ({ id: cid })) },
+      },
+    });
+    if (data.productIds.length > 0) {
+      await tx.product.updateMany({ where: { id: { in: data.productIds } }, data: { campaignId: campaign.id } });
+    }
+    return campaign;
   });
   await applyActivation(created.id);
   redirect("/admin/campanas?creado=1");

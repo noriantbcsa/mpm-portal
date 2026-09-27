@@ -29,13 +29,16 @@ export type CampaignFormInitial = {
   endDate: Date | null;
   isActive: boolean;
   priorityCategoryIds: string[];
+  productIds: string[];
 };
 
 export function CampaignForm({
   categoryOptions,
+  productOptions,
   initial,
 }: {
   categoryOptions: { id: string; label: string }[];
+  productOptions: { id: string; sku: string; name: string; campaign: { id: string; name: string } | null }[];
   initial?: CampaignFormInitial;
 }) {
   const [state, formAction, pending] = useActionState(saveCampaignAction, initialState);
@@ -69,6 +72,30 @@ export function CampaignForm({
             defaultChecked={initial?.isActive ?? false}
             className="sm:col-span-2"
           />
+        </AdminCardBody>
+      </AdminCard>
+
+      <AdminCard>
+        <AdminCardBody>
+          <h2 className="text-sm font-semibold text-slate-900">Prendas de esta campaña</h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Elige las referencias específicas que aparecerán en la página pública. Una referencia puede pertenecer a una sola campaña a la vez.
+          </p>
+          <div className="mt-3 grid max-h-80 gap-2 overflow-y-auto rounded-md border border-slate-200 p-3 sm:grid-cols-2">
+            {productOptions.map((product) => {
+              const selected = initial?.productIds.includes(product.id) ?? false;
+              const assignedElsewhere = product.campaign && product.campaign.id !== initial?.id;
+              return (
+                <AdminCheckbox
+                  key={product.id}
+                  name="productIds"
+                  value={product.id}
+                  label={`${product.sku} · ${product.name}${assignedElsewhere ? ` (${product.campaign!.name})` : ""}`}
+                  defaultChecked={selected}
+                />
+              );
+            })}
+          </div>
         </AdminCardBody>
       </AdminCard>
 

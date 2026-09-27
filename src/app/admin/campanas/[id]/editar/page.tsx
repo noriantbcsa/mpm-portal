@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/dal";
 import { getAllCategoriesFlat, buildCategoryOptions } from "@/lib/categories";
 import { prisma } from "@/lib/prisma";
 import { CampaignForm } from "@/components/admin/campaign-form";
+import { getCampaignProductOptions } from "@/lib/campaigns";
 
 export const metadata: Metadata = { title: "Editar campaña", robots: { index: false } };
 
@@ -13,9 +14,10 @@ type PageProps = { params: Promise<{ id: string }> };
 export default async function EditarCampanaPage({ params }: PageProps) {
   await requireRole(["ADMIN"]);
   const { id } = await params;
-  const [campaign, categories] = await Promise.all([
-    prisma.campaign.findUnique({ where: { id }, include: { priorityCategories: true } }),
+  const [campaign, categories, products] = await Promise.all([
+    prisma.campaign.findUnique({ where: { id }, include: { priorityCategories: true, products: { select: { id: true } } } }),
     getAllCategoriesFlat({ includeHidden: true }),
+    getCampaignProductOptions(),
   ]);
   if (!campaign) notFound();
 
@@ -26,6 +28,7 @@ export default async function EditarCampanaPage({ params }: PageProps) {
       <div className="mt-6">
         <CampaignForm
           categoryOptions={buildCategoryOptions(categories)}
+          productOptions={products}
           initial={{
             id: campaign.id,
             name: campaign.name,
@@ -37,6 +40,7 @@ export default async function EditarCampanaPage({ params }: PageProps) {
             endDate: campaign.endDate,
             isActive: campaign.isActive,
             priorityCategoryIds: campaign.priorityCategories.map((c) => c.id),
+            productIds: campaign.products.map((product) => product.id),
           }}
         />
       </div>

@@ -32,7 +32,7 @@ describe("buildCartRequestMessage", () => {
 
     expect(message).toContain("Cliente: Ana Gómez");
     expect(message).toContain("Ciudad: Cali");
-    expect(message).toContain("Empresa: Boutique Ana");
+    expect(message).toContain("Modalidad de compra: Boutique Ana");
     expect(message).toContain("2 x Camiseta básica [ref. MPM-0001] (talla M, color Negro)");
     expect(message).toContain("1 x Vestido midi [ref. MPM-0002]");
   });
