@@ -3,7 +3,7 @@ services:
     name: mpm-portal
     runtime: node
     plan: free
-    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
+    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run db:seed:catalog && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION

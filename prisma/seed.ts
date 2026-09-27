@@ -340,6 +340,14 @@ async function seedSyntheticProducts(activeCampaignSlug: string | null) {
 
 async function main() {
   await importRealCatalog();
+
+  // Producción: solo las referencias y fotos reales, sin datos de demostración.
+  if (process.env.SEED_REAL_CATALOG_ONLY === "true") {
+    const total = await prisma.product.count();
+    console.log(`Catálogo de producción listo: ${total} referencias reales.`);
+    return;
+  }
+
   await seedUsers();
   await seedCategoryTree();
   const activeCampaignSlug = await seedCampaigns();
