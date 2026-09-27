@@ -186,11 +186,27 @@ html[data-festivity] .seasonal-ambient i:nth-child(3) { right: -4rem; top: 19rem
   position: relative;
   isolation: isolate;
   background:
+    repeating-linear-gradient(135deg, transparent 0 27px, color-mix(in srgb, white 8%, transparent) 28px 30px),
+    radial-gradient(circle at 15% 18%, color-mix(in srgb, var(--campaign-secondary) 58%, transparent) 0 3px, transparent 4px),
+    radial-gradient(circle at 20% 22%, color-mix(in srgb, white 45%, transparent) 0 1px, transparent 2px),
     radial-gradient(circle at 89% 16%, color-mix(in srgb, var(--campaign-secondary) 64%, transparent) 0 1.3rem, transparent 1.4rem),
     radial-gradient(circle at 76% 80%, color-mix(in srgb, white 15%, transparent) 0 8rem, transparent 8.1rem),
     linear-gradient(125deg, color-mix(in srgb, var(--campaign-primary) 94%, #000), var(--campaign-primary) 62%, color-mix(in srgb, var(--campaign-secondary) 42%, var(--campaign-primary)));
   color: white;
   box-shadow: 0 20px 44px color-mix(in srgb, var(--campaign-primary) 22%, transparent);
+}
+
+.campaign-showcase::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+  opacity: 0.72;
+  background:
+    linear-gradient(90deg, transparent 0 48%, color-mix(in srgb, var(--campaign-secondary) 17%, transparent) 48% 49%, transparent 49% 100%),
+    repeating-linear-gradient(0deg, transparent 0 39px, color-mix(in srgb, white 7%, transparent) 40px 41px);
+  mask-image: linear-gradient(90deg, #000, transparent 72%);
 }
 
 .campaign-showcase::after {
@@ -207,6 +223,46 @@ html[data-festivity] .seasonal-ambient i:nth-child(3) { right: -4rem; top: 19rem
 .campaign-showcase > * {
   position: relative;
   z-index: 1;
+}
+
+.campaign-visual {
+  isolation: isolate;
+  background: color-mix(in srgb, var(--campaign-primary) 74%, black);
+}
+
+.campaign-visual::before {
+  position: absolute;
+  inset: 0.7rem;
+  z-index: 1;
+  border: 1px solid color-mix(in srgb, white 55%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.campaign-visual::after {
+  position: absolute;
+  right: 0.7rem;
+  top: 0.7rem;
+  z-index: 1;
+  padding: 0.45rem 0.55rem;
+  background: var(--campaign-secondary);
+  color: color-mix(in srgb, var(--campaign-primary) 82%, #000);
+  content: "Selección MPM";
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 639px) {
+  .campaign-showcase::before {
+    mask-image: none;
+    opacity: 0.42;
+  }
+
+  .campaign-visual::before {
+    inset: 0.5rem;
+  }
 }
 
 .campaign-kicker {

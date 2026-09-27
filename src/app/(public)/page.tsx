@@ -128,7 +128,7 @@ export default async function HomePage() {
               {activeCampaign.description && <p className="mt-3 max-w-lg text-sm leading-6 text-white/80">{activeCampaign.description}</p>}
               <span className="mt-6 text-xs font-bold uppercase tracking-[0.1em] text-white group-hover:underline">Explorar selección →</span>
             </div>
-            {activeCampaign.bannerImageUrl && <div className="relative min-h-64"><Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="(min-width: 640px) 40vw, 100vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" /></div>}
+            {activeCampaign.bannerImageUrl && <div className="campaign-visual relative min-h-64"><Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="(min-width: 640px) 40vw, 100vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" /></div>}
           </Link>
         </section>
       )}

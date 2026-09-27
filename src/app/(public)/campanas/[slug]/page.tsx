@@ -60,7 +60,7 @@ export default async function CampanaPage({ params }: PageProps) {
             </p>
           </div>
           {campaign.bannerImageUrl && (
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
+            <div className="campaign-visual relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
               <Image src={campaign.bannerImageUrl} alt="" fill sizes="(min-width: 1024px) 40vw, 90vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
             </div>
           )}
