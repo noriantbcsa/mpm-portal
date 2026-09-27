@@ -40,6 +40,11 @@ Navidad. Las fechas se interpretan en la zona horaria de Colombia.
 - **Vitest** para pruebas unitarias.
 - Pensado para desplegar en **Vercel**.
 
+Si otro sistema desarrollado en PHP debe consumir el catálogo, usa las vistas
+de solo lectura documentadas en [docs/PHP_INTEGRATION.md](docs/PHP_INTEGRATION.md).
+No conectes ese sistema con la cuenta principal del portal ni con acceso a las
+tablas internas.
+
 ## Requisitos
 
 - Node.js **22+** (hay un `.nvmrc`; hay una razón concreta, ver más abajo).

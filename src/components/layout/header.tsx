@@ -7,6 +7,7 @@ import { getActiveCampaign } from "@/lib/campaigns";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { CartIndicator } from "@/components/layout/cart-indicator";
 import { MobileNav, type NavLink } from "@/components/layout/mobile-nav";
+import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export async function Header() {
   const [settings, activeCampaign] = await Promise.all([
@@ -40,6 +41,9 @@ export async function Header() {
               alt={settings.siteName}
               width={40}
               height={40}
+              placeholder="blur"
+              blurDataURL={IMAGE_BLUR_DATA_URL}
+              decoding="async"
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (

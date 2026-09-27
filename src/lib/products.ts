@@ -35,12 +35,17 @@ const productListSelect = {
   priceRef: true,
   categoryId: true,
   category: { select: { id: true, name: true, slug: true, parent: { select: { name: true, slug: true } } } },
-  // La segunda imagen permite una vista alternativa al pasar por una ficha,
-  // sin cargar la galería completa del detalle de producto.
-  images: { orderBy: { order: "asc" as const }, take: 2 },
+  // En la grilla basta una portada: pedir una segunda foto por tarjeta hacía
+  // que el navegador descargara hasta el doble de imágenes visibles.
+  images: { orderBy: { order: "asc" as const }, take: 1 },
 } satisfies Prisma.ProductSelect;
 
 export type ProductListItem = Prisma.ProductGetPayload<{ select: typeof productListSelect }>;
+
+export type CatalogFilterOptions = {
+  sizes: string[];
+  colors: string[];
+};
 
 async function buildWhere(filters: CatalogFilters): Promise<Prisma.ProductWhereInput> {
   const where: Prisma.ProductWhereInput = {};
@@ -126,6 +131,29 @@ export async function listProducts(filters: CatalogFilters = {}) {
         });
 
   return { items, total, page, pageSize, pageCount };
+}
+
+/**
+ * Los valores de talla y color son texto libre. En vez de presentar una lista
+ * fija (que puede no coincidir en mayúsculas, acentos o nombres con lo que se
+ * importó), el catálogo ofrece exactamente las variantes que sí existen.
+ */
+export async function getCatalogFilterOptions(categorySlug?: string): Promise<CatalogFilterOptions> {
+  const where = await buildWhere({ categorySlug });
+  const products = await prisma.product.findMany({
+    where,
+    select: { sizes: true, colors: true },
+  });
+
+  const uniqueSorted = (values: string[]) =>
+    [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, "es", { sensitivity: "base" }),
+    );
+
+  return {
+    sizes: uniqueSorted(products.flatMap((product) => product.sizes)),
+    colors: uniqueSorted(products.flatMap((product) => product.colors)),
+  };
 }
 
 const productDetailInclude = {

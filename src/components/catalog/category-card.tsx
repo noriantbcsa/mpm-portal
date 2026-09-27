@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export function CategoryCard({
   name,
@@ -21,6 +22,9 @@ export function CategoryCard({
           alt=""
           fill
           sizes="(min-width: 1024px) 20vw, 40vw"
+          placeholder="blur"
+          blurDataURL={IMAGE_BLUR_DATA_URL}
+          decoding="async"
           className="object-cover opacity-90 transition-transform duration-300 group-hover:scale-105"
         />
       )}

@@ -152,6 +152,32 @@ html[data-festivity] .public-site-shell main {
     radial-gradient(circle at 98% 46%, color-mix(in srgb, var(--seasonal-tertiary) 10%, transparent) 0 10rem, transparent 10.1rem);
 }
 
+/* El catálogo también adopta la temporada sin sacrificar la lectura de las
+   fichas: una franja de color y superficies muy suaves, no fondos pesados. */
+html[data-festivity] .catalog-page-header {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 4px solid var(--seasonal-secondary);
+  background: linear-gradient(115deg, color-mix(in srgb, var(--seasonal-wash) 92%, white), white 66%);
+}
+
+html[data-festivity] .catalog-page-header::after {
+  position: absolute;
+  right: clamp(1rem, 8vw, 8rem);
+  top: -3rem;
+  width: 9rem;
+  height: 9rem;
+  border: 18px solid color-mix(in srgb, var(--seasonal-secondary) 23%, transparent);
+  border-radius: 999px;
+  content: "";
+  pointer-events: none;
+}
+
+html[data-festivity] .catalog-filters {
+  border-color: color-mix(in srgb, var(--seasonal-primary) 32%, var(--line));
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--seasonal-secondary) 18%, transparent);
+}
+
 html[data-festivity] .seasonal-highlight {
   color: var(--seasonal-secondary);
   text-shadow: 0 1px 16px color-mix(in srgb, var(--seasonal-primary) 65%, transparent);

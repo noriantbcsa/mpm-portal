@@ -8,6 +8,7 @@ import { listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
 import { formatDate } from "@/lib/format";
 import { ProductGrid } from "@/components/catalog/product-grid";
+import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ export default async function CampanaPage({ params }: PageProps) {
           </div>
           {campaign.bannerImageUrl && (
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
-              <Image src={campaign.bannerImageUrl} alt="" fill sizes="(min-width: 1024px) 40vw, 90vw" className="object-cover" />
+              <Image src={campaign.bannerImageUrl} alt="" fill sizes="(min-width: 1024px) 40vw, 90vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
             </div>
           )}
         </div>

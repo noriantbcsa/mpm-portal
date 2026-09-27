@@ -67,17 +67,16 @@ solo `res.cloudinary.com`.
 
 ## Dependencias de terceros
 
-`npm audit` reporta 4 vulnerabilidades "high" en dependencias **transitivas
-de las herramientas de build/CLI de Prisma** (`mysql2`, `deepmerge-ts` vía
-`@prisma/config`) — Prisma empaqueta drivers para varias bases de datos en
-su CLI aunque el proyecto solo use PostgreSQL. Estas librerías **no se
-incluyen en el bundle de la aplicación en runtime** (la app importa
-`@prisma/client` + `@prisma/adapter-pg`, no el paquete `prisma` en sí); el
-riesgo real es que alguien ejecute comandos de la CLI de Prisma con un
-`schema.prisma`/config no confiable, que no es nuestro caso. Se revisó
-conscientemente y se decidió no forzar un downgrade/breaking change de
-Prisma solo por esto; conviene revisar `npm audit` de nuevo antes de cada
-actualización de Prisma.
+`npm audit --omit=dev` reporta 4 vulnerabilidades "high" en dependencias
+**transitivas de la CLI de Prisma** (`mysql2`, `deepmerge-ts` vía
+`@prisma/config`). Prisma empaqueta drivers para varias bases de datos en su
+CLI aunque el proyecto solo use PostgreSQL. Estas librerías **no se incluyen
+en el bundle de la aplicación en runtime** (la app importa `@prisma/client`
++ `@prisma/adapter-pg`, no el paquete `prisma` en sí). La corrección que npm
+propone es un salto incompatible hacia Prisma 6; Prisma 8 permanece en
+release candidate, por lo que no se fuerza ningún cambio de major en
+producción. Conviene repetir la auditoría antes de cada actualización de
+Prisma y no ejecutar su CLI contra esquemas o configuraciones no confiables.
 
 Se eliminó `xlsx` (SheetJS) del proyecto: la versión publicada en npm tiene
 vulnerabilidades conocidas de *prototype pollution* y ReDoS sin parche

@@ -7,6 +7,7 @@ import { Minus, Plus, Trash2, CheckCircle2 } from "lucide-react";
 
 import { useCartStore, cartItemKey } from "@/store/cart-store";
 import { formatPrice } from "@/lib/format";
+import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 import { Button, LinkButton } from "@/components/ui/button";
 import { TextField, TextAreaField } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -98,7 +99,7 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
               >
                 <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-brand-accent sm:h-24 sm:w-24">
                   {item.imageUrl && (
-                    <Image src={item.imageUrl} alt={item.name} fill sizes="96px" className="object-cover" />
+                    <Image src={item.imageUrl} alt={item.name} fill sizes="96px" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
                   )}
                 </div>
                 <div className="flex flex-1 flex-col">

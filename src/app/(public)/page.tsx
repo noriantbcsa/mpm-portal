@@ -10,6 +10,7 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { LinkButton } from "@/components/ui/button";
 import { CategoryCard } from "@/components/catalog/category-card";
 import { ProductShelf } from "@/components/catalog/product-shelf";
+import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 import { JsonLd } from "@/components/seo/json-ld";
 
 // La portada consulta datos actuales: imágenes, colecciones y campaña se
@@ -66,6 +67,9 @@ export default async function HomePage() {
               fill
               priority
               sizes="(min-width: 1280px) 1440px, 100vw"
+              placeholder="blur"
+              blurDataURL={IMAGE_BLUR_DATA_URL}
+              decoding="async"
               className="object-cover object-top"
             />
           )}
@@ -119,7 +123,7 @@ export default async function HomePage() {
               {activeCampaign.description && <p className="mt-3 max-w-lg text-sm leading-6 text-ink-soft">{activeCampaign.description}</p>}
               <span className="mt-6 text-xs font-bold uppercase tracking-[0.1em] text-ink group-hover:underline">Explorar colección →</span>
             </div>
-            {activeCampaign.bannerImageUrl && <div className="relative min-h-64"><Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="(min-width: 640px) 40vw, 100vw" className="object-cover" /></div>}
+            {activeCampaign.bannerImageUrl && <div className="relative min-h-64"><Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="(min-width: 640px) 40vw, 100vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" /></div>}
           </Link>
         </section>
       )}

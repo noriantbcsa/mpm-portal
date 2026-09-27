@@ -1,8 +1,6 @@
 import {
   AUDIENCE_LABELS,
   PRODUCT_TAG_LABELS,
-  SUGGESTED_COLORS,
-  SUGGESTED_SIZES,
 } from "@/lib/constants";
 import type { Audience, ProductTagType } from "@prisma/client";
 import { Button, LinkButton } from "@/components/ui/button";
@@ -20,12 +18,18 @@ export type ActiveFilters = {
 const AUDIENCE_OPTIONS = Object.entries(AUDIENCE_LABELS) as [Audience, string][];
 const TAG_OPTIONS = Object.entries(PRODUCT_TAG_LABELS) as [ProductTagType, string][];
 
-export function FiltersForm({ active }: { active: ActiveFilters }) {
+export function FiltersForm({
+  active,
+  options,
+}: {
+  active: ActiveFilters;
+  options: { sizes: string[]; colors: string[] };
+}) {
   return (
     <form
       method="GET"
       action={active.categoria ? `/catalogo/${active.categoria}` : "/catalogo"}
-      className="flex flex-col gap-6 border-y border-line bg-paper py-4 lg:border"
+      className="catalog-filters flex flex-col gap-6 border-y border-line bg-paper py-4 lg:border"
       aria-label="Filtros del catálogo"
     >
       {active.q && <input type="hidden" name="q" value={active.q} />}
@@ -83,7 +87,7 @@ export function FiltersForm({ active }: { active: ActiveFilters }) {
       <fieldset>
         <legend className="text-sm font-semibold text-ink">Talla</legend>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          {SUGGESTED_SIZES.map((size) => (
+          {options.sizes.map((size) => (
             <label
               key={size}
               className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:text-brand-primary"
@@ -104,7 +108,7 @@ export function FiltersForm({ active }: { active: ActiveFilters }) {
       <fieldset>
         <legend className="text-sm font-semibold text-ink">Color</legend>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          {SUGGESTED_COLORS.map((color) => (
+          {options.colors.map((color) => (
             <label
               key={color}
               className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:text-brand-primary"

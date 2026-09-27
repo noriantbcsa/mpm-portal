@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ProductListItem } from "@/lib/products";
 import { PRODUCT_STATUS_LABELS, PRODUCT_TAG_LABELS } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
+import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export function ProductCard({
   product,
@@ -13,7 +14,6 @@ export function ProductCard({
   showPrices: boolean;
 }) {
   const image = product.images[0];
-  const alternateImage = product.images[1];
   const price = showPrices ? formatPrice(product.priceRef ? Number(product.priceRef) : null) : null;
   const categoryLabel = product.category.parent?.name ?? product.category.name;
 
@@ -30,17 +30,11 @@ export function ProductCard({
               alt={image.alt}
               fill
               sizes="(min-width: 1280px) 25vw, (min-width: 640px) 33vw, 50vw"
+              placeholder="blur"
+              blurDataURL={IMAGE_BLUR_DATA_URL}
+              decoding="async"
               className="object-cover transition-transform duration-500 group-hover:scale-[1.025]"
             />
-            {alternateImage && (
-              <Image
-                src={alternateImage.url}
-                alt=""
-                fill
-                sizes="(min-width: 1280px) 25vw, (min-width: 640px) 33vw, 50vw"
-                className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-              />
-            )}
           </>
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-ink-soft">

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
+import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export type CatalogCategory = {
   id: string;
@@ -56,7 +57,7 @@ export function CatalogExplorer({
                 )}
               >
                 {category.imageUrl && (
-                  <Image src={category.imageUrl} alt="" fill sizes="(min-width: 640px) 25vw, 50vw" className="object-cover opacity-25 transition-opacity group-hover:opacity-35" />
+                  <Image src={category.imageUrl} alt="" fill sizes="(min-width: 640px) 25vw, 50vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover opacity-25 transition-opacity group-hover:opacity-35" />
                 )}
                 <span className="relative mt-auto">
                   <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-soft">Categoría</span>

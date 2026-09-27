@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 import { cn } from "@/lib/cn";
+import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export type GalleryImage = { url: string; alt: string; color?: string | null };
 
@@ -57,7 +58,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
                 index === active ? "border-ink" : "border-transparent opacity-60 hover:opacity-100",
               )}
             >
-              <Image src={image.url} alt="" fill sizes="72px" className="object-cover" />
+              <Image src={image.url} alt="" fill sizes="72px" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
               <span className="sr-only">{viewLabel(image, index)}</span>
             </button>
           ))}
@@ -76,6 +77,9 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           fill
           priority
           sizes="(min-width: 1024px) 40vw, 100vw"
+          placeholder="blur"
+          blurDataURL={IMAGE_BLUR_DATA_URL}
+          decoding="async"
           className="object-cover"
         />
         <button
@@ -96,7 +100,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           onClick={() => setIsExpanded(false)}
         >
           <div className="relative h-[min(86vh,980px)] w-[min(94vw,760px)]" onClick={(event) => event.stopPropagation()}>
-            <Image src={current.url} alt={current.alt} fill sizes="94vw" className="object-contain" />
+            <Image src={current.url} alt={current.alt} fill sizes="94vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-contain" />
             <button
               type="button"
               onClick={() => setIsExpanded(false)}
