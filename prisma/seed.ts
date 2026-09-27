@@ -110,8 +110,8 @@ async function importRealCatalog() {
       whatsappNumber: "573000000000",
       whatsappDefaultMessage: "Hola MPM, quiero más información sobre sus prendas.",
       contactEmail: "ventas@mpm-ejemplo.com",
-      address: "Barranquilla, Colombia",
-      footerText: "MPM Fábrica de ropa. Atención comercial personalizada.",
+      address: "C.C. Visto, Local 3163, piso 3 · Bogotá Centro, Bogotá, Colombia",
+      footerText: "MPM · Moda y estilo día a día. Atención al detal y al por mayor.",
       dataPolicyText:
         "Texto provisional de política de tratamiento de datos personales. Debe ser revisado y aprobado por MPM antes de producción; ver docs/DEPLOYMENT.md.",
       showPrices: false,
