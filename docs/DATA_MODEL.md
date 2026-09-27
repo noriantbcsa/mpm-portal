@@ -105,8 +105,8 @@ ventas reales el orden no siempre es lineal (un cliente puede escribir
 - `Product.priceRef`: precio de referencia opcional; solo se muestra al
   público si `SiteSettings.showPrices` está activo (por defecto, apagado —
   el modelo de negocio es "un asesor confirma el precio").
-- 288 de las ~306 referencias sembradas son sintéticas (fotos de stock), no
-  el catálogo real de MPM — ver README, sección "Catálogo de datos".
+- El seed conserva únicamente las 18 referencias reales entregadas por MPM;
+  no genera productos, categorías ni campañas sintéticas.
 
 ## Migraciones
 

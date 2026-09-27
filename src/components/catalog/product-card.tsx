@@ -20,7 +20,7 @@ export function ProductCard({
   return (
     <Link
       href={`/producto/${product.slug}`}
-      className="focus-ring group flex min-w-0 flex-col bg-paper"
+      className="seasonal-product-card focus-ring group flex min-w-0 flex-col bg-paper"
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#f5f5f2]">
         {image ? (

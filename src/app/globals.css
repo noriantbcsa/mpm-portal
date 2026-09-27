@@ -13,6 +13,8 @@
   --success: #2e6b4f;
   --seasonal-primary: var(--brand-primary);
   --seasonal-secondary: var(--brand-secondary);
+  --seasonal-tertiary: var(--brand-accent);
+  --seasonal-ink: var(--ink);
   --seasonal-wash: var(--brand-accent);
   --font-heading: var(--font-body);
   --font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -66,18 +68,88 @@ body {
 }
 
 .seasonal-ribbon {
-  border-bottom: 1px solid color-mix(in srgb, var(--seasonal-primary) 25%, var(--line));
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-bottom: 4px solid var(--seasonal-secondary);
   background:
     linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--seasonal-primary) 12%, white),
-      color-mix(in srgb, var(--seasonal-secondary) 20%, white)
+      115deg,
+      color-mix(in srgb, var(--seasonal-primary) 94%, black),
+      var(--seasonal-primary) 44%,
+      color-mix(in srgb, var(--seasonal-secondary) 72%, var(--seasonal-primary))
     );
-  color: #111827;
+  color: var(--seasonal-ink);
+  box-shadow: 0 10px 34px color-mix(in srgb, var(--seasonal-primary) 22%, transparent);
+}
+
+.seasonal-ribbon-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.34;
+  background-image:
+    radial-gradient(circle at 8% 25%, var(--seasonal-secondary) 0 5px, transparent 6px),
+    radial-gradient(circle at 22% 78%, var(--seasonal-tertiary) 0 8px, transparent 9px),
+    radial-gradient(circle at 76% 18%, var(--seasonal-tertiary) 0 6px, transparent 7px),
+    radial-gradient(circle at 92% 72%, var(--seasonal-secondary) 0 10px, transparent 11px),
+    linear-gradient(132deg, transparent 0 47%, color-mix(in srgb, white 28%, transparent) 48% 50%, transparent 51%);
+  background-size: auto, auto, auto, auto, 52px 52px;
+}
+
+.seasonal-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.seasonal-title {
+  margin-top: 0.15rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.seasonal-message {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.88;
+}
+
+.seasonal-motif svg {
+  height: 1.4rem;
+  width: 1.4rem;
+  filter: drop-shadow(0 3px 8px color-mix(in srgb, black 28%, transparent));
+}
+
+.seasonal-motif .seasonal-motif-main {
+  height: 2rem;
+  width: 2rem;
+  color: var(--seasonal-secondary);
 }
 
 html[data-festivity] .public-header {
-  box-shadow: inset 0 3px 0 var(--seasonal-primary);
+  border-bottom-color: color-mix(in srgb, var(--seasonal-primary) 45%, var(--line));
+  background: color-mix(in srgb, var(--seasonal-wash) 76%, white);
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--seasonal-secondary) 75%, transparent);
+}
+
+html[data-festivity] .public-site-shell {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--seasonal-wash) 70%, white), white 36rem),
+    white;
+}
+
+html[data-festivity] .public-site-shell main {
+  background-image:
+    radial-gradient(circle at 3% 18%, color-mix(in srgb, var(--seasonal-secondary) 11%, transparent) 0 7rem, transparent 7.1rem),
+    radial-gradient(circle at 98% 46%, color-mix(in srgb, var(--seasonal-tertiary) 10%, transparent) 0 10rem, transparent 10.1rem);
 }
 
 html[data-festivity] .seasonal-highlight {
@@ -87,8 +159,107 @@ html[data-festivity] .seasonal-highlight {
 
 html[data-festivity] .seasonal-soft-surface {
   background:
-    linear-gradient(115deg, color-mix(in srgb, var(--seasonal-wash) 82%, white), white 70%);
-  border-top-color: color-mix(in srgb, var(--seasonal-primary) 45%, var(--line));
+    linear-gradient(115deg, color-mix(in srgb, var(--seasonal-wash) 88%, white), white 72%);
+  border: 2px solid color-mix(in srgb, var(--seasonal-primary) 45%, var(--line));
+  box-shadow: 12px 12px 0 color-mix(in srgb, var(--seasonal-secondary) 22%, transparent);
+}
+
+html[data-festivity] .seasonal-hero {
+  border-bottom: 8px solid var(--seasonal-secondary);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--seasonal-primary) 70%, transparent),
+    0 22px 50px color-mix(in srgb, var(--seasonal-primary) 18%, transparent);
+}
+
+html[data-festivity] .seasonal-hero::after {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 12;
+  height: 10px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    var(--seasonal-primary) 0 25%,
+    var(--seasonal-secondary) 25% 50%,
+    var(--seasonal-tertiary) 50% 75%,
+    var(--seasonal-primary) 75%
+  );
+}
+
+html[data-festivity] .seasonal-section-heading {
+  position: relative;
+  padding-left: 1rem;
+}
+
+html[data-festivity] .seasonal-section-heading::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  content: "";
+  background: linear-gradient(var(--seasonal-primary), var(--seasonal-secondary));
+}
+
+html[data-festivity] .seasonal-product-card {
+  border-top: 3px solid transparent;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+html[data-festivity] .seasonal-product-card:hover {
+  border-top-color: var(--seasonal-secondary);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--seasonal-primary) 12%, transparent);
+  transform: translateY(-2px);
+}
+
+html[data-festivity] .seasonal-footer {
+  border-top: 5px solid var(--seasonal-primary);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--seasonal-wash) 88%, white), white);
+}
+
+html[data-festivity="negros-y-blancos"] .seasonal-ribbon-pattern {
+  background-image:
+    radial-gradient(circle at 12% 30%, #fff 0 8px, transparent 9px),
+    radial-gradient(circle at 88% 72%, #111 0 11px, transparent 12px),
+    repeating-linear-gradient(120deg, transparent 0 32px, color-mix(in srgb, #fff 20%, transparent) 33px 36px);
+}
+
+html[data-festivity="san-pedro"] .seasonal-ribbon-pattern {
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 28px, color-mix(in srgb, var(--seasonal-secondary) 35%, transparent) 29px 33px),
+    radial-gradient(circle at 15% 50%, var(--seasonal-tertiary) 0 9px, transparent 10px),
+    radial-gradient(circle at 85% 45%, var(--seasonal-secondary) 0 8px, transparent 9px);
+}
+
+html[data-festivity="colombia"] .seasonal-ribbon {
+  border-bottom-color: #ce1126;
+  background: linear-gradient(110deg, #fcd116, #ffe67a);
+}
+
+html[data-festivity="colombia"] .seasonal-ribbon-pattern {
+  opacity: 0.2;
+  background-image: repeating-linear-gradient(135deg, transparent 0 38px, white 39px 43px);
+}
+
+html[data-festivity="amor-y-amistad"] .seasonal-ribbon-pattern {
+  background-image:
+    radial-gradient(circle at 12% 50%, #fff 0 7px, transparent 8px),
+    radial-gradient(circle at 88% 35%, var(--seasonal-tertiary) 0 11px, transparent 12px),
+    radial-gradient(circle at 76% 76%, #fff 0 5px, transparent 6px);
+}
+
+html[data-festivity="velitas"] .seasonal-ribbon-pattern {
+  opacity: 0.45;
+  background-image:
+    radial-gradient(ellipse at 10% 70%, #fff7c2 0 5px, transparent 20px),
+    radial-gradient(ellipse at 90% 60%, #fff7c2 0 5px, transparent 22px),
+    radial-gradient(circle at 76% 22%, var(--seasonal-secondary) 0 4px, transparent 5px),
+    radial-gradient(circle at 24% 22%, var(--seasonal-tertiary) 0 3px, transparent 4px);
+}
+
+html[data-festivity="navidad"] .seasonal-ribbon-pattern {
+  background-image:
+    radial-gradient(circle at 12% 30%, var(--seasonal-tertiary) 0 6px, transparent 7px),
+    radial-gradient(circle at 88% 68%, white 0 5px, transparent 6px),
+    repeating-linear-gradient(135deg, transparent 0 32px, color-mix(in srgb, var(--seasonal-secondary) 34%, transparent) 33px 38px);
 }
 
 @media (prefers-reduced-motion: reduce) {

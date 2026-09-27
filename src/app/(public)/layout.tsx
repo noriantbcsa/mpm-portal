@@ -14,7 +14,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
   const seasonalTheme = resolveSeasonalTheme(settings);
 
   return (
-    <>
+    <div className="public-site-shell flex min-h-full flex-1 flex-col">
       <SkipLink />
       <SeasonalThemeNotice theme={seasonalTheme} />
       <Header />
@@ -24,6 +24,6 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       <Footer />
       <WhatsAppFloatButton />
       <CartSessionSync />
-    </>
+    </div>
   );
 }

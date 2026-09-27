@@ -48,7 +48,7 @@ export function SeasonalThemeForm({
             name="seasonalThemeMode"
             value={mode}
             onChange={(event) => setMode(event.target.value as SeasonalThemeModeValue)}
-            hint="El cambio solo modifica colores de acento y una franja informativa; el contenido y la marca se mantienen."
+            hint="Cada celebración transforma la atmósfera del portal con paleta, patrones, ornamentos, encabezado, portada y detalles propios; las prendas y la marca MPM se mantienen."
             className="sm:col-span-2"
           >
             {MODE_OPTIONS.map((option) => (
@@ -75,20 +75,22 @@ export function SeasonalThemeForm({
           <h2 className="text-sm font-semibold text-slate-900">Vista previa</h2>
           {preview ? (
             <div
-              className="mt-3 overflow-hidden rounded-lg border"
+              className="mt-3 overflow-hidden rounded-lg border shadow-sm"
               style={{ borderColor: preview.primary, background: preview.wash }}
             >
               <div
-                className="px-4 py-2 text-sm font-semibold text-slate-950"
-                style={{ background: `linear-gradient(90deg, color-mix(in srgb, ${preview.primary} 14%, white), color-mix(in srgb, ${preview.secondary} 24%, white))` }}
+                className="px-5 py-5 text-center"
+                style={{ color: preview.ink, background: `linear-gradient(110deg, ${preview.primary}, color-mix(in srgb, ${preview.secondary} 72%, ${preview.primary}))` }}
               >
-                {preview.shortLabel}
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] opacity-90">{preview.eyebrow}</p>
+                <p className="mt-1 text-xl font-black tracking-tight">{preview.name}</p>
+                <p className="mt-1 text-xs font-medium opacity-85">{preview.message}</p>
               </div>
               <div className="p-4">
-                <p className="font-semibold text-slate-900">{preview.name}</p>
-                <p className="mt-1 text-sm text-slate-700">{preview.message}</p>
+                <p className="font-semibold text-slate-900">Vista del ambiente visual</p>
+                <p className="mt-1 text-sm text-slate-700">La misma identidad continúa en la navegación, portada, fondos, tarjetas y pie de página.</p>
                 <div className="mt-3 flex gap-2" aria-label="Colores del diseño">
-                  {[preview.primary, preview.secondary, preview.wash].map((color) => (
+                  {[preview.primary, preview.secondary, preview.tertiary, preview.wash].map((color) => (
                     <span key={color} className="h-7 w-7 rounded-full border border-black/10" style={{ background: color }} title={color} />
                   ))}
                 </div>

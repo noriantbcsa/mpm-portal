@@ -65,31 +65,23 @@ migración necesita revisión manual.
 
 ### ¿Sembrar datos en producción?
 
-**No** corras `npm run db:seed` contra producción tal cual: crearía las 288
-referencias sintéticas y las cuentas de demostración con contraseñas
-públicas (las de este README). En su lugar, para el primer arranque en
+`npm run db:seed` importa únicamente las 18 referencias reales entregadas
+por MPM, retira los datos sintéticos de versiones anteriores y crea las dos
+cuentas de prueba documentadas en el README. Para el primer arranque en
 producción:
 
 1. Corre las migraciones (`migrate deploy`).
-2. Crea manualmente el primer usuario `ADMIN` real. Como todavía no hay
-   panel accesible sin un usuario, la forma más simple es adaptar
-   `prisma/seed.ts` temporalmente (o escribir un script de una sola vez) que
-   solo llame a `seedUsers()` con las credenciales reales del administrador
-   de MPM, ejecutado una vez contra `DATABASE_URL` de producción.
-3. Entra a `/admin/categorias` y `/admin/productos/carga-masiva` para cargar
-   el catálogo real (ver README).
+2. Ejecuta `npm run db:seed` para cargar el catálogo real y crear las cuentas
+   de prueba. Cambia sus contraseñas antes de abrir el portal al público.
+3. Verifica las 18 referencias reales y completa sus datos desde
+   `/admin/productos` cuando MPM los suministre.
 4. Entra a `/admin/ajustes` y reemplaza la identidad provisional (colores,
    WhatsApp, textos) por los datos reales de MPM.
-
-Si en cambio quieres un ambiente de *staging* con datos de ejemplo para que
-el equipo de MPM revise el portal antes de tener su catálogo listo, sí
-puedes correr `db:seed` ahí — está pensado para eso.
 
 ## 5. Imágenes remotas
 
 `next.config.ts` restringe `next/image` a una lista concreta de dominios
-(`images.remotePatterns`): `res.cloudinary.com`, `picsum.photos`,
-`fastly.picsum.photos`, `images.unsplash.com`. Si el equipo de contenido va
+(`images.remotePatterns`): actualmente solo `res.cloudinary.com`. Si el equipo de contenido va
 a pegar URLs de imagen desde otro origen (que no sea Cloudinary), agrega ese
 dominio a la lista — si no, el build seguirá funcionando pero esas imágenes
 puntuales no se optimizarán y Next lanzará un error en tiempo de ejecución
@@ -116,8 +108,7 @@ lista (en vez de permitir cualquier dominio).
 - [ ] Migraciones aplicadas (`prisma migrate deploy`).
 - [ ] Al menos un usuario `ADMIN` real creado, con contraseña propia (no
       `CambiaEsto123!`).
-- [ ] Catálogo real cargado (o decisión consciente de lanzar con el
-      catálogo mixto real+sintético mientras se completa).
+- [ ] Las 18 referencias del catálogo real revisadas y sus 360 imágenes WebP visibles.
 - [ ] `/admin/ajustes` con identidad/WhatsApp/contacto reales de MPM.
 - [ ] `/politica-de-datos` revisada y aprobada por MPM (o su asesor legal) —
       hoy tiene un texto de ejemplo marcado explícitamente como provisional.

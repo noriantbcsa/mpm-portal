@@ -59,8 +59,7 @@
 ## Imágenes remotas
 
 `next.config.ts` limita `next/image` a una **lista concreta** de dominios
-(`res.cloudinary.com`, `picsum.photos`, `fastly.picsum.photos`,
-`images.unsplash.com`) en vez de un comodín (`hostname: "**"`). Next.js 16
+(`res.cloudinary.com`) en vez de un comodín (`hostname: "**"`). Next.js 16
 además exige explícitamente declarar patrones para imágenes locales con
 query string, como protección contra enumeración. Recomendación: cuando
 Cloudinary sea la única fuente de imágenes en producción, reduce la lista a

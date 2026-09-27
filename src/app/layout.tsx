@@ -30,6 +30,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     "--brand-accent": settings.accentColor,
     "--seasonal-primary": seasonalTheme?.primary ?? settings.primaryColor,
     "--seasonal-secondary": seasonalTheme?.secondary ?? settings.secondaryColor,
+    "--seasonal-tertiary": seasonalTheme?.tertiary ?? settings.accentColor,
+    "--seasonal-ink": seasonalTheme?.ink ?? "#111827",
     "--seasonal-wash": seasonalTheme?.wash ?? settings.accentColor,
   } as CSSProperties;
 

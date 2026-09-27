@@ -68,7 +68,7 @@ docker compose up -d db
 # 4. Migraciones + generación del cliente Prisma
 npm run db:migrate
 
-# 5. Datos de ejemplo (usuarios, categorías, campañas y ~300 referencias)
+# 5. Catálogo real de MPM y usuarios de prueba
 npm run db:seed
 
 # 6. Servidor de desarrollo
@@ -108,23 +108,15 @@ administrador con una contraseña propia):
 | `npm run db:studio` | Abre Prisma Studio para inspeccionar la base de datos |
 | `npm run db:reset` | ⚠️ Borra y recrea la base de datos local desde cero |
 
-## Catálogo de datos: qué es real y qué es de demostración
+## Catálogo real de MPM
 
-- **18 referencias reales** (con fotografía) en `public/catalogo/` —
-  "Damas" y "Caballero" — entregadas por MPM. Ver
-  [docs/CATALOG_ASSETS.md](docs/CATALOG_ASSETS.md) para el detalle de cómo
-  se importaron.
-- **~288 referencias sintéticas** (nombres/tallas/colores generados,
-  fotos de stock vía picsum.photos) que completan el catálogo a más de 300
-  referencias, para poder probar filtros, paginación, campañas y carga
-  masiva a la escala real del proyecto. **Estas deben reemplazarse** por el
-  catálogo definitivo de MPM, vía carga masiva CSV (`/admin/productos/carga-masiva`)
-  o cargándolas una por una desde `/admin/productos`.
-
-Ambos grupos los crea `prisma/seed.ts` (que reutiliza `prisma/seed-helpers.ts`
-para los datos sintéticos). El seed es *idempotente*: puedes volver a
-correrlo sin duplicar productos (usa `upsert` por SKU/slug) y no pisa
-productos que ya hayas editado manualmente desde el panel.
+- **18 referencias reales** y **360 fotografías WebP** en `public/catalogo/`:
+  12 referencias de Damas y 6 de Caballero, entregadas por MPM. Ver
+  [docs/CATALOG_ASSETS.md](docs/CATALOG_ASSETS.md) para el detalle de la importación.
+- No se publican productos, categorías, campañas ni fotografías de stock de
+  demostración. El seed retira automáticamente los datos sintéticos de
+  versiones anteriores.
+- Los archivos entregados no contienen referencias de medias.
 
 ## Cargar el catálogo real de MPM
 

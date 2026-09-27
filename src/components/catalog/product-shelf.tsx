@@ -21,7 +21,7 @@ export function ProductShelf({
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-6 flex items-end justify-between gap-4 border-b border-line pb-4">
-        <div>
+        <div className="seasonal-section-heading">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink sm:text-3xl">{title}</h2>
           {description && <p className="mt-1 text-sm text-ink-soft">{description}</p>}
         </div>

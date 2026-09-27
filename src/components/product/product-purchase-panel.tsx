@@ -30,10 +30,8 @@ export function ProductPurchasePanel({
 }) {
   const [selectedColor, setSelectedColor] = useState(colors[0] ?? "");
 
-  // El catálogo real tiene una foto por color (galería filtrable, como en
-  // Garmin: elegir un color cambia la foto principal a solo ese color). El
-  // catálogo sintético no tiene esa relación (fotos de stock sin color
-  // asociado), así que ahí se sigue mostrando la galería completa.
+  // Cuando las fotos reales identifican un color, elegirlo filtra la galería.
+  // Las vistas cuyo nombre no permite inferir un color siguen disponibles.
   const hasColorPhotos = images.some((image) => image.color);
   const filteredByColor = hasColorPhotos
     ? images.filter((image) => image.color?.toLowerCase() === selectedColor.toLowerCase())

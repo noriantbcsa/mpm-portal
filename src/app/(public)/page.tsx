@@ -58,7 +58,7 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto max-w-[1440px] px-0 sm:px-6 sm:pt-6">
-        <div className="relative isolate min-h-[590px] overflow-hidden bg-[#242824] sm:min-h-[680px]">
+        <div className="seasonal-hero relative isolate min-h-[590px] overflow-hidden bg-[#242824] sm:min-h-[680px]">
           {heroImage && (
             <Image
               src={heroImage}
@@ -91,7 +91,7 @@ export default async function HomePage() {
       {spotlightCategories.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
           <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
+            <div className="seasonal-section-heading">
               <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink-soft">Comprar por colección</p>
               <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-4xl">Encuentra tu estilo</h2>
             </div>

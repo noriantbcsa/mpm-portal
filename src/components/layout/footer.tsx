@@ -10,7 +10,7 @@ export async function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-16 border-t border-line bg-brand-accent/40">
+    <footer className="seasonal-footer mt-16 border-t border-line bg-brand-accent/40">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="font-display text-lg font-semibold text-brand-primary">{settings.siteName}</p>
