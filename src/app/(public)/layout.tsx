@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { WhatsAppFloatButton } from "@/components/layout/whatsapp-float-button";
 import { CartSessionSync } from "@/components/cart/cart-session-sync";
 import { SeasonalThemeNotice } from "@/components/layout/seasonal-theme-notice";
+import { SeasonalBackdrop } from "@/components/layout/seasonal-backdrop";
 import { getSiteSettings } from "@/lib/site-config";
 import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
 
@@ -19,6 +20,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       <SeasonalThemeNotice theme={seasonalTheme} />
       <Header />
       <main id="contenido" className="seasonal-main relative flex-1 overflow-hidden">
+        <SeasonalBackdrop theme={seasonalTheme} />
         <div className="seasonal-ambient" aria-hidden="true"><i /><i /><i /><b /><b /><em /></div>
         {children}
       </main>
