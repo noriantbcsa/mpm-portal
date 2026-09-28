@@ -13,6 +13,7 @@ export function SeasonalBackdrop({ theme }: { theme: SeasonalTheme | null }) {
   return (
     <div className={`seasonal-scene seasonal-scene--${name}`} aria-hidden="true">
       <div className="seasonal-scene-banner" />
+      <div className="seasonal-scene-band"><i /><i /><i /><i /></div>
       <div className="seasonal-scene-cluster"><i /><i /><i /><i /><i /><i /></div>
       <div className="seasonal-scene-corner"><i /><i /><i /></div>
     </div>

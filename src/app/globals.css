@@ -266,10 +266,19 @@ html[data-festivity] .seasonal-main > :not(.seasonal-ambient):not(.seasonal-scen
 
 .seasonal-scene-banner,
 .seasonal-scene-cluster,
-.seasonal-scene-corner { position: absolute; }
+.seasonal-scene-corner,
+.seasonal-scene-band { position: absolute; }
 
 .seasonal-scene-cluster i,
-.seasonal-scene-corner i { position: absolute; display: block; }
+.seasonal-scene-corner i,
+.seasonal-scene-band i { position: absolute; display: block; }
+
+/* Las cuatro franjas llenan los tramos largos de catálogo e inicio: hacen que
+   el ambiente se perciba en todo el recorrido, pero se desvanecen hacia el
+   centro para proteger lectura, fotos y filtros. */
+.seasonal-scene-band { inset: 8rem 0 0; }
+.seasonal-scene-band i { left: 0; right: 0; height: 9rem; opacity: 0.42; mask-image: linear-gradient(90deg, transparent, #000 12% 88%, transparent); }
+.seasonal-scene-band i:nth-child(1) { top: 11rem; }.seasonal-scene-band i:nth-child(2) { top: 34rem; }.seasonal-scene-band i:nth-child(3) { top: 61rem; }.seasonal-scene-band i:nth-child(4) { top: 91rem; }
 
 /* Navidad: guirnalda luminosa arriba y regalos discretos en el borde. */
 .seasonal-scene--navidad .seasonal-scene-banner {
@@ -300,6 +309,7 @@ html[data-festivity] .seasonal-main > :not(.seasonal-ambient):not(.seasonal-scen
 .seasonal-scene--navidad .seasonal-scene-cluster i:nth-child(2) { left: 3.1rem; width: 3.9rem; height: 4.6rem; background-color: #2e8660; }
 .seasonal-scene--navidad .seasonal-scene-cluster i:nth-child(3) { left: 7rem; height: 3.5rem; background-color: #e1a943; }
 .seasonal-scene--navidad .seasonal-scene-cluster i:nth-child(n+4) { display: none; }
+.seasonal-scene--navidad .seasonal-scene-band i { background: repeating-linear-gradient(45deg, color-mix(in srgb, #24734f 12%, transparent) 0 18px, transparent 18px 38px), repeating-linear-gradient(-45deg, color-mix(in srgb, #d94444 11%, transparent) 0 18px, transparent 18px 38px); border-top: 1px solid color-mix(in srgb, #e1b84d 32%, transparent); border-bottom: 1px solid color-mix(in srgb, #24734f 24%, transparent); }
 
 /* Velitas: pequeñas velas cálidas en la parte inferior. */
 .seasonal-scene--velitas .seasonal-scene-banner { left: 7%; right: 7%; top: 0; height: 1px; background: color-mix(in srgb, var(--seasonal-secondary) 55%, transparent); box-shadow: 0 7px 0 color-mix(in srgb, var(--seasonal-primary) 17%, transparent); }
@@ -307,19 +317,26 @@ html[data-festivity] .seasonal-main > :not(.seasonal-ambient):not(.seasonal-scen
 .seasonal-scene--velitas .seasonal-scene-cluster i { bottom: 0; width: 1.5rem; height: 3.4rem; border-radius: 3px 3px 0 0; background: color-mix(in srgb, var(--seasonal-tertiary) 75%, white); box-shadow: 0 -1.3rem 1.1rem color-mix(in srgb, var(--seasonal-secondary) 50%, transparent); }
 .seasonal-scene--velitas .seasonal-scene-cluster i::before { position: absolute; left: 0.35rem; top: -1.35rem; width: 0.8rem; height: 1.25rem; border-radius: 90% 15% 90% 15%; background: var(--seasonal-secondary); content: ""; transform: rotate(-35deg); }
 .seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(1) { left: 0; height: 2.7rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(2) { left: 2.2rem; height: 4.1rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(3) { left: 4.4rem; height: 3.2rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(4) { left: 6.6rem; height: 4.8rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(5) { left: 8.8rem; height: 2.9rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(6) { display: none; }
+.seasonal-scene--velitas .seasonal-scene-band i { background: radial-gradient(ellipse at 10% 100%, color-mix(in srgb, var(--seasonal-secondary) 30%, transparent), transparent 12%), radial-gradient(ellipse at 34% 100%, color-mix(in srgb, var(--seasonal-secondary) 25%, transparent), transparent 10%), radial-gradient(ellipse at 65% 100%, color-mix(in srgb, var(--seasonal-secondary) 30%, transparent), transparent 12%), radial-gradient(ellipse at 89% 100%, color-mix(in srgb, var(--seasonal-secondary) 25%, transparent), transparent 10%); border-bottom: 1px solid color-mix(in srgb, var(--seasonal-primary) 25%, transparent); }
 
 /* Amor y Amistad: corazones de fondo, no sobre los controles. */
 .seasonal-scene--amor-y-amistad .seasonal-scene-cluster { left: 4%; top: 18rem; width: 12rem; height: 12rem; opacity: 0.3; }
 .seasonal-scene--amor-y-amistad .seasonal-scene-cluster i { width: 2.5rem; height: 2.5rem; background: var(--seasonal-secondary); border-radius: 50% 50% 0 0; transform: rotate(45deg); }
 .seasonal-scene--amor-y-amistad .seasonal-scene-cluster i::before { position: absolute; left: -1.25rem; width: 2.5rem; height: 2.5rem; border-radius: 50% 50% 0 0; background: inherit; content: ""; }.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i::after { position: absolute; bottom: -1.25rem; left: 0; border: 1.25rem solid transparent; border-top-color: inherit; content: ""; transform: rotate(-45deg); transform-origin: top; }
 .seasonal-scene--amor-y-amistad .seasonal-scene-cluster i:nth-child(1) { left: 1rem; top: 1rem; }.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i:nth-child(2) { right: 0; top: 4.5rem; transform: rotate(45deg) scale(0.65); }.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i:nth-child(3) { left: 4rem; bottom: 0; transform: rotate(45deg) scale(0.45); }.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i:nth-child(n+4) { display: none; }
+.seasonal-scene--amor-y-amistad .seasonal-scene-band i { background: radial-gradient(circle at 9% 45%, color-mix(in srgb, var(--seasonal-secondary) 20%, transparent) 0 7px, transparent 8px), radial-gradient(circle at 31% 65%, color-mix(in srgb, var(--seasonal-primary) 13%, transparent) 0 5px, transparent 6px), radial-gradient(circle at 69% 35%, color-mix(in srgb, var(--seasonal-secondary) 18%, transparent) 0 8px, transparent 9px), radial-gradient(circle at 92% 60%, color-mix(in srgb, var(--seasonal-primary) 13%, transparent) 0 5px, transparent 6px); }
 
 /* Colombia, Carnaval y San Pedro: bandera, confeti y flores abstractas. */
 .seasonal-scene--colombia .seasonal-scene-banner { top: 0; right: 8%; width: 2.6rem; height: 9rem; opacity: 0.46; background: linear-gradient(#fcd116 0 50%, #003893 50% 75%, #ce1126 75%); transform: skewY(-12deg); }
 .seasonal-scene--carnaval .seasonal-scene-corner { right: 4%; top: 12rem; width: 10rem; height: 10rem; opacity: 0.42; background: repeating-conic-gradient(from 15deg, var(--seasonal-secondary) 0 10deg, transparent 10deg 28deg, var(--seasonal-tertiary) 28deg 38deg, transparent 38deg 60deg); border-radius: 999px; }
 .seasonal-scene--san-pedro .seasonal-scene-corner { right: 5%; top: 15rem; width: 9rem; height: 9rem; opacity: 0.34; background: repeating-conic-gradient(var(--seasonal-secondary) 0 17deg, transparent 17deg 43deg); border-radius: 999px; }
 
+.seasonal-scene--colombia .seasonal-scene-band i { height: 4.5rem; background: linear-gradient(#fcd116 0 50%, #003893 50% 75%, #ce1126 75%); opacity: 0.22; box-shadow: 0 3.5rem 0 color-mix(in srgb, #fcd116 10%, transparent); }
+.seasonal-scene--carnaval .seasonal-scene-band i { background: repeating-conic-gradient(from 25deg at 12% 50%, color-mix(in srgb, var(--seasonal-secondary) 30%, transparent) 0 8deg, transparent 8deg 22deg, color-mix(in srgb, var(--seasonal-tertiary) 32%, transparent) 22deg 30deg, transparent 30deg 45deg), repeating-conic-gradient(from -10deg at 88% 50%, color-mix(in srgb, var(--seasonal-primary) 26%, transparent) 0 8deg, transparent 8deg 22deg, color-mix(in srgb, var(--seasonal-secondary) 28%, transparent) 22deg 30deg, transparent 30deg 45deg); background-size: 17rem 17rem, 17rem 17rem; background-position: left center, right center; background-repeat: no-repeat; border-top: 2px dotted color-mix(in srgb, var(--seasonal-secondary) 42%, transparent); }
+.seasonal-scene--san-pedro .seasonal-scene-band i { background: radial-gradient(ellipse at 14% 50%, color-mix(in srgb, var(--seasonal-secondary) 28%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 16% 38%, color-mix(in srgb, var(--seasonal-tertiary) 25%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 16% 62%, color-mix(in srgb, var(--seasonal-tertiary) 25%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 86% 50%, color-mix(in srgb, var(--seasonal-secondary) 28%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 84% 38%, color-mix(in srgb, var(--seasonal-tertiary) 25%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 84% 62%, color-mix(in srgb, var(--seasonal-tertiary) 25%, transparent) 0 9px, transparent 10px); border-bottom: 1px solid color-mix(in srgb, var(--seasonal-primary) 22%, transparent); }
+
 .seasonal-scene--negros-y-blancos .seasonal-scene-banner { inset: 1.3rem auto auto 5%; width: 11rem; height: 11rem; opacity: 0.18; background: repeating-radial-gradient(circle, var(--seasonal-primary) 0 4px, transparent 4px 13px); border-radius: 999px; }
+.seasonal-scene--negros-y-blancos .seasonal-scene-band i { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--seasonal-primary) 12%, transparent) 0 2px, transparent 2px 16px), repeating-linear-gradient(45deg, color-mix(in srgb, var(--seasonal-secondary) 11%, transparent) 0 2px, transparent 2px 21px); }
 
 @media (max-width: 639px) {
   .seasonal-scene { opacity: 0.62; }
