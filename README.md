@@ -38,7 +38,8 @@ Navidad. Las fechas se interpretan en la zona horaria de Colombia.
   fotos de producto; mientras tanto se pegan URLs de imagen directamente.
 - **WhatsApp** vía enlaces `wa.me` estructurados (sin integración de pago).
 - **Vitest** para pruebas unitarias.
-- Pensado para desplegar en **Vercel**.
+- Desplegado en **Render** (`render.yaml` en la raíz define el servicio web
+  y la base de datos administrada).
 
 Si otro sistema desarrollado en PHP debe consumir el catálogo, usa las vistas
 de solo lectura documentadas en [docs/PHP_INTEGRATION.md](docs/PHP_INTEGRATION.md).
@@ -155,9 +156,9 @@ más importantes:
 
 ## Despliegue
 
-Ver [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) para la guía completa (Vercel +
-Postgres administrado + variables de entorno + primer `db:migrate:deploy` +
-`db:seed`).
+Ver [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) para la guía completa (Render +
+Postgres administrado + variables de entorno + migraciones + siembra de
+datos).
 
 ## Pruebas y calidad
 
