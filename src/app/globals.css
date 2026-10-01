@@ -482,7 +482,7 @@ html[data-festivity] .seasonal-main::after {
    del catálogo, sin convertir el fondo en un patrón repetitivo. */
 .seasonal-scene::before {
   position: absolute;
-  top: clamp(68rem, 108vh, 82rem);
+  top: clamp(112rem, 155vh, 140rem);
   right: 0;
   width: 100%;
   height: clamp(16rem, 27vw, 24rem);
@@ -492,6 +492,7 @@ html[data-festivity] .seasonal-main::after {
   background-repeat: no-repeat;
   background-position: top right;
   background-size: max(46rem, 72%) auto;
+  transform: scaleX(-1);
 }
 
 .seasonal-scene--negros-y-blancos { --seasonal-backdrop: url("/seasonal/negros-y-blancos.webp"); }
@@ -516,7 +517,7 @@ html[data-festivity] .seasonal-main::after {
 @media (max-width: 639px) {
   .seasonal-scene { opacity: 0.46; background-size: auto 26rem; }
   .seasonal-scene::after { top: 30rem; height: 15rem; opacity: 0.3; background-size: auto 16rem; }
-  .seasonal-scene::before { top: 52rem; height: 13rem; opacity: 0.24; background-size: auto 14rem; }
+  .seasonal-scene::before { top: 85rem; height: 13rem; opacity: 0.24; background-size: auto 14rem; }
 }
 
 .campaign-showcase {
