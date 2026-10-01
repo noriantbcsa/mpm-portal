@@ -467,7 +467,9 @@ html[data-festivity] .seasonal-main::after {
   top: clamp(58rem, 82vh, 70rem);
   left: 0;
   width: 100%;
-  height: clamp(32rem, 45vw, 48rem);
+  /* Las ilustraciones WebP miden 1672 × 941. Esta altura conserva la
+     proporción a 105% de ancho y evita recortar sus figuras inferiores. */
+  height: max(42rem, 60vw);
   content: "";
   opacity: 0.72;
   background-image: var(--seasonal-lateral);
@@ -480,10 +482,11 @@ html[data-festivity] .seasonal-main::after {
    visual y espacio suficiente para no competir con las prendas. */
 .seasonal-scene::before {
   position: absolute;
-  top: clamp(108rem, 150vh, 132rem);
+  /* Se ubica después de la escena lateral, incluso en pantallas anchas. */
+  top: max(140rem, 182vh);
   right: 0;
   width: 100%;
-  height: clamp(32rem, 45vw, 48rem);
+  height: max(42rem, 60vw);
   content: "";
   opacity: 0.72;
   background-image: var(--seasonal-complement);
@@ -518,8 +521,8 @@ html[data-festivity] .seasonal-main::after {
 
 @media (max-width: 639px) {
   .seasonal-scene { opacity: 0.46; background-size: auto 26rem; }
-  .seasonal-scene::after { top: 45rem; height: 27rem; opacity: 0.62; background-size: auto 30rem; }
-  .seasonal-scene::before { top: 82rem; height: 27rem; opacity: 0.62; background-size: auto 30rem; }
+  .seasonal-scene::after { top: 45rem; height: 30rem; opacity: 0.62; background-size: auto 30rem; }
+  .seasonal-scene::before { top: 90rem; height: 30rem; opacity: 0.62; background-size: auto 30rem; }
 }
 
 .campaign-showcase {
