@@ -460,6 +460,24 @@ html[data-festivity] .seasonal-main::after {
   background-size: max(70rem, 100%) auto;
 }
 
+/* Un segundo eco de la ilustración aparece más abajo y al lado contrario.
+   Mantiene las páginas extensas acompañadas sin volver el fondo repetitivo. */
+.seasonal-scene::after {
+  position: absolute;
+  top: clamp(30rem, 54vh, 42rem);
+  left: 0;
+  width: 100%;
+  height: clamp(19rem, 31vw, 28rem);
+  content: "";
+  opacity: 0.42;
+  background-image: var(--seasonal-backdrop);
+  background-repeat: no-repeat;
+  background-position: top left;
+  background-size: max(52rem, 82%) auto;
+  transform: scaleX(-1);
+  transform-origin: center;
+}
+
 .seasonal-scene--negros-y-blancos { --seasonal-backdrop: url("/seasonal/negros-y-blancos.webp"); }
 .seasonal-scene--feria-manizales { --seasonal-backdrop: url("/seasonal/feria-manizales.webp"); }
 .seasonal-scene--carnaval { --seasonal-backdrop: url("/seasonal/carnaval.webp"); }
@@ -478,6 +496,7 @@ html[data-festivity] .seasonal-main::after {
 
 @media (max-width: 639px) {
   .seasonal-scene { opacity: 0.46; background-size: auto 26rem; }
+  .seasonal-scene::after { top: 30rem; height: 15rem; opacity: 0.3; background-size: auto 16rem; }
 }
 
 .campaign-showcase {
