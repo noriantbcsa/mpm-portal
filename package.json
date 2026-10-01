@@ -22,6 +22,7 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:catalog": "tsx prisma/seed.ts",
+    "db:remove-demo-content": "tsx scripts/remove-demo-content.ts",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset",
     "db:test:migrate": "DATABASE_URL=\"postgresql://mpm:mpm_dev_password@localhost:5544/mpm_portal_test?schema=public\" prisma migrate deploy"

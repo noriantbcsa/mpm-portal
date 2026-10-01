@@ -15,7 +15,7 @@ services:
     name: mpm-portal
     runtime: node
     plan: free
-    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run db:seed && npm run build
+    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION
@@ -44,35 +44,24 @@ dashboard de Render (Environment), al menos:
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Respaldo; el valor real se administra desde `/admin/ajustes` |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Opcionales — actívalos cuando exista la cuenta definitiva |
 
-## 2. Qué corre el `buildCommand`, y una advertencia importante
+## 2. Qué corre el `buildCommand`
 
 En cada despliegue (cada `git push` al branch conectado), Render ejecuta en
-orden: `prisma generate` → `prisma migrate deploy` → **`npm run db:seed`** →
-`next build`.
+orden: `prisma generate` → `prisma migrate deploy` → `next build`. Ambos
+pasos son seguros de repetir en cada build (`migrate deploy` solo aplica
+migraciones pendientes; no modifica datos).
 
-`prisma migrate deploy` es seguro de repetir (solo aplica migraciones
-pendientes). **`npm run db:seed` NO es igual de inocuo**: además de
-sembrar/actualizar las 18 referencias reales y las dos cuentas de prueba,
-`prisma/seed.ts` llama a `removeDemoCatalogContent()`, que borra por `slug`
-cualquier producto, categoría o campaña sintéticos de versiones anteriores
-del portal — incluyendo una campaña con slug `carnaval-de-barranquilla`
-(junto con `regreso-a-clases` y `liquidacion-fin-de-temporada`).
-
-Esto fue pensado como una limpieza de una sola vez al migrar del catálogo
-sintético al catálogo real. Pero como `db:seed` corre en **cada** build, si
-alguna vez un administrador crea desde `/admin/campanas` una campaña real
-usando por coincidencia uno de esos tres slugs, el próximo despliegue la
-borrará sin aviso — sin que nada la recree, porque ya no existe un paso de
-siembra de campañas en `main()`.
-
-**Antes de usar este entorno de Render como el portal real y definitivo de
-MPM** (no solo para una vista previa), hay que resolver esto: o se saca
-`npm run db:seed` del `buildCommand` (y se corre manualmente, una sola vez,
-desde la shell de Render, como ya se hace con `migrate deploy` en el punto
-4), o se cambia `removeDemoCatalogContent()` para que no pueda borrar
-contenido creado después de esa limpieza inicial (por ejemplo, limitándola a
-una vez por entorno, o marcando el contenido sintético con un campo propio
-en vez de identificarlo por slug).
+**`npm run db:seed` deliberadamente NO está en el `buildCommand`.** Antes sí
+corría ahí en cada deploy, y `prisma/seed.ts` llamaba a una limpieza
+(`removeDemoCatalogContent()`, pensada como un paso de una sola vez al migrar
+del catálogo sintético al real) que borraba por `slug` cualquier campaña
+coincidente — incluyendo `carnaval-de-barranquilla`. Como corría en cada
+build, una campaña real creada después con ese mismo slug se habría borrado
+sin aviso en el siguiente despliegue, sin nada que la recreara. Esa limpieza
+ahora vive aparte, en `scripts/remove-demo-content.ts` — un script de una
+sola ejecución que nunca corre automáticamente — y `db:seed` (que sigue
+siendo seguro de repetir: solo hace upserts) se corre a mano cuando
+realmente hace falta, no en cada deploy. Ver el punto 4.
 
 ## 3. Build
 
@@ -82,16 +71,26 @@ Render detecta Next.js automáticamente a través del `buildCommand` de
 
 ## 4. Migraciones y datos: primer despliegue
 
-El flujo normal ya queda cubierto por el `buildCommand`. Si necesitas
-aplicar una migración o re-sembrar manualmente contra producción (por
-ejemplo, para evitar el riesgo del punto 2 mientras no se resuelva), usa la
-shell de Render o corre localmente apuntando a la base de datos de
+Las migraciones ya quedan cubiertas por el `buildCommand`. La siembra inicial
+(catálogo real + las dos cuentas de prueba) y, si alguna vez hace falta, la
+limpieza de contenido de demostración, se corren a mano **una sola vez**,
+desde la shell de Render o apuntando localmente a la base de datos de
 producción:
 
 ```bash
 DATABASE_URL="<url-de-produccion>" npx prisma migrate deploy
 DATABASE_URL="<url-de-produccion>" npm run db:seed
+# Solo si el entorno todavía tiene categorías/productos/campañas de
+# demostración de una versión anterior del portal (no debería, en un
+# entorno nuevo):
+DATABASE_URL="<url-de-produccion>" npm run db:remove-demo-content
 ```
+
+`npm run db:seed` es seguro de repetir más adelante (por ejemplo, para
+actualizar las fotos cuando MPM entregue nuevas): solo hace upserts por
+`sku`/`email`. `npm run db:remove-demo-content` en cambio borra por nombre
+de slug — solo corre esto si de verdad necesitas limpiar datos de
+demostración; nunca lo agregues de vuelta al `buildCommand`.
 
 Tras el primer arranque:
 
@@ -128,8 +127,6 @@ lista (en vez de permitir cualquier dominio).
 
 ## 7. Checklist previo a salir a producción
 
-- [ ] Resuelto el riesgo del punto 2 (`db:seed` borrando campañas reales por
-      coincidencia de slug) si este Render va a ser el portal definitivo.
 - [ ] `AUTH_SECRET` de producción generado y distinto al de desarrollo
       (Render lo genera solo la primera vez — no lo pises a mano).
 - [ ] Migraciones aplicadas (`prisma migrate deploy`).

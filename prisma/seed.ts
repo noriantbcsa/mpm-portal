@@ -1,9 +1,13 @@
 /**
  * Siembra del catálogo entregado por MPM y de los usuarios de prueba.
  *
- * Solo publica las 18 referencias presentes en `public/catalogo/`. Antes de
- * importarlas elimina los artículos, categorías y campañas sintéticas que
- * existieron en versiones anteriores del portal.
+ * Solo publica/actualiza las 18 referencias presentes en `public/catalogo/`
+ * y crea las dos cuentas de prueba si todavía no existen — ambas
+ * operaciones son upserts seguros de repetir. (La limpieza del catálogo
+ * sintético de versiones anteriores del portal fue un paso de una sola vez;
+ * vive en `scripts/remove-demo-content.ts`, no aquí, para que correr este
+ * seed en cada despliegue no pueda borrar contenido real por coincidencia
+ * de slug.)
  */
 import "dotenv/config";
 import { readdirSync } from "node:fs";
@@ -179,31 +183,7 @@ async function seedUsers() {
   console.log("Usuarios de demostración listos (ver README.md para credenciales).");
 }
 
-const DEMO_CATEGORY_SLUGS = [
-  "damas-camisetas-blusas", "damas-vestidos", "damas-pantalones", "damas-deportiva",
-  "caballero-camisetas", "caballero-camisas", "caballero-pantalones", "caballero-deportiva",
-  "ninos", "ninos-nino", "ninos-nina", "ninos-bebe",
-  "dotacion", "dotacion-camisetas", "dotacion-uniformes",
-  "accesorios", "accesorios-gorras", "accesorios-bolsos", "accesorios-medias",
-] as const;
-
-const DEMO_CAMPAIGN_SLUGS = [
-  "carnaval-de-barranquilla",
-  "regreso-a-clases",
-  "liquidacion-fin-de-temporada",
-] as const;
-
-async function removeDemoCatalogContent() {
-  const products = await prisma.product.deleteMany({
-    where: { category: { slug: { in: [...DEMO_CATEGORY_SLUGS] } } },
-  });
-  const campaigns = await prisma.campaign.deleteMany({ where: { slug: { in: [...DEMO_CAMPAIGN_SLUGS] } } });
-  const categories = await prisma.category.deleteMany({ where: { slug: { in: [...DEMO_CATEGORY_SLUGS] } } });
-  console.log(`Contenido de demostración retirado: ${products.count} productos, ${categories.count} categorías y ${campaigns.count} campañas.`);
-}
-
 async function main() {
-  await removeDemoCatalogContent();
   await importRealCatalog();
   await seedUsers();
 
