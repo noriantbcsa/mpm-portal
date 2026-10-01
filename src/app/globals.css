@@ -460,8 +460,8 @@ html[data-festivity] .seasonal-main::after {
   background-size: max(70rem, 100%) auto;
 }
 
-/* Un segundo eco de la ilustración aparece más abajo y al lado contrario.
-   Mantiene las páginas extensas acompañadas sin volver el fondo repetitivo. */
+/* Una ilustración lateral propia acompaña las páginas extensas sin repetir
+   el motivo principal ni convertirse en un patrón. */
 .seasonal-scene::after {
   position: absolute;
   top: clamp(58rem, 82vh, 70rem);
@@ -470,16 +470,14 @@ html[data-festivity] .seasonal-main::after {
   height: clamp(32rem, 45vw, 48rem);
   content: "";
   opacity: 0.72;
-  background-image: var(--seasonal-backdrop);
+  background-image: var(--seasonal-lateral);
   background-repeat: no-repeat;
   background-position: top left;
   background-size: max(72rem, 105%) auto;
-  transform: scaleX(-1);
-  transform-origin: center;
 }
 
-/* Tercer acento para que el ambiente acompañe también las secciones largas
-   del catálogo, sin convertir el fondo en un patrón repetitivo. */
+/* El complemento inferior es una tercera composición propia, con presencia
+   visual y espacio suficiente para no competir con las prendas. */
 .seasonal-scene::before {
   position: absolute;
   top: clamp(108rem, 150vh, 132rem);
@@ -488,33 +486,35 @@ html[data-festivity] .seasonal-main::after {
   height: clamp(32rem, 45vw, 48rem);
   content: "";
   opacity: 0.72;
-  background-image: var(--seasonal-complement, var(--seasonal-backdrop));
+  background-image: var(--seasonal-complement);
   background-repeat: no-repeat;
   background-position: top right;
   background-size: max(72rem, 105%) auto;
 }
 
-.seasonal-scene--negros-y-blancos { --seasonal-backdrop: url("/seasonal/negros-y-blancos.webp"); }
-.seasonal-scene--feria-manizales { --seasonal-backdrop: url("/seasonal/feria-manizales.webp"); }
-.seasonal-scene--carnaval { --seasonal-backdrop: url("/seasonal/carnaval.webp"); }
-.seasonal-scene--dia-mujer { --seasonal-backdrop: url("/seasonal/dia-mujer.webp"); }
-.seasonal-scene--dia-hombre { --seasonal-backdrop: url("/seasonal/dia-hombre.webp"); }
-.seasonal-scene--dia-madre { --seasonal-backdrop: url("/seasonal/dia-madre.webp"); }
-.seasonal-scene--festival-vallenato { --seasonal-backdrop: url("/seasonal/festival-vallenato.webp"); }
+.seasonal-scene--negros-y-blancos { --seasonal-backdrop: url("/seasonal/negros-y-blancos.webp"); --seasonal-lateral: url("/seasonal/negros-y-blancos-lateral.webp"); --seasonal-complement: url("/seasonal/negros-y-blancos-complemento.webp"); }
+.seasonal-scene--feria-manizales { --seasonal-backdrop: url("/seasonal/feria-manizales.webp"); --seasonal-lateral: url("/seasonal/feria-manizales-lateral.webp"); --seasonal-complement: url("/seasonal/feria-manizales-complemento.webp"); }
+.seasonal-scene--carnaval { --seasonal-backdrop: url("/seasonal/carnaval.webp"); --seasonal-lateral: url("/seasonal/carnaval-lateral.webp"); --seasonal-complement: url("/seasonal/carnaval-complemento.webp"); }
+.seasonal-scene--dia-mujer { --seasonal-backdrop: url("/seasonal/dia-mujer.webp"); --seasonal-lateral: url("/seasonal/dia-mujer-lateral.webp"); --seasonal-complement: url("/seasonal/dia-mujer-complemento.webp"); }
+.seasonal-scene--dia-hombre { --seasonal-backdrop: url("/seasonal/dia-hombre.webp"); --seasonal-lateral: url("/seasonal/dia-hombre-lateral.webp"); --seasonal-complement: url("/seasonal/dia-hombre-complemento.webp"); }
+.seasonal-scene--dia-madre { --seasonal-backdrop: url("/seasonal/dia-madre.webp"); --seasonal-lateral: url("/seasonal/dia-madre-lateral.webp"); --seasonal-complement: url("/seasonal/dia-madre-complemento.webp"); }
+.seasonal-scene--festival-vallenato { --seasonal-backdrop: url("/seasonal/festival-vallenato.webp"); --seasonal-lateral: url("/seasonal/festival-vallenato-lateral.webp"); --seasonal-complement: url("/seasonal/festival-vallenato-complemento.webp"); }
 .seasonal-scene--san-pedro {
   --seasonal-backdrop: url("/seasonal/san-pedro.webp");
+  --seasonal-lateral: url("/seasonal/san-pedro-lateral.webp");
   --seasonal-complement: url("/seasonal/san-pedro-complemento.webp");
 }
-.seasonal-scene--colombia { --seasonal-backdrop: url("/seasonal/colombia.webp"); }
-.seasonal-scene--feria-flores { --seasonal-backdrop: url("/seasonal/feria-flores.webp"); }
-.seasonal-scene--amor-y-amistad { --seasonal-backdrop: url("/seasonal/amor-y-amistad.webp"); }
+.seasonal-scene--colombia { --seasonal-backdrop: url("/seasonal/colombia.webp"); --seasonal-lateral: url("/seasonal/colombia-lateral.webp"); --seasonal-complement: url("/seasonal/colombia-complemento.webp"); }
+.seasonal-scene--feria-flores { --seasonal-backdrop: url("/seasonal/feria-flores.webp"); --seasonal-lateral: url("/seasonal/feria-flores-lateral.webp"); --seasonal-complement: url("/seasonal/feria-flores-complemento.webp"); }
+.seasonal-scene--amor-y-amistad { --seasonal-backdrop: url("/seasonal/amor-y-amistad.webp"); --seasonal-lateral: url("/seasonal/amor-y-amistad-lateral.webp"); --seasonal-complement: url("/seasonal/amor-y-amistad-complemento.webp"); }
 .seasonal-scene--san-pacho {
   --seasonal-backdrop: url("/seasonal/san-pacho.webp");
+  --seasonal-lateral: url("/seasonal/san-pacho-lateral.webp");
   --seasonal-complement: url("/seasonal/san-pacho-complemento.webp");
 }
-.seasonal-scene--velitas { --seasonal-backdrop: url("/seasonal/velitas.webp"); }
-.seasonal-scene--navidad { --seasonal-backdrop: url("/seasonal/navidad.webp"); }
-.seasonal-scene--feria-cali { --seasonal-backdrop: url("/seasonal/feria-cali.webp"); }
+.seasonal-scene--velitas { --seasonal-backdrop: url("/seasonal/velitas.webp"); --seasonal-lateral: url("/seasonal/velitas-lateral.webp"); --seasonal-complement: url("/seasonal/velitas-complemento.webp"); }
+.seasonal-scene--navidad { --seasonal-backdrop: url("/seasonal/navidad.webp"); --seasonal-lateral: url("/seasonal/navidad-lateral.webp"); --seasonal-complement: url("/seasonal/navidad-complemento.webp"); }
+.seasonal-scene--feria-cali { --seasonal-backdrop: url("/seasonal/feria-cali.webp"); --seasonal-lateral: url("/seasonal/feria-cali-lateral.webp"); --seasonal-complement: url("/seasonal/feria-cali-complemento.webp"); }
 
 @media (max-width: 639px) {
   .seasonal-scene { opacity: 0.46; background-size: auto 26rem; }
