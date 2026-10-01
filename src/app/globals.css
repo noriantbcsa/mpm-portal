@@ -453,43 +453,31 @@ html[data-festivity] .seasonal-main::after {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  opacity: 0.62;
+  background-image: var(--seasonal-backdrop);
+  background-position: top right;
+  background-repeat: no-repeat;
+  background-size: max(70rem, 100%) auto;
 }
 
-.seasonal-scene__motifs {
-  position: absolute;
-  inset: 0;
-}
-
-.seasonal-scene__motif {
-  position: absolute;
-  width: clamp(3.25rem, 7vw, 6rem);
-  height: auto;
-  color: color-mix(in srgb, var(--seasonal-primary) 32%, transparent);
-  opacity: 0.2;
-}
-
-.seasonal-scene__motif--1 { top: 3.5rem; right: clamp(1.25rem, 7vw, 7rem); }
-.seasonal-scene__motif--2 { top: 30rem; left: clamp(1rem, 5vw, 5rem); color: color-mix(in srgb, var(--seasonal-secondary) 60%, var(--seasonal-primary)); }
-.seasonal-scene__motif--3 { top: 64rem; right: clamp(1rem, 6vw, 6rem); color: color-mix(in srgb, var(--seasonal-tertiary) 58%, var(--seasonal-primary)); }
-.seasonal-scene__motif--4 { top: 96rem; left: clamp(1rem, 8vw, 8rem); color: color-mix(in srgb, var(--seasonal-secondary) 52%, var(--seasonal-primary)); }
-
-/* Carnaval: la máscara representa la marimonda. Navidad reúne árbol, nieve,
-   regalo y bastón; las demás fiestas conservan sus emblemas propios. */
-.seasonal-scene--carnaval .seasonal-scene__motif--1 { width: clamp(4rem, 8vw, 6.8rem); color: color-mix(in srgb, #7e22ce 45%, transparent); }
-.seasonal-scene--velitas .seasonal-scene__motif { color: color-mix(in srgb, #f59e0b 43%, transparent); }
-.seasonal-scene--colombia .seasonal-scene__motif { color: color-mix(in srgb, #003893 34%, transparent); }
-.seasonal-scene--negros-y-blancos .seasonal-scene__motif { color: color-mix(in srgb, #111827 28%, transparent); }
-.seasonal-scene--navidad .seasonal-scene__motif--1 { color: color-mix(in srgb, #14532d 43%, transparent); }
-.seasonal-scene--navidad .seasonal-scene__motif--2 { color: color-mix(in srgb, #60a5fa 40%, transparent); }
-.seasonal-scene--navidad .seasonal-scene__motif--3 { color: color-mix(in srgb, #dc2626 37%, transparent); }
-.seasonal-scene--navidad .seasonal-scene__motif--4 { color: color-mix(in srgb, #dc2626 37%, transparent); }
+.seasonal-scene--negros-y-blancos { --seasonal-backdrop: url("/seasonal/negros-y-blancos.webp"); }
+.seasonal-scene--feria-manizales { --seasonal-backdrop: url("/seasonal/feria-manizales.webp"); }
+.seasonal-scene--carnaval { --seasonal-backdrop: url("/seasonal/carnaval.webp"); }
+.seasonal-scene--dia-mujer { --seasonal-backdrop: url("/seasonal/dia-mujer.webp"); }
+.seasonal-scene--dia-hombre { --seasonal-backdrop: url("/seasonal/dia-hombre.webp"); }
+.seasonal-scene--dia-madre { --seasonal-backdrop: url("/seasonal/dia-madre.webp"); }
+.seasonal-scene--festival-vallenato { --seasonal-backdrop: url("/seasonal/festival-vallenato.webp"); }
+.seasonal-scene--san-pedro { --seasonal-backdrop: url("/seasonal/san-pedro.webp"); }
+.seasonal-scene--colombia { --seasonal-backdrop: url("/seasonal/colombia.webp"); }
+.seasonal-scene--feria-flores { --seasonal-backdrop: url("/seasonal/feria-flores.webp"); }
+.seasonal-scene--amor-y-amistad { --seasonal-backdrop: url("/seasonal/amor-y-amistad.webp"); }
+.seasonal-scene--san-pacho { --seasonal-backdrop: url("/seasonal/san-pacho.webp"); }
+.seasonal-scene--velitas { --seasonal-backdrop: url("/seasonal/velitas.webp"); }
+.seasonal-scene--navidad { --seasonal-backdrop: url("/seasonal/navidad.webp"); }
+.seasonal-scene--feria-cali { --seasonal-backdrop: url("/seasonal/feria-cali.webp"); }
 
 @media (max-width: 639px) {
-  .seasonal-scene__motif { width: 3.1rem; opacity: 0.13; }
-  .seasonal-scene__motif--1 { top: 2rem; right: 1rem; }
-  .seasonal-scene__motif--2,
-  .seasonal-scene__motif--3,
-  .seasonal-scene__motif--4 { display: none; }
+  .seasonal-scene { opacity: 0.46; background-size: auto 26rem; }
 }
 
 .campaign-showcase {
