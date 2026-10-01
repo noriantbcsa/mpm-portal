@@ -14,7 +14,15 @@ export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
   OCULTO: "Oculto",
 };
 
-/** Estados que un visitante puede ver en el catálogo público. */
+/**
+ * Estados que un visitante puede ver en el catálogo público.
+ *
+ * La vista SQL `integration.catalog_products` (migración
+ * 20260927160000_add_php_catalog_integration, para el consumo desde PHP)
+ * repite esta misma lista en una cláusula WHERE porque no puede importar
+ * esta constante. Si cambia aquí, hay que replicarlo allá con una migración
+ * nueva (`CREATE OR REPLACE VIEW`) — no edites esa migración ya aplicada.
+ */
 export const PUBLIC_PRODUCT_STATUSES: ProductStatus[] = [
   "DISPONIBLE",
   "BAJO_PEDIDO",
