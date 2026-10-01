@@ -488,7 +488,7 @@ html[data-festivity] .seasonal-main::after {
   height: clamp(16rem, 27vw, 24rem);
   content: "";
   opacity: 0.3;
-  background-image: var(--seasonal-backdrop);
+  background-image: var(--seasonal-complement, var(--seasonal-backdrop));
   background-repeat: no-repeat;
   background-position: top right;
   background-size: max(46rem, 72%) auto;
@@ -505,7 +505,10 @@ html[data-festivity] .seasonal-main::after {
 .seasonal-scene--colombia { --seasonal-backdrop: url("/seasonal/colombia.webp"); }
 .seasonal-scene--feria-flores { --seasonal-backdrop: url("/seasonal/feria-flores.webp"); }
 .seasonal-scene--amor-y-amistad { --seasonal-backdrop: url("/seasonal/amor-y-amistad.webp"); }
-.seasonal-scene--san-pacho { --seasonal-backdrop: url("/seasonal/san-pacho.webp"); }
+.seasonal-scene--san-pacho {
+  --seasonal-backdrop: url("/seasonal/san-pacho.webp");
+  --seasonal-complement: url("/seasonal/san-pacho-complemento.webp");
+}
 .seasonal-scene--velitas { --seasonal-backdrop: url("/seasonal/velitas.webp"); }
 .seasonal-scene--navidad { --seasonal-backdrop: url("/seasonal/navidad.webp"); }
 .seasonal-scene--feria-cali { --seasonal-backdrop: url("/seasonal/feria-cali.webp"); }
