@@ -492,7 +492,6 @@ html[data-festivity] .seasonal-main::after {
   background-repeat: no-repeat;
   background-position: top right;
   background-size: max(46rem, 72%) auto;
-  transform: scaleX(-1);
 }
 
 .seasonal-scene--negros-y-blancos { --seasonal-backdrop: url("/seasonal/negros-y-blancos.webp"); }
@@ -502,7 +501,10 @@ html[data-festivity] .seasonal-main::after {
 .seasonal-scene--dia-hombre { --seasonal-backdrop: url("/seasonal/dia-hombre.webp"); }
 .seasonal-scene--dia-madre { --seasonal-backdrop: url("/seasonal/dia-madre.webp"); }
 .seasonal-scene--festival-vallenato { --seasonal-backdrop: url("/seasonal/festival-vallenato.webp"); }
-.seasonal-scene--san-pedro { --seasonal-backdrop: url("/seasonal/san-pedro.webp"); }
+.seasonal-scene--san-pedro {
+  --seasonal-backdrop: url("/seasonal/san-pedro.webp");
+  --seasonal-complement: url("/seasonal/san-pedro-complemento.webp");
+}
 .seasonal-scene--colombia { --seasonal-backdrop: url("/seasonal/colombia.webp"); }
 .seasonal-scene--feria-flores { --seasonal-backdrop: url("/seasonal/feria-flores.webp"); }
 .seasonal-scene--amor-y-amistad { --seasonal-backdrop: url("/seasonal/amor-y-amistad.webp"); }
