@@ -9,6 +9,7 @@ import { ProductGrid } from "@/components/catalog/product-grid";
 import { FiltersForm } from "@/components/catalog/filters-form";
 import { Pagination } from "@/components/catalog/pagination";
 import { CatalogExplorer } from "@/components/catalog/catalog-explorer";
+import { formatCatalogColor } from "@/lib/catalog-colors";
 
 export const metadata: Metadata = {
   title: "Catálogo",
@@ -23,7 +24,7 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
   const q = toSingle(params.q);
   const publico = toSingle(params.publico) as Audience | undefined;
   const talla = toArray(params.talla);
-  const color = toArray(params.color);
+  const color = [...new Set(toArray(params.color).map(formatCatalogColor))];
   const etiqueta = toArray(params.etiqueta) as ProductTagType[];
   const orden = toSingle(params.orden) as CatalogSort | undefined;
   const pagina = toPositiveInt(params.pagina, 1);

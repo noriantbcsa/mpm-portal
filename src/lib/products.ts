@@ -4,6 +4,7 @@ import type { Prisma, Audience, ProductStatus, ProductTagType } from "@prisma/cl
 import { prisma } from "@/lib/prisma";
 import { getCategorySubtreeIds } from "@/lib/categories";
 import { CATALOG_PAGE_SIZE, PUBLIC_PRODUCT_STATUSES } from "@/lib/constants";
+import { catalogColorKey, formatCatalogColor, isFilterableCatalogColor } from "@/lib/catalog-colors";
 
 export type CatalogSort = "relevancia" | "nombre-asc" | "recientes";
 
@@ -77,7 +78,17 @@ async function buildWhere(filters: CatalogFilters): Promise<Prisma.ProductWhereI
   if (filters.audience) where.audience = filters.audience;
   if (filters.tags && filters.tags.length > 0) where.tags = { hasSome: filters.tags };
   if (filters.sizes && filters.sizes.length > 0) where.sizes = { hasSome: filters.sizes };
-  if (filters.colors && filters.colors.length > 0) where.colors = { hasSome: filters.colors };
+  if (filters.colors && filters.colors.length > 0) {
+    // PostgreSQL compara arrays de texto de forma exacta. Buscamos primero las
+    // variantes guardadas que representan el color elegido, para que "Blanco"
+    // encuentre también archivos importados como "BLANCO 1" o "V BLANCO".
+    const requestedColors = new Set(filters.colors.map(catalogColorKey));
+    const colorRows = await prisma.product.findMany({ where, select: { colors: true } });
+    const matchingStoredColors = [...new Set(
+      colorRows.flatMap((product) => product.colors.filter((color) => requestedColors.has(catalogColorKey(color)))),
+    )];
+    where.colors = { hasSome: matchingStoredColors.length ? matchingStoredColors : ["__none__"] };
+  }
 
   if (filters.campaignSlug) {
     const campaign = await prisma.campaign.findUnique({ where: { slug: filters.campaignSlug } });
@@ -152,7 +163,12 @@ export async function getCatalogFilterOptions(categorySlug?: string): Promise<Ca
 
   return {
     sizes: uniqueSorted(products.flatMap((product) => product.sizes)),
-    colors: uniqueSorted(products.flatMap((product) => product.colors)),
+    colors: uniqueSorted(
+      products
+        .flatMap((product) => product.colors)
+        .filter(isFilterableCatalogColor)
+        .map(formatCatalogColor),
+    ),
   };
 }
 

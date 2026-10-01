@@ -10,6 +10,7 @@ import { ProductGrid } from "@/components/catalog/product-grid";
 import { FiltersForm } from "@/components/catalog/filters-form";
 import { Pagination } from "@/components/catalog/pagination";
 import { CatalogExplorer } from "@/components/catalog/catalog-explorer";
+import { formatCatalogColor } from "@/lib/catalog-colors";
 
 type PageProps = {
   params: Promise<{ categoria: string }>;
@@ -35,7 +36,7 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
   const q = toSingle(sp.q);
   const publico = toSingle(sp.publico) as Audience | undefined;
   const talla = toArray(sp.talla);
-  const color = toArray(sp.color);
+  const color = [...new Set(toArray(sp.color).map(formatCatalogColor))];
   const etiqueta = toArray(sp.etiqueta) as ProductTagType[];
   const orden = toSingle(sp.orden) as CatalogSort | undefined;
   const pagina = toPositiveInt(sp.pagina, 1);
