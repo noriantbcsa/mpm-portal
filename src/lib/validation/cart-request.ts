@@ -34,11 +34,13 @@ export const cartItemInputSchema = z.object({
 
 export type CartItemInput = z.infer<typeof cartItemInputSchema>;
 
+export const cartItemsSchema = z.array(cartItemInputSchema).max(50, {
+  error: "El carrito puede tener como máximo 50 referencias.",
+});
+
 export const submitCartRequestSchema = z.object({
   contact: cartRequestContactSchema,
-  items: z.array(cartItemInputSchema).min(1, {
-    error: "Agrega al menos una prenda antes de enviar tu solicitud.",
-  }),
+  items: cartItemsSchema.min(1, { error: "Agrega al menos una prenda antes de enviar tu solicitud." }),
 });
 
 export type SubmitCartRequestInput = z.infer<typeof submitCartRequestSchema>;

@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 
 import { getSiteSettings } from "@/lib/site-config";
 import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
@@ -21,6 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
+  // La CSP con nonce se crea por petición en proxy.ts. Leer la cabecera hace
+  // que este layout se renderice por petición, requisito de Next.js para que
+  // el nonce pueda aplicarse a los scripts del framework.
+  await headers();
   const settings = await getSiteSettings();
   const seasonalTheme = resolveSeasonalTheme(settings);
 

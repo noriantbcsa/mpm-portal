@@ -25,6 +25,14 @@
   Probado con un usuario de prueba real en el navegador (5 intentos fallidos
   → bloqueo → la contraseña correcta sigue rechazada → desbloqueo manual) y
   con pruebas unitarias (`tests/login-lockout.test.ts`).
+- **Límite de frecuencia adicional**: el login se limita por IP y correo; la
+  sincronización y el envío público del carrito se limitan por IP. Es una
+  barrera local de proceso; al desplegar varias instancias debe complementarse
+  con el WAF/rate limit del proveedor, porque esa memoria no se comparte.
+- Las acciones de servidor tienen un límite explícito de cuerpo de 1 MB. Las
+  listas del carrito se validan en servidor y aceptan como máximo 50 líneas.
+- `AUTH_SECRET` se rechaza al arrancar si es el placeholder o tiene menos de
+  32 caracteres. No reutilices secretos de desarrollo en producción.
 
 ## Datos personales
 
@@ -54,7 +62,20 @@
   archivo.
 - JSON-LD se inyecta con `dangerouslySetInnerHTML` solo para datos
   estructurados generados por el propio servidor a partir de campos ya
-  validados (nunca HTML/JS de terceros).
+  validados (nunca HTML/JS de terceros). Además se escapa `<` para que un
+  posible `</script>` en un texto editable no pueda cerrar la etiqueta.
+- Las URLs editables solo admiten `http`/`https`; el enlace principal también
+  permite rutas internas, pero no esquemas ejecutables como `javascript:`.
+
+## Cabeceras y CSP
+
+- Todas las respuestas incluyen `X-Content-Type-Options: nosniff`, protección
+  anti-embebido (`X-Frame-Options`/`frame-ancestors`), HSTS, una política de
+  permisos restrictiva y `Referrer-Policy`.
+- `src/proxy.ts` genera un nonce criptográfico por respuesta y aplica CSP con
+  `script-src` estricto. Esto reduce XSS y clickjacking sin habilitar scripts
+  inline arbitrarios. Si se añade una fuente externa de scripts, imágenes o
+  conexiones, revísala explícitamente en esa política antes de permitirla.
 
 ## Imágenes remotas
 
@@ -101,9 +122,12 @@ paquete lo pide y por qué.
 - Revisión legal real del texto de `/politica-de-datos`.
 - Generar un `AUTH_SECRET` de producción propio (nunca reusar el de
   desarrollo).
+- Si se escala a más de una instancia, configurar
+  `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` en el proveedor con el valor de
+  `openssl rand -base64 32` **antes del build**. No usar una cadena aleatoria
+  que no sea base64 válido.
 - Cambiar o eliminar las credenciales de demostración (`admin@mpm.local` /
   `CambiaEsto123!`).
-- El bloqueo por intentos fallidos es por cuenta, no por IP: alguien podría
-  seguir intentando contra *otras* cuentas sin límite global. Para un panel
-  interno de bajo tráfico es un riesgo menor; si el panel se expone más
-  ampliamente, considera además un límite por IP a nivel de proxy/CDN.
+- Configurar un WAF/rate limiter distribuido en el CDN/proveedor antes de
+  exponer ampliamente el panel. El límite local protege una instancia, pero
+  no sustituye esa capa ante tráfico distribuido.

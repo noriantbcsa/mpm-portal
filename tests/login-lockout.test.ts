@@ -12,8 +12,16 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+// loginAction ahora también consulta la IP (vía next/headers) para el
+// limitador de frecuencia por origen; fuera de una petición real de Next
+// esa llamada lanza, así que se simula igual que server-only.
+vi.mock("next/headers", () => ({
+  headers: async () => new Headers(),
+}));
+
 const { loginAction } = await import("@/lib/auth/actions");
-const { hashPassword } = await import("@/lib/auth/passwords");
+const passwords = await import("@/lib/auth/passwords");
+const { hashPassword } = passwords;
 
 function formDataFor(email: string, password: string) {
   const fd = new FormData();
@@ -33,6 +41,19 @@ describe("loginAction — bloqueo por intentos fallidos", () => {
     const result = await loginAction(undefined, formDataFor("nadie@mpm.local", "x"));
     expect(result).toEqual({ error: "Correo o contraseña incorrectos." });
     expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  it("paga el mismo costo de bcrypt para un correo inexistente (sin canal lateral de tiempo)", async () => {
+    const verifySpy = vi.spyOn(passwords, "verifyPassword");
+    findUniqueMock.mockResolvedValue(null);
+
+    await loginAction(undefined, formDataFor("nadie@mpm.local", "x"));
+
+    // Si esto no se llamara, responder para un correo inexistente sería
+    // mucho más rápido que para uno real (que sí espera a bcrypt.compare),
+    // y ese tiempo de respuesta permitiría adivinar qué correos tienen cuenta.
+    expect(verifySpy).toHaveBeenCalledTimes(1);
+    verifySpy.mockRestore();
   });
 
   it("incrementa failedLoginAttempts en una contraseña incorrecta, sin bloquear todavía", async () => {

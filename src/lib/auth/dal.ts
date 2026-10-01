@@ -24,10 +24,16 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
 
   const user = await prisma.user.findUnique({
     where: { id: session.sub },
-    select: { id: true, name: true, email: true, role: true, active: true },
+    select: { id: true, name: true, email: true, role: true, active: true, sessionVersion: true },
   });
 
   if (!user || !user.active) return null;
+
+  // Si un admin le cambió la contraseña a este usuario después de que se
+  // emitió este JWT, sessionVersion ya no coincide: la sesión se trata como
+  // cerrada aquí mismo, en vez de seguir siendo válida hasta su expiración
+  // (hasta 7 días) en cualquier otro dispositivo donde siga abierta.
+  if (session.sessionVersion !== user.sessionVersion) return null;
 
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 });

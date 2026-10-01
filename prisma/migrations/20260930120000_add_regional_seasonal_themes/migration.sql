@@ -1,0 +1,9 @@
+-- Nuevas celebraciones disponibles en el selector manual y el calendario.
+ALTER TYPE "SeasonalThemePreset" ADD VALUE IF NOT EXISTS 'FERIA_MANIZALES';
+ALTER TYPE "SeasonalThemePreset" ADD VALUE IF NOT EXISTS 'DIA_MUJER';
+ALTER TYPE "SeasonalThemePreset" ADD VALUE IF NOT EXISTS 'DIA_HOMBRE';
+ALTER TYPE "SeasonalThemePreset" ADD VALUE IF NOT EXISTS 'DIA_MADRE';
+ALTER TYPE "SeasonalThemePreset" ADD VALUE IF NOT EXISTS 'FESTIVAL_VALLENATO';
+ALTER TYPE "SeasonalThemePreset" ADD VALUE IF NOT EXISTS 'FERIA_FLORES';
+ALTER TYPE "SeasonalThemePreset" ADD VALUE IF NOT EXISTS 'SAN_PACHO';
+ALTER TYPE "SeasonalThemePreset" ADD VALUE IF NOT EXISTS 'FERIA_CALI';

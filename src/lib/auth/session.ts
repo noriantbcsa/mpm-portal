@@ -10,13 +10,14 @@ export type SessionPayload = {
   sub: string;
   role: Role;
   name: string;
+  sessionVersion: number;
 };
 
 function getSecretKey() {
   const secret = process.env.AUTH_SECRET;
-  if (!secret) {
+  if (!secret || secret.length < 32 || secret.includes("reemplaza-esta-clave")) {
     throw new Error(
-      "AUTH_SECRET no está definida. Copia .env.example a .env y genera una clave con `openssl rand -base64 32`.",
+      "AUTH_SECRET debe ser una clave secreta de al menos 32 caracteres. Genera una con `openssl rand -base64 32`.",
     );
   }
   return new TextEncoder().encode(secret);

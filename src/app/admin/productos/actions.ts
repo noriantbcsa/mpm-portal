@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/dal";
-import { productFormSchema, PRODUCT_TAG_VALUES } from "@/lib/validation/product";
+import { productFormSchema, PRODUCT_TAG_VALUES, httpUrlSchema } from "@/lib/validation/product";
 import { uniqueSlug } from "@/lib/slug";
 import { parseProductsCsv, splitMultiValue } from "@/lib/csv";
 
@@ -141,6 +141,14 @@ export async function bulkImportProductsAction(
   const text = await file.text();
   const { rows, errors: parseErrors } = parseProductsCsv(text);
 
+  // Error a nivel de archivo (p. ej. demasiadas filas), no de una fila
+  // puntual: no tiene sentido seguir con las consultas de categorías/
+  // campañas para un archivo que ya se rechazó por completo.
+  const fileLevelError = parseErrors.find((e) => e.row === 0);
+  if (fileLevelError) {
+    return { status: "error", message: fileLevelError.message };
+  }
+
   const categories = await prisma.category.findMany();
   const categoryByName = new Map(categories.map((c) => [c.name.trim().toLowerCase(), c]));
   const campaigns = await prisma.campaign.findMany();
@@ -186,11 +194,23 @@ export async function bulkImportProductsAction(
 
     const campaignId = data.campana ? campaignByName.get(data.campana.trim().toLowerCase()) : undefined;
 
-    const images = splitMultiValue(data.fotos).map((url, order) => ({
-      url,
-      alt: `${data.nombre} · foto ${order + 1}`,
-      order,
-    }));
+    // Igual que las fotos del formulario individual (productImageInputSchema):
+    // una URL de foto solo se guarda si de verdad es http(s). Una fila de CSV
+    // no es más confiable que un campo de formulario.
+    const fotoUrls = splitMultiValue(data.fotos);
+    const invalidFotoUrls = fotoUrls.filter((url) => !httpUrlSchema.safeParse(url).success);
+    if (invalidFotoUrls.length > 0) {
+      rowErrors.push(
+        `Fila ${row}: se ignoraron ${invalidFotoUrls.length} foto(s) con URL inválida (debe ser http/https).`,
+      );
+    }
+    const images = fotoUrls
+      .filter((url) => httpUrlSchema.safeParse(url).success)
+      .map((url, order) => ({
+        url,
+        alt: `${data.nombre} · foto ${order + 1}`,
+        order,
+      }));
 
     const priceRef = data.precio ? Number(data.precio.replace(/[^0-9.]/g, "")) : null;
 

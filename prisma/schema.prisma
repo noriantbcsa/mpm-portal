@@ -27,6 +27,13 @@ model User {
   active              Boolean   @default(true)
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
+  // Se incrementa cada vez que un admin cambia la contraseña de este usuario.
+  // El JWT de sesión lleva el valor vigente al iniciar sesión; si no
+  // coincide con este campo, la sesión se trata como inválida (ver
+  // getCurrentUser en src/lib/auth/dal.ts). Así, cambiar la contraseña cierra
+  // la sesión en cualquier otro dispositivo de inmediato, no solo hasta que
+  // expire el JWT (hasta 7 días).
+  sessionVersion      Int       @default(0)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -167,12 +174,20 @@ enum SeasonalThemeMode {
 enum SeasonalThemePreset {
   DEFAULT
   NEGROS_Y_BLANCOS
+  FERIA_MANIZALES
   CARNAVAL
+  DIA_MUJER
+  DIA_HOMBRE
+  DIA_MADRE
+  FESTIVAL_VALLENATO
   SAN_PEDRO
   COLOMBIA
+  FERIA_FLORES
   AMOR_Y_AMISTAD
+  SAN_PACHO
   VELITAS
   NAVIDAD
+  FERIA_CALI
 }
 
 // ---------------------------------------------------------------------------

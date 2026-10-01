@@ -7,12 +7,22 @@ import {
   clearCartSessionCookie,
 } from "@/lib/cart-session";
 import { resolveCartItems, type RawCartItem } from "@/lib/cart/resolve-items";
-import { submitCartRequestSchema } from "@/lib/validation/cart-request";
+import { cartItemsSchema, submitCartRequestSchema } from "@/lib/validation/cart-request";
 import { getSiteSettings } from "@/lib/site-config";
 import { buildCartRequestMessage, buildWhatsAppLink } from "@/lib/whatsapp";
+import { consumeRateLimit, getRequestRateLimitKey } from "@/lib/security/rate-limit";
 
 export async function syncCartSessionAction(items: RawCartItem[]) {
-  const resolved = await resolveCartItems(items);
+  const rateLimit = consumeRateLimit(`cart-sync:${await getRequestRateLimitKey()}`, {
+    limit: 30,
+    windowMs: 60_000,
+  });
+  if (!rateLimit.allowed) return;
+
+  const parsedItems = cartItemsSchema.safeParse(items);
+  if (!parsedItems.success) return;
+
+  const resolved = await resolveCartItems(parsedItems.data);
 
   if (resolved.length === 0) {
     const existingToken = await getCartSessionToken();
@@ -80,6 +90,17 @@ export async function submitCartRequestAction(
   _prevState: SubmitCartRequestState,
   formData: FormData,
 ): Promise<SubmitCartRequestState> {
+  const rateLimit = consumeRateLimit(`cart-submit:${await getRequestRateLimitKey()}`, {
+    limit: 5,
+    windowMs: 15 * 60_000,
+  });
+  if (!rateLimit.allowed) {
+    return {
+      status: "error",
+      message: `Has enviado muchas solicitudes. Intenta de nuevo en ${Math.ceil(rateLimit.retryAfterSeconds / 60)} minutos.`,
+    };
+  }
+
   let rawItems: RawCartItem[] = [];
   try {
     rawItems = JSON.parse(String(formData.get("items") ?? "[]"));

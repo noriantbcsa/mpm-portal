@@ -74,7 +74,12 @@ export async function updateUserAction(
       name: parsed.data.name,
       role: parsed.data.role,
       active: parsed.data.active,
-      ...(parsed.data.password ? { passwordHash: await hashPassword(parsed.data.password) } : {}),
+      // Cambiar la contraseña también cierra cualquier sesión abierta con la
+      // anterior (en este u otro dispositivo): ver sessionVersion en
+      // getCurrentUser (src/lib/auth/dal.ts).
+      ...(parsed.data.password
+        ? { passwordHash: await hashPassword(parsed.data.password), sessionVersion: { increment: 1 } }
+        : {}),
     },
   });
 

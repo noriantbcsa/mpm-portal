@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const httpUrlSchema = z.url({ error: "La URL no es válida." }).refine(
+  (value) => {
+    const protocol = new URL(value).protocol;
+    return protocol === "https:" || protocol === "http:";
+  },
+  { error: "La URL debe usar http o https." },
+);
+
 export const AUDIENCE_VALUES = ["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const;
 export const PRODUCT_STATUS_VALUES = [
   "DISPONIBLE",
@@ -14,7 +22,7 @@ export const PRODUCT_TAG_VALUES = [
   "RECOMENDADO",
 ] as const;
 
-const skuSchema = z
+export const skuSchema = z
   .string()
   .trim()
   .min(2, { error: "La referencia debe tener al menos 2 caracteres." })
@@ -24,7 +32,7 @@ const skuSchema = z
   });
 
 export const productImageInputSchema = z.object({
-  url: z.url({ error: "La URL de la imagen no es válida." }),
+  url: httpUrlSchema,
   alt: z.string().trim().min(1, { error: "Describe la imagen (texto alternativo)." }).max(160),
   order: z.number().int().min(0).default(0),
   publicId: z.string().trim().optional().nullable(),
@@ -57,9 +65,16 @@ export type ProductFormInput = z.infer<typeof productFormSchema>;
 
 /** Fila cruda de una plantilla CSV/Excel (todo llega como texto). */
 export const productCsvRowSchema = z.object({
-  referencia: z.string().trim().min(1, { error: "La referencia es obligatoria." }),
-  nombre: z.string().trim().min(1, { error: "El nombre es obligatorio." }),
-  descripcion: z.string().trim().min(1, { error: "La descripción es obligatoria." }),
+  // Misma validación que el formulario individual (skuSchema): una fila de
+  // CSV es tan de confianza como cualquier otro dato que entra por un
+  // formulario, no más — no debe aceptar lo que el formulario rechazaría.
+  referencia: skuSchema,
+  nombre: z.string().trim().min(1, { error: "El nombre es obligatorio." }).max(160, {
+    error: "El nombre es demasiado largo (máximo 160 caracteres).",
+  }),
+  descripcion: z.string().trim().min(1, { error: "La descripción es obligatoria." }).max(4000, {
+    error: "La descripción es demasiado larga (máximo 4000 caracteres).",
+  }),
   categoria: z.string().trim().min(1, { error: "La categoría es obligatoria." }),
   subcategoria: z.string().trim().optional().default(""),
   publico: z.string().trim().optional().default("unisex"),

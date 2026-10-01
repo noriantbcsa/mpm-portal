@@ -426,6 +426,72 @@ html[data-festivity="velitas"] .seasonal-ambient b:nth-of-type(2) { border-radiu
 html[data-festivity="navidad"] .seasonal-main::before { background: radial-gradient(circle, color-mix(in srgb, white 62%, transparent) 0 1px, transparent 2px); background-size: 28px 28px; }
 html[data-festivity="negros-y-blancos"] .seasonal-ambient b:nth-of-type(1) { border-color: color-mix(in srgb, var(--seasonal-primary) 36%, transparent); border-radius: 999px; }
 
+/* Fondos de temporada: una escena limpia con pocos símbolos reconocibles.
+   Estas reglas reemplazan los patrones repetitivos anteriores para que las
+   fotos, filtros y texto mantengan el protagonismo. */
+html[data-festivity] .public-site-shell main,
+html[data-festivity] .public-site-shell .seasonal-main,
+html[data-festivity="carnaval"] .public-site-shell .seasonal-main,
+html[data-festivity="navidad"] .public-site-shell .seasonal-main,
+html[data-festivity="velitas"] .public-site-shell .seasonal-main,
+html[data-festivity="amor-y-amistad"] .public-site-shell .seasonal-main,
+html[data-festivity="colombia"] .public-site-shell .seasonal-main,
+html[data-festivity="san-pedro"] .public-site-shell .seasonal-main,
+html[data-festivity="negros-y-blancos"] .public-site-shell .seasonal-main {
+  background-color: color-mix(in srgb, var(--seasonal-wash) 24%, white);
+  background-image: none;
+}
+
+html[data-festivity] .seasonal-main::before,
+html[data-festivity] .seasonal-main::after {
+  display: none;
+}
+
+.seasonal-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.seasonal-scene__motifs {
+  position: absolute;
+  inset: 0;
+}
+
+.seasonal-scene__motif {
+  position: absolute;
+  width: clamp(3.25rem, 7vw, 6rem);
+  height: auto;
+  color: color-mix(in srgb, var(--seasonal-primary) 32%, transparent);
+  opacity: 0.2;
+}
+
+.seasonal-scene__motif--1 { top: 3.5rem; right: clamp(1.25rem, 7vw, 7rem); }
+.seasonal-scene__motif--2 { top: 30rem; left: clamp(1rem, 5vw, 5rem); color: color-mix(in srgb, var(--seasonal-secondary) 60%, var(--seasonal-primary)); }
+.seasonal-scene__motif--3 { top: 64rem; right: clamp(1rem, 6vw, 6rem); color: color-mix(in srgb, var(--seasonal-tertiary) 58%, var(--seasonal-primary)); }
+.seasonal-scene__motif--4 { top: 96rem; left: clamp(1rem, 8vw, 8rem); color: color-mix(in srgb, var(--seasonal-secondary) 52%, var(--seasonal-primary)); }
+
+/* Carnaval: la máscara representa la marimonda. Navidad reúne árbol, nieve,
+   regalo y bastón; las demás fiestas conservan sus emblemas propios. */
+.seasonal-scene--carnaval .seasonal-scene__motif--1 { width: clamp(4rem, 8vw, 6.8rem); color: color-mix(in srgb, #7e22ce 45%, transparent); }
+.seasonal-scene--velitas .seasonal-scene__motif { color: color-mix(in srgb, #f59e0b 43%, transparent); }
+.seasonal-scene--colombia .seasonal-scene__motif { color: color-mix(in srgb, #003893 34%, transparent); }
+.seasonal-scene--negros-y-blancos .seasonal-scene__motif { color: color-mix(in srgb, #111827 28%, transparent); }
+.seasonal-scene--navidad .seasonal-scene__motif--1 { color: color-mix(in srgb, #14532d 43%, transparent); }
+.seasonal-scene--navidad .seasonal-scene__motif--2 { color: color-mix(in srgb, #60a5fa 40%, transparent); }
+.seasonal-scene--navidad .seasonal-scene__motif--3 { color: color-mix(in srgb, #dc2626 37%, transparent); }
+.seasonal-scene--navidad .seasonal-scene__motif--4 { color: color-mix(in srgb, #dc2626 37%, transparent); }
+
+@media (max-width: 639px) {
+  .seasonal-scene__motif { width: 3.1rem; opacity: 0.13; }
+  .seasonal-scene__motif--1 { top: 2rem; right: 1rem; }
+  .seasonal-scene__motif--2,
+  .seasonal-scene__motif--3,
+  .seasonal-scene__motif--4 { display: none; }
+}
+
 .campaign-showcase {
   --campaign-primary: var(--brand-primary);
   --campaign-secondary: var(--brand-secondary);

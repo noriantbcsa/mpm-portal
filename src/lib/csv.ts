@@ -9,6 +9,11 @@ export type CsvParseResult = {
   errors: CsvParseError[];
 };
 
+// Tope defensivo: cada fila dispara después una consulta a la base de datos
+// (ver bulkImportProductsAction), así que un archivo enorme no debe poder
+// convertirse en miles de consultas secuenciales en una sola petición.
+const MAX_CSV_ROWS = 2000;
+
 /**
  * Interpreta el CSV de carga masiva de productos. Espera encabezados en
  * español (ver PRODUCT_CSV_COLUMNS) y delimitador coma. Las columnas
@@ -21,6 +26,18 @@ export function parseProductsCsv(csvText: string): CsvParseResult {
     trim: true,
     bom: true,
   });
+
+  if (rawRows.length > MAX_CSV_ROWS) {
+    return {
+      rows: [],
+      errors: [
+        {
+          row: 0,
+          message: `El archivo tiene ${rawRows.length} filas; el máximo por carga es ${MAX_CSV_ROWS}. Divídelo en varios archivos.`,
+        },
+      ],
+    };
+  }
 
   const errors: CsvParseError[] = [];
   const rows: Array<{ row: number; data: ProductCsvRow }> = [];

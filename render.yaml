@@ -18,6 +18,12 @@ services:
           property: connectionString
       - key: AUTH_SECRET
         generateValue: true
+      # Mantener esta clave estable entre instancias evita que una instancia
+      # rechace acciones de servidor emitidas por otra durante un deploy.
+      - key: NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+        # Debe ser base64 de 16, 24 o 32 bytes; configúrala con
+        # `openssl rand -base64 32` al escalar a más de una instancia.
+        sync: false
       - key: NEXT_PUBLIC_SITE_URL
         sync: false
       - key: NEXT_PUBLIC_WHATSAPP_NUMBER

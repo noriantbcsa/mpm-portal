@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { cartRequestContactSchema, submitCartRequestSchema } from "@/lib/validation/cart-request";
+import { cartItemsSchema, cartRequestContactSchema, submitCartRequestSchema } from "@/lib/validation/cart-request";
 import { productFormSchema } from "@/lib/validation/product";
 import { loginSchema } from "@/lib/validation/user";
 import { siteSettingsFormSchema } from "@/lib/validation/site-settings";
@@ -46,6 +46,14 @@ describe("submitCartRequestSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("limits the number of lines in a cart", () => {
+    const items = Array.from({ length: 51 }, (_, index) => ({
+      productId: `product-${index}`,
+      quantity: 1,
+    }));
+    expect(cartItemsSchema.safeParse(items).success).toBe(false);
+  });
 });
 
 describe("productFormSchema", () => {
@@ -80,6 +88,14 @@ describe("productFormSchema", () => {
     const result = productFormSchema.safeParse({ ...base, tags: ["NO_EXISTE"] });
     expect(result.success).toBe(false);
   });
+
+  it("rejects image URLs with executable protocols", () => {
+    const result = productFormSchema.safeParse({
+      ...base,
+      images: [{ url: "javascript:alert(1)", alt: "Imagen", order: 0 }],
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe("loginSchema", () => {
@@ -106,6 +122,25 @@ describe("siteSettingsFormSchema", () => {
       heroSubtitle: "Subtitulo",
       heroCtaLabel: "Ver",
       heroCtaHref: "/catalogo",
+      footerText: "Pie de página",
+      showPrices: false,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects executable CTA URLs", () => {
+    const result = siteSettingsFormSchema.safeParse({
+      siteName: "MPM",
+      tagline: "Ropa",
+      primaryColor: "#111111",
+      secondaryColor: "#222222",
+      accentColor: "#333333",
+      whatsappNumber: "573001234567",
+      whatsappDefaultMessage: "Hola",
+      heroTitle: "Hola",
+      heroSubtitle: "Subtitulo",
+      heroCtaLabel: "Ver",
+      heroCtaHref: "javascript:alert(1)",
       footerText: "Pie de página",
       showPrices: false,
     });

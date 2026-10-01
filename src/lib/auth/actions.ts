@@ -4,13 +4,21 @@ import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validation/user";
-import { verifyPassword } from "@/lib/auth/passwords";
+import { hashPassword, verifyPassword } from "@/lib/auth/passwords";
 import { createSessionCookie, clearSessionCookie } from "@/lib/auth/session";
+import { consumeRateLimit, getRequestRateLimitKey } from "@/lib/security/rate-limit";
 
 export type LoginFormState = { error: string } | undefined;
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
+
+// Un correo que no existe (o una cuenta inactiva) respondía de inmediato,
+// mientras que uno real pagaba el costo de bcrypt (~250ms) al verificar la
+// contraseña. Aunque el mensaje de error sea genérico, esa diferencia de
+// tiempo deja adivinar por cronometraje qué correos tienen cuenta. Comparar
+// siempre contra este hash fijo, exista o no el usuario, iguala el tiempo.
+const DUMMY_PASSWORD_HASH = hashPassword("tiempo-constante-sin-cuenta-real-bNpQ7x!");
 
 export async function loginAction(
   _prevState: LoginFormState,
@@ -27,12 +35,26 @@ export async function loginAction(
 
   const { email, password } = parsed.data;
 
+  const rateLimitKey = await getRequestRateLimitKey();
+  const rateLimit = consumeRateLimit(`login:${rateLimitKey}:${email.toLowerCase()}`, {
+    limit: 10,
+    windowMs: 15 * 60_000,
+  });
+  if (!rateLimit.allowed) {
+    return {
+      error: `Demasiados intentos. Intenta de nuevo en ${Math.ceil(rateLimit.retryAfterSeconds / 60)} minutos.`,
+    };
+  }
+
   const user = await prisma.user.findUnique({ where: { email } });
 
   // Mensaje genérico a propósito: no revelamos si el correo existe o no.
   const genericError = { error: "Correo o contraseña incorrectos." } as const;
 
-  if (!user || !user.active) return genericError;
+  if (!user || !user.active) {
+    await verifyPassword(password, await DUMMY_PASSWORD_HASH);
+    return genericError;
+  }
 
   if (user.lockedUntil && user.lockedUntil > new Date()) {
     const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
@@ -68,7 +90,12 @@ export async function loginAction(
     });
   }
 
-  await createSessionCookie({ sub: user.id, role: user.role, name: user.name });
+  await createSessionCookie({
+    sub: user.id,
+    role: user.role,
+    name: user.name,
+    sessionVersion: user.sessionVersion,
+  });
 
   redirect("/admin");
 }

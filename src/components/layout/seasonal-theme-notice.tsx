@@ -11,6 +11,7 @@ import {
   Snowflake,
   Sparkles,
   Star,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -18,12 +19,20 @@ import type { SeasonalTheme } from "@/lib/seasonal-themes";
 
 const MOTIFS: Record<SeasonalTheme["preset"], [LucideIcon, LucideIcon, LucideIcon]> = {
   NEGROS_Y_BLANCOS: [Palette, Sparkles, Star],
+  FERIA_MANIZALES: [PartyPopper, Music2, Sparkles],
   CARNAVAL: [PartyPopper, Music2, Sparkles],
+  DIA_MUJER: [Flower2, Heart, Sparkles],
+  DIA_HOMBRE: [UsersRound, Star, Sparkles],
+  DIA_MADRE: [Heart, Gift, Flower2],
+  FESTIVAL_VALLENATO: [Music2, Drum, Star],
   SAN_PEDRO: [Flower2, Drum, Music2],
   COLOMBIA: [Flag, Star, Sparkles],
+  FERIA_FLORES: [Flower2, Sparkles, Flower2],
   AMOR_Y_AMISTAD: [Heart, Sparkles, Heart],
+  SAN_PACHO: [Drum, Flag, Sparkles],
   VELITAS: [Flame, Sparkles, Star],
   NAVIDAD: [Gift, Star, Snowflake],
+  FERIA_CALI: [Music2, PartyPopper, Sparkles],
 };
 
 export function SeasonalThemeNotice({ theme }: { theme: SeasonalTheme | null }) {

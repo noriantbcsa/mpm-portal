@@ -1,6 +1,25 @@
 import { z } from "zod";
 
-const optionalUrl = z.union([z.url(), z.literal("")]).optional().nullable();
+const optionalUrl = z
+  .union([
+    z.url().refine((value) => ["http:", "https:"].includes(new URL(value).protocol), {
+      error: "La URL debe usar http o https.",
+    }),
+    z.literal(""),
+  ])
+  .optional()
+  .nullable();
+const safeHref = z.string().trim().min(1).max(200).refine(
+  (value) => {
+    if (value.startsWith("/")) return !value.startsWith("//");
+    try {
+      return ["http:", "https:"].includes(new URL(value).protocol);
+    } catch {
+      return false;
+    }
+  },
+  { error: "Usa una ruta interna o una URL http/https." },
+);
 const hexColor = z
   .string()
   .trim()
@@ -28,7 +47,7 @@ export const siteSettingsFormSchema = z.object({
   heroSubtitle: z.string().trim().max(400),
   heroImageUrl: optionalUrl,
   heroCtaLabel: z.string().trim().min(1).max(60),
-  heroCtaHref: z.string().trim().min(1).max(200),
+  heroCtaHref: safeHref,
   footerText: z.string().trim().max(400),
   dataPolicyText: z.string().trim().max(20000).optional().nullable(),
   showPrices: z.boolean().default(false),

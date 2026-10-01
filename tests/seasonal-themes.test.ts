@@ -12,14 +12,21 @@ function atBogotaNoon(date: string) {
 
 describe("temas festivos colombianos", () => {
   it.each([
-    ["2026-01-04", "NEGROS_Y_BLANCOS"],
+    ["2026-01-04", "FERIA_MANIZALES"],
     ["2026-01-17", "CARNAVAL"],
     ["2026-02-17", "CARNAVAL"],
+    ["2026-03-08", "DIA_MUJER"],
+    ["2026-03-19", "DIA_HOMBRE"],
+    ["2026-04-29", "FESTIVAL_VALLENATO"],
+    ["2026-05-10", "DIA_MADRE"],
     ["2026-06-29", "SAN_PEDRO"],
     ["2026-07-20", "COLOMBIA"],
+    ["2026-08-05", "FERIA_FLORES"],
     ["2026-09-19", "AMOR_Y_AMISTAD"],
+    ["2026-09-25", "SAN_PACHO"],
     ["2026-12-07", "VELITAS"],
     ["2026-12-24", "NAVIDAD"],
+    ["2026-12-27", "FERIA_CALI"],
   ])("activa %s en la fecha %s", (date, expected) => {
     expect(getAutomaticSeasonalTheme(atBogotaNoon(date))?.preset).toBe(expected);
   });

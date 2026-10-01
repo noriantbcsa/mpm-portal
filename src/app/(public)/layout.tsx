@@ -21,7 +21,6 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       <Header />
       <main id="contenido" className="seasonal-main relative flex-1 overflow-hidden">
         <SeasonalBackdrop theme={seasonalTheme} />
-        <div className="seasonal-ambient" aria-hidden="true"><i /><i /><i /><b /><b /><em /></div>
         {children}
       </main>
       <Footer />

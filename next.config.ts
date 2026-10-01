@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   experimental: {
     useTypeScriptCli: false,
     cpus: 1,
+    // Las acciones son endpoints públicos: no aceptar cargas mayores a las
+    // necesarias reduce la superficie para abuso de memoria.
+    serverActions: {
+      bodySizeLimit: "1mb",
+    },
   },
   images: {
     // El catálogo entregado se sirve localmente en WebP. Cloudinary queda
@@ -14,6 +19,23 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+        ],
+      },
+    ];
   },
 };
 
