@@ -42,9 +42,11 @@ const nextConfig: NextConfig = {
       {
         // Los fondos estacionales son estáticos y pesan ~100–175 KB cada uno;
         // `public/` se servía con max-age=0, así que se volvían a descargar en
-        // cada visita. Un día de caché + revalidación en segundo plano.
+        // cada visita. Sus nombres no llevan hash y las imágenes se reemplazan
+        // en el mismo archivo, por eso la caché es corta (1 h + 1 día de
+        // revalidación en segundo plano) y no `immutable`.
         source: "/seasonal/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+        headers: [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }],
       },
     ];
   },

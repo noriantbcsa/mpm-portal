@@ -1,6 +1,12 @@
 import { z } from "zod";
 
 import { MAX_CART_ITEM_QUANTITY, MAX_CART_LINES } from "@/lib/constants";
+import { hasNoNullBytes, NO_NULL_BYTES_MESSAGE } from "@/lib/validation/text";
+
+const safeText = (schema: z.ZodString) => schema.refine(hasNoNullBytes, { error: NO_NULL_BYTES_MESSAGE });
+
+/** Mensaje en español para los máximos (el de Zod por defecto sale en inglés). */
+const tooLong = (max: number) => ({ error: `Es demasiado largo (máximo ${max} caracteres).` });
 
 const phoneSchema = z
   .string()
@@ -15,11 +21,11 @@ const phoneSchema = z
   });
 
 export const cartRequestContactSchema = z.object({
-  contactName: z.string().trim().min(2, { error: "Cuéntanos tu nombre." }).max(120),
+  contactName: safeText(z.string().trim().min(2, { error: "Cuéntanos tu nombre." }).max(120, tooLong(120))),
   contactPhone: phoneSchema,
-  city: z.string().trim().min(2, { error: "Indica tu ciudad." }).max(120),
-  companyName: z.string().trim().max(160).optional().nullable(),
-  comment: z.string().trim().max(1000).optional().nullable(),
+  city: safeText(z.string().trim().min(2, { error: "Indica tu ciudad." }).max(120, tooLong(120))),
+  companyName: safeText(z.string().trim().max(160, tooLong(160))).optional().nullable(),
+  comment: safeText(z.string().trim().max(1000, tooLong(1000))).optional().nullable(),
   dataConsent: z.literal(true, {
     error: "Debes aceptar la política de tratamiento de datos para continuar.",
   }),
@@ -28,9 +34,9 @@ export const cartRequestContactSchema = z.object({
 export type CartRequestContactInput = z.infer<typeof cartRequestContactSchema>;
 
 export const cartItemInputSchema = z.object({
-  productId: z.string().min(1),
-  size: z.string().trim().max(40).optional().nullable(),
-  color: z.string().trim().max(40).optional().nullable(),
+  productId: safeText(z.string().min(1)),
+  size: safeText(z.string().trim().max(40, tooLong(40))).optional().nullable(),
+  color: safeText(z.string().trim().max(40, tooLong(40))).optional().nullable(),
   quantity: z
     .number()
     .int()
@@ -53,7 +59,7 @@ export type SubmitCartRequestInput = z.infer<typeof submitCartRequestSchema>;
 
 export const cartRequestNoteSchema = z.object({
   cartRequestId: z.string().min(1),
-  note: z.string().trim().min(1, { error: "Escribe una nota." }).max(2000),
+  note: z.string().trim().min(1, { error: "Escribe una nota." }).max(2000, tooLong(2000)),
 });
 
 export const cartRequestStatusChangeSchema = z.object({

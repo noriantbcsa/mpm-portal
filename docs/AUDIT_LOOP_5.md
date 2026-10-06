@@ -61,4 +61,51 @@ como hipótesis: las correcciones aquí listadas están reproducidas o probadas.
 
 ## Resultados del bucle 1
 
-(ver sección final tras el bucle 2)
+`typecheck` y `lint` limpios; 188 pruebas; build correcto; `npm audit --omit=dev`: 0.
+El bucle 1 se cerró con un commit local (`7b7f4d3`) antes de empezar el 2.
+
+## Bucle 2 — re-auditoría desde el estado corregido
+
+Método: (a) probar contra un **servidor de producción local que simula Render**
+(`NEXT_PUBLIC_SITE_URL` vacía + `RENDER_EXTERNAL_URL`), (b) tres revisiones de solo
+lectura en paralelo (regresiones del commit del bucle 1, calidad de código y
+documentación, DevOps/producción) y (c) **verificar cada hallazgo contra el código o
+en vivo antes de actuar**. Uno de los informes se equivocó (afirmó que
+`src/components/campaign` no existe: existe); otro quedó corto (ver la primera fila).
+
+| Prioridad | Problema (cómo se verificó) | Corrección |
+| --- | --- | --- |
+| **Crítica** | **Ningún producto sembrado se podía guardar desde el panel**: el campo de foto era `<input type="url">` y el navegador rechaza las rutas `/catalogo/…` con las que se siembran las 360 fotos (en vivo: 12 campos inválidos, ni un POST). Además, los 4 validadores de URL del servidor llamaban `new URL()` dentro de un `refine` que Zod ejecuta aunque `z.url()` ya falló → `TypeError` → **500** al guardar Ajustes (banner relativo), categorías raíz o la carga masiva (reproducido con el esquema real) | `src/lib/validation/url.ts` único y sin excepciones (`http(s)` o ruta del sitio, nunca `//host`); `type="text"` + `aria-label` en las fotos; 20 pruebas; **verificado en el navegador**: un producto sembrado, Ajustes y las categorías Damas/Referencias Damas guardan |
+| **Alta** | Un `%00` en la URL o en un parámetro llegaba a PostgreSQL ("invalid byte sequence") y daba **500** (`/catalogo/a%00b`) o error genérico (`?q=%00`, `?talla=%00`); reproducido en el servidor de producción | `src/proxy.ts` responde 400 a `%00` (ruta y consulta; `%2500` sigue siendo texto); los textos del carrito se validan en el servidor; 12 pruebas; re-verificado en vivo (400 en los 4 casos) |
+| **Alta** | Un fallo momentáneo de la base de datos tumbaba **todo** el sitio (layout raíz → `getSiteSettings` sin protección: `/`, `/login`, el 404…; reproducido por el revisor de DevOps) | `getSiteSettings` sirve la última lectura correcta ante un fallo (nunca valores inventados: el admin también la lee); `statement_timeout` de 30 s en el pool; 3 pruebas |
+| **Alta** | `robots.txt`/`sitemap.xml` se congelaban en el build con la URL de entonces (en producción, `localhost`) | `force-dynamic` en ambos; verificado en el build que simula Render (host `mpm-portal.onrender.com`); una `NEXT_PUBLIC_SITE_URL=http://localhost…` copiada del `.env.example` se ignora en producción si Render da su URL |
+| **Alta** | Entrar con `Ventas@…` (el teclado del móvil capitaliza) fallaba y se podían crear dos cuentas que solo difieren en mayúsculas | Correo normalizado a minúsculas (login y alta de usuarios); migración `20261006190000` (no toca un correo si colisionaría); **verificado en vivo** entrando con `Admin@MPM.local` |
+| Media | El seed pisaba lo editado en el panel (visibilidad, nombre, orden y portada de las categorías) en cada ejecución y reimportaba el catálogo contra una base no local sin confirmación | `update: {}` en las categorías; en una base no local con productos exige `SEED_REFRESH_CATALOG=1` |
+| Media | La regla de dos niveles bloqueaba renombrar u ocultar una categoría anterior a la regla (A→B→C); el selector de padre ofrecía subcategorías | La regla solo se aplica si el padre cambia; el selector ofrece solo categorías principales (más el padre actual si es antiguo); 3 pruebas |
+| Media | Cambio de contraseña propio: los errores de tipeo en la confirmación consumían los 5 intentos; y cambiarla desde `/admin/usuarios` desconectaba a quien se editaba a sí mismo | El límite va después de validar; se renueva la cookie de la propia sesión; 4 pruebas |
+| Media | Carrito: botón "−"/"+" `disabled` perdía el foco del teclado, la cantidad no se anunciaba, pegar "1,000" daba 100; mensajes de máximo en inglés; texto truncado sin aviso | `aria-disabled`, región `role="status"`, 4 dígitos + tope; mensajes en español (verificado en el DOM) |
+| Media | El test del limitador de frecuencia era vacuo (pasaba también con el `clear()` antiguo); las pruebas de integración se **saltaban en silencio** en CI | Test reforzado (probado con una mutación: ahora falla con el código antiguo); `connectOrSkip` en las 7 suites: con `CI=true` falla si no hay base |
+| Media | La acción pública del carrito (único punto que guarda datos personales) y la importación masiva no tenían pruebas | `tests/cart-actions.test.ts` (16) y `tests/product-import-actions.test.ts` (15), ambas verificadas con mutaciones; el `catch {}` mudo de la importación ahora registra el tipo de error (sin datos de la fila) |
+| Media | Sin comprobación de vida; `AUTH_SECRET`/`DATABASE_URL` no se validaban al arrancar (SECURITY.md decía que sí); un error en `/admin` caía en la pantalla pública | `/healthz` (sin base de datos) + `healthCheckPath` en `render.yaml`; `src/instrumentation.ts` (verificado con un servidor real: responde 500 a todo, incluido `/healthz`, así que Render rechaza el despliegue); `src/app/admin/error.tsx` |
+| Baja | 3 claves foráneas con `SET NULL` sin índice; columnas CSV sin tope; Dependabot ausente; `date-fns` y `@types/bcryptjs` sin uso; caché de `/seasonal` demasiado larga para archivos que cambian en el mismo nombre; sin runbook | Migración `20261006191000`; topes en tallas/colores/material/categorías; `.github/dependabot.yml`; dependencias retiradas; 1 h + 1 día; `docs/DEPLOYMENT.md` §8 (rollback, migración fallida, respaldos, rotación de secretos, borrado de datos personales) |
+| Docs | Describían lo que el código no hace: `NEXT_PUBLIC_WHATSAPP_NUMBER` ("respaldo") no se lee en ningún sitio; Cloudinary "listo" pero sin conectar; payload de sesión, profundidad de categorías, sitemap "pendiente", lista de scripts y de suites, migraciones, "Pendiente" inexistente | README, ARCHITECTURE, DATA_MODEL, SECURITY, DEPLOYMENT y `.env.example` corregidos (cada afirmación nueva se comprobó contra el código/migraciones) |
+
+### Hallazgos de este bucle verificados y NO aplicados (con motivo)
+
+- *`autoDeployTrigger: checksPass`*: bloquearía todos los despliegues si el propio
+  workflow (aún nunca ejecutado en GitHub) fallara. Queda documentado en
+  DEPLOYMENT.md §8 para activarlo cuando `verify` haya pasado en verde.
+- *Redirección permanente para páginas fuera de rango*: el rango cambia con el
+  catálogo; un 308 cacheado sería incorrecto. Se corrigió el comentario engañoso
+  y la canónica apunta a la última página real.
+- *`ChangePasswordForm` vacía los campos tras un error*: es deliberado para una
+  contraseña (no se reenvía al navegador).
+- *`NEXT_PUBLIC_SITE_URL` literal en `render.yaml`*: el dominio definitivo aún no
+  existe; con `RENDER_EXTERNAL_URL` el sitio ya queda correcto.
+- *Acciones de solicitudes que devuelven `void` en silencio ante un permiso
+  denegado* y *`mapPrismaError` unificado*: la interfaz del vendedor ya es de solo
+  lectura para lo ajeno; se deja como mejora de consistencia.
+- *Componentes sin uso (`ui/card`, `ui/spinner`, `category-chips`), SVG de plantilla
+  en `public/`, 32 MB de imágenes versionadas*: son del área visual del otro agente.
+- *Orden de expulsión del limitador* (un bucket antiguo y activo se expulsa
+  primero): exige ≥10 000 claves distintas; riesgo bajo, documentado.

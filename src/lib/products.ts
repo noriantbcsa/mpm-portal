@@ -123,6 +123,11 @@ function buildOrderBy(sort?: CatalogSort): Prisma.ProductOrderByWithRelationInpu
   }
 }
 
+/** Cuántos productos cumplen los filtros (para validar el rango de paginación). */
+export async function countProducts(filters: CatalogFilters = {}) {
+  return prisma.product.count({ where: await buildWhere(filters) });
+}
+
 export async function listProducts(filters: CatalogFilters = {}) {
   const requestedPage = Math.max(1, filters.page ?? 1);
   const pageSize = filters.pageSize ?? CATALOG_PAGE_SIZE;

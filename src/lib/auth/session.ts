@@ -1,6 +1,7 @@
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 
+import { isValidAuthSecret } from "@/lib/auth/secret";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 import type { Role } from "@prisma/client";
 
@@ -15,7 +16,7 @@ export type SessionPayload = {
 
 function getSecretKey() {
   const secret = process.env.AUTH_SECRET;
-  if (!secret || secret.length < 32 || secret.includes("reemplaza-esta-clave")) {
+  if (!isValidAuthSecret(secret)) {
     throw new Error(
       "AUTH_SECRET debe ser una clave secreta de al menos 32 caracteres. Genera una con `openssl rand -base64 32`.",
     );

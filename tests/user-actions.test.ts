@@ -21,6 +21,9 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
+const createSessionCookieMock = vi.fn();
+vi.mock("@/lib/auth/session", () => ({ createSessionCookie: (...a: unknown[]) => createSessionCookieMock(...a) }));
+
 const { updateUserAction } = await import("@/app/admin/usuarios/actions");
 
 function form(fields: Record<string, string>) {
@@ -79,5 +82,35 @@ describe("updateUserAction — cuándo se cierran las sesiones del usuario edita
     const result = await updateUserAction({ status: "idle" }, form(base));
     expect(result).toEqual({ status: "error", message: "Ese usuario ya no existe." });
     expect(updateMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("updateUserAction — cambiarse la contraseña a uno mismo", () => {
+  it("renueva la cookie de la sesión actual con el sessionVersion nuevo (no lo desconecta)", async () => {
+    requireRoleMock.mockResolvedValue({ id: "admin1", role: "ADMIN" });
+    findUniqueMock.mockResolvedValue({ role: "ADMIN", active: true });
+    updateMock.mockResolvedValue({ role: "ADMIN", name: "Admin", sessionVersion: 7 });
+
+    await run({ id: "admin1", name: "Admin", role: "ADMIN", active: "on", password: "ClaveNueva456!" });
+
+    expect(createSessionCookieMock).toHaveBeenCalledWith({
+      sub: "admin1",
+      role: "ADMIN",
+      name: "Admin",
+      sessionVersion: 7,
+    });
+  });
+
+  it("editar a OTRA persona nunca toca la cookie del admin", async () => {
+    updateMock.mockResolvedValue({ role: "SALES", name: "Ana", sessionVersion: 2 });
+    await run({ ...base, password: "ClaveNueva456!" });
+    expect(createSessionCookieMock).not.toHaveBeenCalled();
+  });
+
+  it("si el admin solo cambia su nombre no hay nada que renovar", async () => {
+    findUniqueMock.mockResolvedValue({ role: "ADMIN", active: true });
+    updateMock.mockResolvedValue({ role: "ADMIN", name: "Admin 2", sessionVersion: 1 });
+    await run({ id: "admin1", name: "Admin 2", role: "ADMIN", active: "on", password: "" });
+    expect(createSessionCookieMock).not.toHaveBeenCalled();
   });
 });

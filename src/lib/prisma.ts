@@ -31,6 +31,9 @@ function createPrismaClient() {
     connectionString,
     max: Number(process.env.DATABASE_POOL_MAX) || 5,
     connectionTimeoutMillis: 10_000,
+    // Tope por consulta: una consulta atascada no debe retener una de las 5
+    // conexiones indefinidamente (todas las páginas dinámicas dependen del pool).
+    statement_timeout: 30_000,
   });
   return new PrismaClient({ adapter });
 }

@@ -44,15 +44,19 @@ function QuantityControl({
     if (Number.isFinite(parsed) && parsed >= 1) onChange(Math.min(parsed, MAX_CART_ITEM_QUANTITY));
   }
 
-  const buttonClass = "focus-ring flex h-10 w-10 items-center justify-center disabled:opacity-40";
+  // aria-disabled (no `disabled`): al llegar al límite con el teclado el botón
+  // no debe perder el foco ni desaparecer del orden de tabulación.
+  const buttonClass = "focus-ring flex h-10 w-10 items-center justify-center aria-disabled:opacity-40";
   return (
     <div className="flex items-center rounded-full border border-line">
       <button
         type="button"
         aria-label={`Disminuir cantidad de ${name}`}
         className={buttonClass}
-        disabled={quantity <= 1}
-        onClick={() => onChange(quantity - 1)}
+        aria-disabled={quantity <= 1}
+        onClick={() => {
+          if (quantity > 1) onChange(quantity - 1);
+        }}
       >
         <Minus className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
@@ -63,7 +67,7 @@ function QuantityControl({
         aria-label={`Cantidad de ${name}`}
         className="focus-ring h-10 w-14 bg-transparent text-center text-sm"
         value={draft ?? String(quantity)}
-        onChange={(event) => setDraft(event.target.value.replace(/\D/g, "").slice(0, 3))}
+        onChange={(event) => setDraft(event.target.value.replace(/\D/g, "").slice(0, 4))}
         onBlur={commit}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
@@ -76,11 +80,16 @@ function QuantityControl({
         type="button"
         aria-label={`Aumentar cantidad de ${name}`}
         className={buttonClass}
-        disabled={quantity >= MAX_CART_ITEM_QUANTITY}
-        onClick={() => onChange(quantity + 1)}
+        aria-disabled={quantity >= MAX_CART_ITEM_QUANTITY}
+        onClick={() => {
+          if (quantity < MAX_CART_ITEM_QUANTITY) onChange(quantity + 1);
+        }}
       >
         <Plus className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
+      <span className="sr-only" role="status" aria-live="polite">
+        {`${name}: ${quantity} ${quantity === 1 ? "unidad" : "unidades"}`}
+      </span>
     </div>
   );
 }

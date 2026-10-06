@@ -154,20 +154,26 @@ export function ProductForm({
             </AdminButton>
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            Pega la URL de cada imagen, describe qué muestra y asigna su color cuando corresponda. Así la galería y el selector público muestran la misma información.
+            Pega la URL de cada imagen (o una ruta del sitio como /catalogo/…), describe qué muestra y asigna su color cuando corresponda. Así la galería y el selector público muestran la misma información.
           </p>
           <div className="mt-3 flex flex-col gap-3">
             {images.map((image, index) => (
               <div key={index} className="grid gap-2 rounded-md border border-slate-200 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_10rem_auto]">
+                {/* type="text", no "url": el navegador rechazaba las rutas del propio
+                    sitio (/catalogo/…) con las que se siembran las fotos y el formulario
+                    no se podía enviar; el servidor valida la URL. */}
                 <input
-                  type="url"
-                  placeholder="https://…"
+                  type="text"
+                  inputMode="url"
+                  aria-label={`URL de la foto ${index + 1}`}
+                  placeholder="https://… o /catalogo/…"
                   value={image.url}
                   onChange={(e) => updateImage(index, { url: e.target.value })}
                   className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
                 />
                 <input
                   type="text"
+                  aria-label={`Texto alternativo de la foto ${index + 1}`}
                   placeholder="Texto alternativo"
                   value={image.alt}
                   onChange={(e) => updateImage(index, { alt: e.target.value })}
@@ -175,6 +181,7 @@ export function ProductForm({
                 />
                 <input
                   type="text"
+                  aria-label={`Color de la foto ${index + 1}`}
                   placeholder="Color (ej. Celeste)"
                   value={image.color ?? ""}
                   onChange={(e) => updateImage(index, { color: e.target.value })}

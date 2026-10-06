@@ -108,6 +108,25 @@ describe("changeOwnPasswordAction", () => {
   });
 });
 
+describe("changeOwnPasswordAction — errores de formulario no cuentan como intentos", () => {
+  it("diez errores de tipeo en la confirmación no bloquean; la contraseña correcta aún funciona", async () => {
+    const typo = () =>
+      changeOwnPasswordAction(
+        { status: "idle" },
+        form({ currentPassword: "ClaveActual123!", newPassword: "ClaveNueva456!", confirmPassword: "ClaveNueva456" }),
+      );
+    for (let i = 0; i < 10; i += 1) {
+      const result = await typo();
+      expect(result).toMatchObject({ status: "error", fieldErrors: { confirmPassword: expect.any(String) } });
+    }
+    const ok = await changeOwnPasswordAction(
+      { status: "idle" },
+      form({ currentPassword: "ClaveActual123!", newPassword: "ClaveNueva456!", confirmPassword: "ClaveNueva456!" }),
+    );
+    expect(ok.status).toBe("success");
+  });
+});
+
 describe("updateProfileNameAction", () => {
   it("actualiza solo el nombre del usuario autenticado (el id viene de la sesión, no del formulario)", async () => {
     const result = await updateProfileNameAction({ status: "idle" }, form({ name: "Ana María", id: "otro-usuario" }));

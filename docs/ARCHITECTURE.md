@@ -46,8 +46,9 @@ Handlers (`app/api/**`) sin duplicar lógica de negocio.
    filtros/orden/paginación), `src/app/(public)/producto/[slug]`,
    `src/app/admin/productos/**` (alta/edición/carga masiva).
 3. **Categorías, subcategorías, filtros y buscador** — `Category` es
-   auto-referenciada (`parentId`) para soportar cualquier profundidad;
-   `src/lib/categories.ts` arma el árbol y también aplana subárboles enteros
+   auto-referenciada (`parentId`); el servidor impone **dos niveles**
+   (categoría → subcategoría) al crear o mover una categoría (ver
+   `src/app/admin/categorias/actions.ts`); `src/lib/categories.ts` arma el árbol y también aplana subárboles enteros
    para que un filtro por categoría incluya sus subcategorías.
 4. **Campañas temáticas dinámicas** — `Campaign` + relación m:n con
    `Category` (categorías priorizadas) y relación 1:n con `Product`
@@ -65,17 +66,20 @@ Handlers (`app/api/**`) sin duplicar lógica de negocio.
    `Role` (`ADMIN` | `SALES`); ver la sección de permisos más abajo.
 9. **SEO, rendimiento, analítica y accesibilidad** — metadatos dinámicos por
    página (`generateMetadata`), JSON-LD (`Product`, `WebSite`/`SearchAction`),
-   `sitemap.ts`/`robots.ts` (pendiente de que el equipo de frontend los añada
-   junto con la identidad visual final — ver "Pendientes" en
-   `docs/AUDIT_LOOP_2.md`), indicadores básicos en el dashboard
-   (`src/lib/admin/dashboard.ts`).
+   `sitemap.ts`/`robots.ts` (dinámicos: leen la URL pública en cada petición,
+   ver `src/lib/site-url.ts`), indicadores básicos en el dashboard
+   (`src/lib/admin/dashboard.ts`). Operación: `/healthz` (sin base de datos,
+   para Render y monitores) y `src/instrumentation.ts` (en producción el
+   servidor no arranca sin `AUTH_SECRET` válida ni `DATABASE_URL`).
 
 ## Autenticación y permisos
 
 - **Sesión**: JWT firmado con `HS256` (librería `jose`), guardado en una
   cookie `httpOnly`, `sameSite=lax`, `secure` en producción
   (`src/lib/auth/session.ts`). El payload solo lleva `sub` (id de usuario),
-  `role` y `name` — nunca datos sensibles.
+  `role`, `name` y `sessionVersion` (se compara con la base de datos en cada
+  petición: subirlo cierra todas las sesiones de esa persona) — nunca datos
+  sensibles.
 - **Login/logout**: Server Actions en `src/lib/auth/actions.ts`, formulario
   en `src/components/auth/login-form.tsx`. Las contraseñas se guardan
   con `bcryptjs` (12 rondas).

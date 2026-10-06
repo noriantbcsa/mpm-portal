@@ -42,16 +42,6 @@ export async function changeOwnPasswordAction(
 ): Promise<ProfileFormState> {
   const user = await requireUser();
 
-  // Verificar la contraseña actual es un oráculo de fuerza bruta para quien
-  // tenga una sesión robada: se limita por usuario, además del costo de bcrypt.
-  const rateLimit = consumeRateLimit(`own-password:${user.id}`, { limit: 5, windowMs: 15 * 60_000 });
-  if (!rateLimit.allowed) {
-    return {
-      status: "error",
-      message: `Demasiados intentos. Intenta de nuevo en ${Math.ceil(rateLimit.retryAfterSeconds / 60)} minutos.`,
-    };
-  }
-
   const parsed = changePasswordSchema.safeParse({
     currentPassword: formData.get("currentPassword"),
     newPassword: formData.get("newPassword"),
@@ -67,6 +57,18 @@ export async function changeOwnPasswordAction(
       status: "error",
       message: parsed.error.issues[0]?.message ?? "Revisa los datos.",
       fieldErrors,
+    };
+  }
+
+  // Verificar la contraseña actual es un oráculo de fuerza bruta para quien
+  // tenga una sesión robada: se limita por usuario, además del costo de bcrypt.
+  // Va DESPUÉS de validar el formulario: un error de tipeo en la confirmación
+  // no es un intento de adivinar la contraseña y no debe bloquear a la persona.
+  const rateLimit = consumeRateLimit(`own-password:${user.id}`, { limit: 5, windowMs: 15 * 60_000 });
+  if (!rateLimit.allowed) {
+    return {
+      status: "error",
+      message: `Demasiados intentos. Intenta de nuevo en ${Math.ceil(rateLimit.retryAfterSeconds / 60)} minutos.`,
     };
   }
 

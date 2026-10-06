@@ -6,9 +6,11 @@ import { PUBLIC_CATEGORY_WHERE } from "@/lib/constants";
 import { liveCampaignWhere } from "@/lib/campaigns";
 import { getSiteUrl } from "@/lib/site-url";
 
-// Regenera el sitemap cada hora en vez de solo en cada despliegue, sin
-// consultar la base de datos en cada visita de un rastreador.
-export const revalidate = 3600;
+// Dinámico: como ISR (`revalidate = 3600`) la primera versión se generaba
+// durante el build y congelaba la URL del sitio que hubiera entonces (en
+// producción: localhost) hasta una hora después del despliegue. Un rastreador
+// visita el sitemap pocas veces al día y son tres consultas indexadas.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();

@@ -1,14 +1,9 @@
 import { z } from "zod";
 
-const optionalUrl = z
-  .union([
-    z.url().refine((value) => ["http:", "https:"].includes(new URL(value).protocol), {
-      error: "La URL debe usar http o https.",
-    }),
-    z.literal(""),
-  ])
-  .optional()
-  .nullable();
+import { optionalHttpUrlSchema, optionalImageUrlSchema } from "@/lib/validation/url";
+
+const optionalLink = optionalHttpUrlSchema.optional().nullable();
+const optionalImage = optionalImageUrlSchema.optional().nullable();
 const safeHref = z.string().trim().min(1).max(200).refine(
   (value) => {
     // "//dominio" y "/\\dominio" son URLs de otro sitio para el navegador.
@@ -29,7 +24,7 @@ const hexColor = z
 export const siteSettingsFormSchema = z.object({
   siteName: z.string().trim().min(1).max(80),
   tagline: z.string().trim().max(200),
-  logoUrl: optionalUrl,
+  logoUrl: optionalImage,
   primaryColor: hexColor,
   secondaryColor: hexColor,
   accentColor: hexColor,
@@ -41,12 +36,12 @@ export const siteSettingsFormSchema = z.object({
   contactEmail: z.union([z.email(), z.literal("")]).optional().nullable(),
   contactPhone: z.string().trim().max(40).optional().nullable(),
   address: z.string().trim().max(200).optional().nullable(),
-  instagramUrl: optionalUrl,
-  facebookUrl: optionalUrl,
-  tiktokUrl: optionalUrl,
+  instagramUrl: optionalLink,
+  facebookUrl: optionalLink,
+  tiktokUrl: optionalLink,
   heroTitle: z.string().trim().min(1).max(160),
   heroSubtitle: z.string().trim().max(400),
-  heroImageUrl: optionalUrl,
+  heroImageUrl: optionalImage,
   heroCtaLabel: z.string().trim().min(1).max(60),
   heroCtaHref: safeHref,
   footerText: z.string().trim().max(400),

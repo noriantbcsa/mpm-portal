@@ -1,16 +1,11 @@
-import "./test-db";
+import { connectOrSkip } from "./test-db";
 
 import { afterAll, describe, expect, it } from "vitest";
 
 import { prisma } from "@/lib/prisma";
 import { getCategorySubtreeIds } from "@/lib/categories";
 
-let dbAvailable = true;
-try {
-  await prisma.$connect();
-} catch {
-  dbAvailable = false;
-}
+const dbAvailable = await connectOrSkip(prisma);
 
 // Árbol de 3 niveles: raíz -> hijo -> nieto, más una rama hermana, para
 // probar que getCategorySubtreeIds recorre TODA la profundidad (no solo un

@@ -75,3 +75,38 @@ describe("saveCategoryAction — solo dos niveles", () => {
     expect(createMock).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("saveCategoryAction — categorías anteriores a la regla de dos niveles", () => {
+  // A (raíz) → B → C: legal antes de la regla de dos niveles.
+  const tree: Record<string, { parentId: string | null }> = {
+    A: { parentId: null },
+    B: { parentId: "A" },
+    C: { parentId: "B" },
+    OtraRaiz: { parentId: null },
+  };
+
+  beforeEach(() => {
+    findUniqueMock.mockImplementation(async ({ where }: { where: { id: string } }) => tree[where.id] ?? null);
+  });
+
+  it("permite renombrar o ocultar una categoría profunda si su padre no cambia", async () => {
+    await expect(
+      saveCategoryAction({ status: "idle" }, form({ id: "C", name: "C renombrada", parentId: "B" })),
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(updateMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("permite editar una categoría con hijas si sigue colgando del mismo padre", async () => {
+    countMock.mockResolvedValue(1);
+    await expect(
+      saveCategoryAction({ status: "idle" }, form({ id: "B", name: "B oculta", parentId: "A" })),
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(updateMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("sigue rechazando MOVER una categoría bajo un padre que no es raíz", async () => {
+    const result = await saveCategoryAction({ status: "idle" }, form({ id: "OtraRaiz", name: "X", parentId: "C" }));
+    expect(result.status).toBe("error");
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+});

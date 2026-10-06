@@ -42,7 +42,15 @@ export async function saveCategoryAction(
     }
   }
 
-  if (data.parentId) {
+  // La regla de niveles solo se aplica si el padre CAMBIA: una categoría que
+  // ya estaba más profunda (de antes de la regla) debe poder seguir
+  // renombrándose u ocultándose sin tener que desprenderla primero.
+  const currentParentId = id
+    ? ((await prisma.category.findUnique({ where: { id }, select: { parentId: true } }))?.parentId ?? null)
+    : null;
+  const parentChanged = !id || currentParentId !== (data.parentId ?? null);
+
+  if (data.parentId && parentChanged) {
     // Solo dos niveles (categoría → subcategoría): las reglas de visibilidad
     // pública (PUBLIC_CATEGORY_WHERE y las vistas PHP) miran únicamente al
     // padre directo, así que una tercera capa bajo una categoría oculta

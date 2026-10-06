@@ -5,8 +5,13 @@
 - Contraseñas con `bcryptjs`, 12 rondas (`src/lib/auth/passwords.ts`).
 - Sesión = JWT firmado `HS256` (librería `jose`) en una cookie `httpOnly`,
   `sameSite=lax`, `secure` en producción, 7 días de duración
-  (`src/lib/auth/session.ts`). El payload solo contiene `sub` (id), `role` y
-  `name` — nunca contraseña, correo ni datos de clientes.
+  (`src/lib/auth/session.ts`). El payload solo contiene `sub` (id), `role`,
+  `name` y `sessionVersion` — nunca contraseña, correo ni datos de clientes.
+  `sessionVersion` se compara con la base de datos en cada petición
+  (`getCurrentUser`); se incrementa al cambiar la contraseña, el rol o el
+  estado de la cuenta y al cerrar sesión, lo que invalida los JWT anteriores.
+- Los correos se normalizan a minúsculas al iniciar sesión y al crear cuentas
+  (el teclado del móvil capitaliza la primera letra).
 - Mensajes de error de login genéricos ("Correo o contraseña incorrectos")
   para no confirmar si un correo existe en el sistema.
 - Cada página y Server Action de `/admin` vuelve a verificar el usuario
@@ -74,8 +79,18 @@
   el administrador inicial.
 - Las acciones de servidor tienen un límite explícito de cuerpo de 1 MB. Las
   listas del carrito se validan en servidor y aceptan como máximo 50 líneas.
-- `AUTH_SECRET` se rechaza al arrancar si es el placeholder o tiene menos de
-  32 caracteres. No reutilices secretos de desarrollo en producción.
+- `AUTH_SECRET` se rechaza al arrancar (en producción, `src/instrumentation.ts`
+  deja el servidor respondiendo 500 a todo, incluido `/healthz`, y lo registra) si es el placeholder o tiene menos de 32
+  caracteres; `DATABASE_URL` también es obligatoria. No reutilices secretos de
+  desarrollo en producción.
+- **Bytes nulos (`%00`)**: PostgreSQL los rechaza y una URL como
+  `/catalogo/a%00b` o `?q=%00` provocaba un error 500 al llegar a la consulta.
+  `src/proxy.ts` responde 400 a cualquier petición con `%00` en la ruta o la
+  consulta, y los textos del formulario del carrito se validan en servidor.
+- **URLs de imagen**: los esquemas de validación (`src/lib/validation/url.ts`)
+  aceptan `http(s)` o rutas del propio sitio (`/catalogo/…`, nunca `//host` ni
+  `/\host`) y nunca lanzan: una URL inválida es un mensaje de validación, no un
+  error 500.
 
 ## Datos personales
 
@@ -163,7 +178,7 @@ motor de consultas de Prisma) y `esbuild`/`unrs-resolver` (binarios nativos
 de herramientas de build). No apruebes un script nuevo sin revisar qué
 paquete lo pide y por qué.
 
-## Qué falta antes de producción (ver también `docs/AUDIT_LOOP_5.md`, sección "Pendiente")
+## Qué falta antes de producción (ver también `docs/AUDIT_LOOP_5.md`, sección "Riesgos y pendientes")
 
 - Revisión legal real del texto de `/politica-de-datos`.
 - Generar un `AUTH_SECRET` de producción propio (nunca reusar el de

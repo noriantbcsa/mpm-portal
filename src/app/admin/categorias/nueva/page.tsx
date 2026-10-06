@@ -14,7 +14,7 @@ export default async function NuevaCategoriaPage() {
     <div className="max-w-xl">
       <h1 className="text-xl font-semibold text-slate-900">Nueva categoría</h1>
       <div className="mt-6">
-        <CategoryForm parentOptions={buildCategoryOptions(categories)} />
+        <CategoryForm parentOptions={buildCategoryOptions(categories.filter((c) => c.parentId === null))} />
       </div>
     </div>
   );

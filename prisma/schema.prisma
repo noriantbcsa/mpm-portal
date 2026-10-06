@@ -275,6 +275,7 @@ model CartSessionItem {
   updatedAt           DateTime    @updatedAt
 
   @@index([cartSessionId])
+  @@index([productId])
 }
 
 enum CartRequestStatus {
@@ -328,6 +329,7 @@ model CartRequestItem {
   priceRefSnapshot    Decimal?    @db.Decimal(12, 2)
 
   @@index([cartRequestId])
+  @@index([productId])
 }
 
 enum CartRequestEventType {
@@ -350,4 +352,5 @@ model CartRequestEvent {
   createdAt      DateTime             @default(now())
 
   @@index([cartRequestId])
+  @@index([authorId])
 }

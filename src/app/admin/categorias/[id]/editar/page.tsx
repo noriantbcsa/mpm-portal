@@ -25,7 +25,12 @@ export default async function EditarCategoriaPage({ params }: PageProps) {
       <p className="mt-1 text-sm text-slate-500">{category.name}</p>
       <div className="mt-6">
         <CategoryForm
-          parentOptions={buildCategoryOptions(categories)}
+          // Solo categorías principales (el sitio admite dos niveles); si esta ya
+          // colgaba de una más profunda, se conserva ese padre para no
+          // desprenderla sin querer al guardar.
+          parentOptions={buildCategoryOptions(
+            categories.filter((c) => c.parentId === null || c.id === category.parentId),
+          )}
           initial={{
             id: category.id,
             name: category.name,

@@ -1,4 +1,4 @@
-import "./test-db";
+import { connectOrSkip } from "./test-db";
 
 import { afterAll, describe, expect, it } from "vitest";
 
@@ -11,12 +11,7 @@ import { getCatalogFilterOptions, incrementProductViewCount, listProducts } from
 // `describe.skipIf` necesita el valor ya resuelto en el momento en que se
 // arma la suite, por eso la comprobación (y la siembra de datos) se hacen
 // con top-level await, no dentro de un `beforeAll`.
-let dbAvailable = true;
-try {
-  await prisma.$connect();
-} catch {
-  dbAvailable = false;
-}
+const dbAvailable = await connectOrSkip(prisma);
 
 let damasId = "";
 let vestidosId = "";

@@ -1,12 +1,6 @@
 import { z } from "zod";
 
-export const httpUrlSchema = z.url({ error: "La URL no es válida." }).refine(
-  (value) => {
-    const protocol = new URL(value).protocol;
-    return protocol === "https:" || protocol === "http:";
-  },
-  { error: "La URL debe usar http o https." },
-);
+import { imageUrlSchema } from "@/lib/validation/url";
 
 export const AUDIENCE_VALUES = ["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const;
 export const PRODUCT_STATUS_VALUES = [
@@ -32,7 +26,7 @@ export const skuSchema = z
   });
 
 export const productImageInputSchema = z.object({
-  url: httpUrlSchema,
+  url: imageUrlSchema,
   alt: z.string().trim().min(1, { error: "Describe la imagen (texto alternativo)." }).max(160),
   color: z.string().trim().max(60).optional().nullable(),
   order: z.number().int().min(0).default(0),
@@ -76,14 +70,18 @@ export const productCsvRowSchema = z.object({
   descripcion: z.string().trim().min(1, { error: "La descripción es obligatoria." }).max(4000, {
     error: "La descripción es demasiado larga (máximo 4000 caracteres).",
   }),
-  categoria: z.string().trim().min(1, { error: "La categoría es obligatoria." }),
-  subcategoria: z.string().trim().optional().default(""),
+  categoria: z.string().trim().min(1, { error: "La categoría es obligatoria." }).max(120, {
+    error: "El nombre de la categoría es demasiado largo (máximo 120 caracteres).",
+  }),
+  subcategoria: z.string().trim().max(120, {
+    error: "El nombre de la subcategoría es demasiado largo (máximo 120 caracteres).",
+  }).optional().default(""),
   // Sin valor por defecto: en una actualización, una columna ausente o vacía
   // conserva el valor actual; en una creación se usa UNISEX/DISPONIBLE.
   publico: z.string().trim().optional().default(""),
-  tallas: z.string().trim().optional().default(""),
-  colores: z.string().trim().optional().default(""),
-  material: z.string().trim().optional().default(""),
+  tallas: z.string().trim().max(300, { error: "Las tallas son demasiado largas (máximo 300 caracteres)." }).optional().default(""),
+  colores: z.string().trim().max(600, { error: "Los colores son demasiado largos (máximo 600 caracteres)." }).optional().default(""),
+  material: z.string().trim().max(160, { error: "El material es demasiado largo (máximo 160 caracteres)." }).optional().default(""),
   fotos: z.string().trim().optional().default(""),
   estado: z.string().trim().optional().default(""),
   etiquetas: z.string().trim().optional().default(""),

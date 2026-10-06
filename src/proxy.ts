@@ -34,6 +34,15 @@ export async function proxy(request: NextRequest) {
     return response;
   };
 
+  // Un byte nulo (%00) en la ruta o en un parámetro llega tal cual a
+  // PostgreSQL, que lo rechaza ("invalid byte sequence for encoding UTF8"):
+  // la página falla con 500 (/catalogo/a%00b) o muestra el error genérico
+  // (?q=%00). No tiene un uso legítimo, así que se corta aquí, antes de que
+  // llegue a ninguna consulta. (%2500 es el texto literal "%00": no aplica.)
+  if (/%00/i.test(pathname) || /%00/i.test(request.nextUrl.search)) {
+    return withSecurityHeaders(new NextResponse("Solicitud no válida.", { status: 400 }));
+  }
+
   if (pathname.startsWith("/admin")) {
     const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     const session = token ? await verifySession(token) : null;

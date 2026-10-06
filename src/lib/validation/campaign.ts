@@ -1,11 +1,6 @@
 import { z } from "zod";
 
-const optionalHttpUrl = z.union([
-  z.url().refine((value) => ["http:", "https:"].includes(new URL(value).protocol), {
-    error: "La URL debe usar http o https.",
-  }),
-  z.literal(""),
-]);
+import { optionalImageUrlSchema } from "@/lib/validation/url";
 
 const optionalHexColor = z
   .string()
@@ -26,7 +21,7 @@ export const campaignFormSchema = z
   .object({
     name: z.string().trim().min(2, { error: "El nombre es obligatorio." }).max(120),
     description: z.string().trim().max(1000).optional().nullable(),
-    bannerImageUrl: optionalHttpUrl.optional().nullable(),
+    bannerImageUrl: optionalImageUrlSchema.optional().nullable(),
     colorPrimary: optionalHexColor,
     colorSecondary: optionalHexColor,
     startDate: optionalDateKey,

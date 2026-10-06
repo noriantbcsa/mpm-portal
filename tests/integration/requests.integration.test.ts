@@ -1,16 +1,11 @@
-import "./test-db";
+import { connectOrSkip } from "./test-db";
 
 import { afterAll, describe, expect, it } from "vitest";
 
 import { prisma } from "@/lib/prisma";
 import { listCartRequests } from "@/lib/admin/requests";
 
-let dbAvailable = true;
-try {
-  await prisma.$connect();
-} catch {
-  dbAvailable = false;
-}
+const dbAvailable = await connectOrSkip(prisma);
 
 let advisorId = "";
 let newId = "";

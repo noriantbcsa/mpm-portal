@@ -43,7 +43,27 @@ export const DEFAULT_SITE_SETTINGS = {
 
 export type SiteSettingsData = typeof DEFAULT_SITE_SETTINGS;
 
+/**
+ * Última lectura correcta de los ajustes (por proceso). El layout raíz y casi
+ * todas las páginas públicas los leen, así que un fallo momentáneo de la base
+ * de datos tumbaba TODO el sitio con un 500, incluida la página de inicio de
+ * sesión. Ante un fallo se sirve esta copia en vez de eso; no se inventan
+ * valores por defecto porque el admin también lee estos ajustes y podría
+ * guardar encima de los reales.
+ */
+let lastGoodSettings: SiteSettingsData | null = null;
+
 export const getSiteSettings = cache(async (): Promise<SiteSettingsData> => {
-  const settings = await prisma.siteSettings.findUnique({ where: { id: "default" } });
-  return settings ?? DEFAULT_SITE_SETTINGS;
+  try {
+    const settings = await prisma.siteSettings.findUnique({ where: { id: "default" } });
+    lastGoodSettings = settings ?? DEFAULT_SITE_SETTINGS;
+    return lastGoodSettings;
+  } catch (error) {
+    if (!lastGoodSettings) throw error;
+    console.error(
+      "[site-config] No se pudieron leer los ajustes; se sirve la última copia correcta.",
+      error instanceof Error ? error.name : "error",
+    );
+    return lastGoodSettings;
+  }
 });

@@ -30,4 +30,26 @@ describe("getSiteUrl", () => {
     vi.spyOn(console, "warn").mockImplementation(() => undefined);
     expect(getSiteUrl()).toBe("http://localhost:3000");
   });
+
+  it("en producción ignora un NEXT_PUBLIC_SITE_URL de localhost (copiado del .env.example) si Render da la URL real", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
+    vi.stubEnv("RENDER_EXTERNAL_URL", "https://mpm-portal.onrender.com");
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    expect(getSiteUrl()).toBe("https://mpm-portal.onrender.com");
+  });
+
+  it("en desarrollo respeta localhost aunque RENDER_EXTERNAL_URL exista", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
+    vi.stubEnv("RENDER_EXTERNAL_URL", "https://mpm-portal.onrender.com");
+    expect(getSiteUrl()).toBe("http://localhost:3000");
+  });
+
+  it("en producción sin URL de Render, localhost configurado se respeta (prueba local del build)", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
+    vi.stubEnv("RENDER_EXTERNAL_URL", "");
+    expect(getSiteUrl()).toBe("http://localhost:3000");
+  });
 });

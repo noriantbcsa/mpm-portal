@@ -24,9 +24,11 @@ describe("consumeRateLimit", () => {
 
     for (let i = 0; i < 10_500; i += 1) consumeRateLimit(`ruido:${i}`, opts);
 
-    // La clave "victima" es de las más antiguas y puede haberse descartado
-    // por antigüedad, pero la limpieza nunca debe ser total: las claves
-    // recientes siguen contando.
+    // "victima" es de las más antiguas y se descarta por antigüedad (es
+    // esperable), pero la limpieza nunca es total. "ruido:9000" ya existía
+    // cuando el mapa se llenó (en el flujo antiguo, clear(), se perdía) y es
+    // de las recientes: su contador debe sobrevivir.
+    expect(consumeRateLimit("ruido:9000", opts).allowed).toBe(false);
     expect(consumeRateLimit("ruido:10499", opts).allowed).toBe(false);
   });
 });

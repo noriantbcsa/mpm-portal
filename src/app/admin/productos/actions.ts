@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/dal";
-import { productFormSchema, PRODUCT_TAG_VALUES, httpUrlSchema } from "@/lib/validation/product";
+import { productFormSchema, PRODUCT_TAG_VALUES } from "@/lib/validation/product";
+import { imageUrlSchema } from "@/lib/validation/url";
 import { uniqueSlug } from "@/lib/slug";
 import { decodeCsvBytes, parseCopPrice, parseProductsCsv, splitMultiValue } from "@/lib/csv";
 
@@ -236,17 +237,17 @@ export async function bulkImportProductsAction(
     }
 
     // Igual que las fotos del formulario individual (productImageInputSchema):
-    // una URL de foto solo se guarda si de verdad es http(s). Una fila de CSV
+    // una URL de foto solo se guarda si de verdad es http(s) o una ruta del sitio. Una fila de CSV
     // no es más confiable que un campo de formulario.
     const fotoUrls = splitMultiValue(data.fotos);
-    const invalidFotoUrls = fotoUrls.filter((url) => !httpUrlSchema.safeParse(url).success);
+    const invalidFotoUrls = fotoUrls.filter((url) => !imageUrlSchema.safeParse(url).success);
     if (invalidFotoUrls.length > 0) {
       rowErrors.push(
-        `Fila ${row}: se ignoraron ${invalidFotoUrls.length} foto(s) con URL inválida (debe ser http/https).`,
+        `Fila ${row}: se ignoraron ${invalidFotoUrls.length} foto(s) con URL inválida (debe ser http/https o una ruta que empiece por /).`,
       );
     }
     const images = fotoUrls
-      .filter((url) => httpUrlSchema.safeParse(url).success)
+      .filter((url) => imageUrlSchema.safeParse(url).success)
       .map((url, order) => ({
         url,
         alt: `${data.nombre} · foto ${order + 1}`,
@@ -305,7 +306,14 @@ export async function bulkImportProductsAction(
         takenSlugs.add(slug);
         created += 1;
       }
-    } catch {
+    } catch (error) {
+      // Solo el tipo/código del error: el mensaje de Prisma incluye los valores
+      // de la fila y no hace falta dejarlos en el log.
+      console.error(
+        `[importación masiva] Fila ${row}: no se pudo guardar "${data.referencia}".`,
+        error instanceof Error ? error.name : "error",
+        (error as { code?: string })?.code ?? "",
+      );
       rowErrors.push(`Fila ${row}: no se pudo guardar la referencia "${data.referencia}".`);
       skipped += 1;
     }

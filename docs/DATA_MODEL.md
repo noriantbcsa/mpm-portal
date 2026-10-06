@@ -13,6 +13,8 @@ User ──< CartRequestEvent (author)             │
 Campaign >──< Category (priorityCategories, m:n)
 Campaign ──< Product (campaignId)
 
+User ──< CartSession (handledBy)
+
 Product ──< ProductImage
 Product ──< CartSessionItem  (snapshot de nombre/sku; productId opcional)
 Product ──< CartRequestItem  (snapshot de nombre/sku/precio; productId opcional)
@@ -63,12 +65,18 @@ decisión explícita de negocio/legal.
 
 ## Por qué `Category` es auto-referenciada en vez de dos tablas (`Category`/`Subcategory`)
 
-El enunciado pide "categorías, subcategorías" pero no limita la
-profundidad, y en la práctica ya se usan 2 niveles (p. ej. "Damas" →
-"Vestidos"). Una relación `parentId` auto-referenciada (`Category.parent` /
-`Category.children`) soporta cualquier profundidad sin migración futura, y
-`src/lib/categories.ts#getCategorySubtreeIds` permite que filtrar por
-"Damas" incluya automáticamente todas sus subcategorías.
+El enunciado pide "categorías, subcategorías" y en la práctica se usan 2
+niveles (p. ej. "Damas" → "Referencias Damas"). Una relación `parentId`
+auto-referenciada (`Category.parent` / `Category.children`) evita dos tablas
+casi idénticas, y `src/lib/categories.ts#getCategorySubtreeIds` permite que
+filtrar por "Damas" incluya automáticamente todas sus subcategorías.
+
+El esquema técnicamente admite cualquier profundidad, pero **el servidor impone
+dos niveles** (`saveCategoryAction`): la regla de visibilidad pública
+(`PUBLIC_CATEGORY_WHERE` y las vistas PHP) solo mira al padre directo, así que
+una tercera capa bajo una categoría oculta seguiría siendo pública. La regla se
+aplica al crear o al cambiar de padre; una categoría anterior a la regla puede
+seguir editándose sin moverla.
 
 ## Por qué las etiquetas (`tags`) y no una tabla `Tag`
 
@@ -91,6 +99,8 @@ hoy. Si en el futuro las etiquetas necesitan ser gestionables por el admin
 | `Audience` | `HOMBRE`, `MUJER`, `NINO`, `NINA`, `UNISEX` | Filtro "Público" |
 | `CartRequestStatus` | `NUEVO` → `CONTACTADO` → `EN_NEGOCIACION` → `VENDIDO` / `CERRADO` / `CANCELADO` | Seguimiento comercial |
 | `CartRequestEventType` | `CREATED`, `NOTE`, `STATUS_CHANGE`, `ASSIGNMENT` | Timeline de una solicitud |
+| `SeasonalThemeMode` | `AUTOMATIC`, `MANUAL`, `OFF` | Diseño festivo (`SiteSettings.seasonalThemeMode`) |
+| `SeasonalThemePreset` | `DEFAULT`, `NEGROS_Y_BLANCOS`, `CARNAVAL`, `NAVIDAD`, … (16 valores, ver `schema.prisma`) | Celebración forzada en modo manual |
 
 `CartRequestStatus` no tiene una transición forzada (un asesor puede pasar
 de `NUEVO` a `CERRADO` directo); se decidió no restringir el flujo porque en
@@ -110,10 +120,43 @@ ventas reales el orden no siempre es lineal (un cliente puede escribir
 
 ## Migraciones
 
+Están en `prisma/migrations/` en orden cronológico (15 al 6 de octubre de
+2026). Las que cambian datos o vistas, y conviene conocer:
+
 - `20260922031350_init`: esquema inicial completo.
-- `20260922043619_add_login_lockout`: agrega `User.failedLoginAttempts` y
-  `User.lockedUntil` (bloqueo de cuenta tras intentos fallidos de login, ver
-  `docs/SECURITY.md`).
+- `20260922043619_add_login_lockout`: `User.failedLoginAttempts` y
+  `User.lockedUntil` (bloqueo de cuenta tras intentos fallidos).
+- `20260927110000_cart_commercial_workflow`: renombra los estados
+  (`CONFIRMADO` → `VENDIDO`, `PERDIDO` → `CANCELADO`, conservando el historial)
+  y agrega el seguimiento comercial de los carritos sin solicitud
+  (`CartSession.commercialStatus`, `handledById`, `handledAt`).
+- `20260927143000_add_seasonal_themes` / `20260930120000_add_regional_seasonal_themes`:
+  diseño festivo (los enums y las celebraciones regionales).
+- `20260922185129_add_product_image_color` y `20260927170000_update_bogota_brand_defaults`:
+  color por foto; corrige textos provisionales de la primera siembra sin pisar
+  lo personalizado.
+- `20260927160000_add_php_catalog_integration`: esquema `integration` con las
+  vistas `catalog_*` de solo lectura para el sistema PHP (ver
+  `docs/PHP_INTEGRATION.md`). Las vistas se reemplazan con `CREATE OR REPLACE`
+  y **no pueden cambiar el tipo de una columna**: hace falta un cast
+  (`::numeric(12,2)`) para conservar el tipo existente.
+- `20261001040221_add_user_session_version`: `User.sessionVersion`.
+- `20261001120000_anchor_campaign_dates_to_bogota`: corrige las fechas de
+  campañas ya guardadas (datos).
+- `20261001121000_php_views_respect_hidden_parent_category` y
+  `20261006180000_php_view_respects_show_prices`: las vistas PHP respetan la
+  categoría padre oculta y `SiteSettings.showPrices`.
+- `20261001161846_add_catalog_search_indexes`: `pg_trgm` + índices GIN para el
+  buscador y los filtros de tallas/colores/etiquetas.
+- `20261006190000_lowercase_user_emails`: normaliza a minúsculas los correos
+  existentes (datos; no toca un correo si ya existe otro igual en minúsculas).
+- `20261006191000_add_fk_indexes`: índices en las claves foráneas con
+  `ON DELETE SET NULL` (`CartSessionItem.productId`, `CartRequestItem.productId`,
+  `CartRequestEvent.authorId`).
+
+**Nunca edites una migración ya aplicada** (Prisma guarda su checksum). Para
+comprobar que las migraciones producen exactamente `schema.prisma`:
+`npm run db:drift` (necesita `SHADOW_DATABASE_URL`, una base desechable vacía).
 
 Prisma 7 requiere un archivo `prisma.config.ts` (ya no se admite
 `datasource.url` dentro de `schema.prisma`); ver

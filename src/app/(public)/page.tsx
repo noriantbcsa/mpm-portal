@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, MessageCircle, ShoppingBag } from "lucide-react";
@@ -17,6 +18,11 @@ import { JsonLd } from "@/components/seo/json-ld";
 // La portada consulta datos actuales: imágenes, colecciones y campaña se
 // actualizan desde el administrador sin esperar al siguiente despliegue.
 export const dynamic = "force-dynamic";
+
+// La portada es la URL canónica de la raíz (título y descripción vienen del
+// layout); sin esto `/?utm_source=…` y variantes se indexaban como páginas
+// distintas.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
   const [settings, activeCampaign, categories, latestResult] = await Promise.all([

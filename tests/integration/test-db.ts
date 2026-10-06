@@ -15,4 +15,19 @@ process.env.DATABASE_URL =
   process.env.TEST_DATABASE_URL ??
   "postgresql://mpm:mpm_dev_password@localhost:5544/mpm_portal_test?schema=public";
 
-export {};
+/**
+ * Conecta a la base de pruebas. En una máquina sin Postgres levantado devuelve
+ * `false` y las suites se saltan (`describe.skipIf`) en vez de fallar toda la
+ * ejecución. En CI (`CI=true`) nunca se omite en silencio: un
+ * `TEST_DATABASE_URL` mal puesto daba una ejecución verde sin correr ni una
+ * prueba de integración, así que allí el error de conexión se propaga.
+ */
+export async function connectOrSkip(prisma: { $connect(): Promise<unknown> }): Promise<boolean> {
+  try {
+    await prisma.$connect();
+    return true;
+  } catch (error) {
+    if (process.env.CI) throw error;
+    return false;
+  }
+}

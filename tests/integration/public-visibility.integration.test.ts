@@ -1,4 +1,4 @@
-import "./test-db";
+import { connectOrSkip } from "./test-db";
 
 import { afterAll, describe, expect, it } from "vitest";
 
@@ -10,12 +10,7 @@ import { findUnavailableProductIds, resolveCartItems } from "@/lib/cart/resolve-
 // Reglas de visibilidad pública añadidas en el bucle de auditoría 4:
 // campañas fuera de vigencia, categorías ocultas y prendas que no se pueden
 // pedir. Ver docs/AUDIT_LOOP_4.md.
-let dbAvailable = true;
-try {
-  await prisma.$connect();
-} catch {
-  dbAvailable = false;
-}
+const dbAvailable = await connectOrSkip(prisma);
 
 const DAY = 24 * 60 * 60 * 1000;
 const now = Date.now();

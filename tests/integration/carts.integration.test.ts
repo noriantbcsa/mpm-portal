@@ -1,16 +1,11 @@
-import "./test-db";
+import { connectOrSkip } from "./test-db";
 
 import { afterAll, describe, expect, it } from "vitest";
 
 import { prisma } from "@/lib/prisma";
 import { getAbandonedCartsCount, listAbandonedCarts, listActiveCartSessions } from "@/lib/admin/carts";
 
-let dbAvailable = true;
-try {
-  await prisma.$connect();
-} catch {
-  dbAvailable = false;
-}
+const dbAvailable = await connectOrSkip(prisma);
 
 const TOKEN_PREFIX = "it-cart-";
 const NINE_DAYS_AGO = new Date(Date.now() - 9 * 24 * 60 * 60 * 1000);

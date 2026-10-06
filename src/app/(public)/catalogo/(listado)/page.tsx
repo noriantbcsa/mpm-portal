@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { getCatalogFilterOptions, listProducts } from "@/lib/products";
+import { countProducts, getCatalogFilterOptions, listProducts } from "@/lib/products";
+import { CATALOG_PAGE_SIZE } from "@/lib/constants";
 import { getSiteSettings } from "@/lib/site-config";
 import { getCategoryTree } from "@/lib/categories";
 import type { RawSearchParams } from "@/lib/search-params";
@@ -18,12 +19,27 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   // la URL canónica al catálogo base y las variantes filtradas no se indexan.
   const params = parseCatalogParams(await searchParams);
   const filtered = hasCatalogFilters(params);
+  // Una página más allá de la última se redirige a la última (ver la página),
+  // pero como esta ruta responde en streaming (loading.tsx) el estado HTTP ya
+  // es 200: la canónica debe apuntar a la página real, no a la pedida. El
+  // conteo solo se hace para páginas 2+, que son la minoría.
+  let canonicalPage = params.pagina;
+  if (canonicalPage > 1) {
+    const total = await countProducts({
+      q: params.q,
+      audience: params.publico,
+      sizes: params.talla,
+      colors: params.color,
+      tags: params.etiqueta,
+    });
+    canonicalPage = Math.min(canonicalPage, Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE)));
+  }
   return {
     title: "Catálogo",
     description: "Explora el catálogo completo de MPM: filtra por categoría, talla, color y más.",
     // Cada página de la paginación es canónica de sí misma (recomendación
     // de Google); solo las variantes filtradas se excluyen del índice.
-    alternates: { canonical: buildCatalogHref("/catalogo", EMPTY_FILTERS, params.pagina) },
+    alternates: { canonical: buildCatalogHref("/catalogo", EMPTY_FILTERS, canonicalPage) },
     ...(filtered ? { robots: { index: false, follow: true } } : {}),
   };
 }

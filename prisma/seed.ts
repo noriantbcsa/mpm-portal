@@ -79,7 +79,9 @@ async function importRealCatalog() {
   const categories = await Promise.all(collections.map((item, order) => prisma.category.upsert({
     where: { slug: item.slug },
     create: { name: item.category, slug: item.slug, description: `Colecciones de ${item.category}.`, imageUrl: item.imageUrl, order },
-    update: { name: item.category, description: `Colecciones de ${item.category}.`, imageUrl: item.imageUrl, order, isVisible: true },
+    // Repetir el seed no debe pisar lo que se editó en /admin/categorias
+    // (visibilidad, nombre, orden, portada).
+    update: {},
   })));
   const referenceCategories = await Promise.all(collections.map(async (item) => {
     const parent = categories.find((category) => category.slug === item.slug);
@@ -93,13 +95,7 @@ async function importRealCatalog() {
         parentId: parent.id,
         order: 0,
       },
-      update: {
-        name: item.referenceName,
-        description: `Modelos reales de ${item.category} con galería de fotos y especificaciones.`,
-        parentId: parent.id,
-        order: 0,
-        isVisible: true,
-      },
+      update: {},
     });
   }));
   const siteSettings = await prisma.siteSettings.upsert({
@@ -170,12 +166,11 @@ async function importRealCatalog() {
   console.log(`Catálogo real importado: ${imported} referencias con fotos de public/catalogo.`);
 }
 
-async function seedUsers() {
-  // La contraseña de demostración es pública (README). Contra una base de
-  // producción no se crean cuentas con ella: hay que pasar una propia en
-  // SEED_ADMIN_PASSWORD (o crear las cuentas desde /admin/usuarios).
-  // Se considera "producción" cualquier base que no sea local, aunque el
-  // seed se corra desde un portátil apuntando a la URL de Render.
+/**
+ * Se considera "producción" cualquier base que no sea local, aunque el seed se
+ * corra desde un portátil apuntando a la URL de Render.
+ */
+function isLocalDatabase() {
   const databaseHost = (() => {
     try {
       return new URL(process.env.DATABASE_URL ?? "").hostname;
@@ -183,8 +178,14 @@ async function seedUsers() {
       return "";
     }
   })();
-  const isLocalDatabase = ["localhost", "127.0.0.1", "::1", "[::1]", "db"].includes(databaseHost);
-  const isProduction = process.env.NODE_ENV === "production" || !isLocalDatabase;
+  return ["localhost", "127.0.0.1", "::1", "[::1]", "db"].includes(databaseHost);
+}
+
+async function seedUsers() {
+  // La contraseña de demostración es pública (README). Contra una base de
+  // producción no se crean cuentas con ella: hay que pasar una propia en
+  // SEED_ADMIN_PASSWORD (o crear las cuentas desde /admin/usuarios).
+  const isProduction = process.env.NODE_ENV === "production" || !isLocalDatabase();
   const password = process.env.SEED_ADMIN_PASSWORD || (isProduction ? null : "CambiaEsto123!");
   if (!password) {
     console.warn(
@@ -218,7 +219,18 @@ async function seedUsers() {
 }
 
 async function main() {
-  await importRealCatalog();
+  // Contra una base NO local que ya tiene productos, importar el catálogo
+  // reemplaza las fotos de las 18 referencias (incluidas las que se hayan
+  // subido desde /admin): solo con confirmación explícita.
+  const existingProducts = await prisma.product.count();
+  if (isLocalDatabase() || existingProducts === 0 || process.env.SEED_REFRESH_CATALOG === "1") {
+    await importRealCatalog();
+  } else {
+    console.warn(
+      `Catálogo NO importado: la base no es local y ya tiene ${existingProducts} productos. ` +
+        "Para reemplazar las fotos de las 18 referencias entregadas, vuelve a correr con SEED_REFRESH_CATALOG=1.",
+    );
+  }
   await seedUsers();
 
   const total = await prisma.product.count();

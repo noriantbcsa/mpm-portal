@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/dal";
 import { createUserSchema, updateUserSchema } from "@/lib/validation/user";
 import { hashPassword } from "@/lib/auth/passwords";
+import { createSessionCookie } from "@/lib/auth/session";
 
 export type UserFormState = { status: "idle" } | { status: "error"; message: string };
 
@@ -90,7 +91,7 @@ export async function updateUserAction(
     existing.active !== parsed.data.active ||
     existing.role !== parsed.data.role;
 
-  await prisma.user.update({
+  const updated = await prisma.user.update({
     where: { id: parsed.data.id },
     data: {
       name: parsed.data.name,
@@ -99,7 +100,20 @@ export async function updateUserAction(
       ...(parsed.data.password ? { passwordHash: await hashPassword(parsed.data.password) } : {}),
       ...(invalidateSessions ? { sessionVersion: { increment: 1 } } : {}),
     },
+    select: { role: true, name: true, sessionVersion: true },
   });
+
+  // Quien se edita a sí mismo (p. ej. cambia su contraseña aquí) acaba de subir
+  // su propio sessionVersion: sin renovar la cookie de ESTA sesión, el
+  // siguiente clic lo mandaba a /login.
+  if (parsed.data.id === currentUser.id && invalidateSessions) {
+    await createSessionCookie({
+      sub: currentUser.id,
+      role: updated.role,
+      name: updated.name,
+      sessionVersion: updated.sessionVersion,
+    });
+  }
 
   redirect("/admin/usuarios?guardado=1");
 }

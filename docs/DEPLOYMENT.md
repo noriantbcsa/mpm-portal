@@ -17,6 +17,7 @@ services:
     plan: free
     buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
     startCommand: npm run start
+    healthCheckPath: /healthz        # sin base de datos (src/app/healthz/route.ts)
     envVars:
       - key: NODE_VERSION
         value: "22"
@@ -24,9 +25,9 @@ services:
         fromDatabase: { name: mpm-portal-db, property: connectionString }
       - key: AUTH_SECRET
         generateValue: true
+      - key: NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+        sync: false                  # base64 de 16/24/32 bytes (openssl rand -base64 32)
       - key: NEXT_PUBLIC_SITE_URL
-        sync: false
-      - key: NEXT_PUBLIC_WHATSAPP_NUMBER
         sync: false
 
 databases:
@@ -35,15 +36,24 @@ databases:
 ```
 
 `DATABASE_URL` y `AUTH_SECRET` se generan solos (Render conecta la base de
-datos y genera el secreto). Hay que completar manualmente, desde el
-dashboard de Render (Environment), al menos:
+datos y genera el secreto). En producción, si
+`AUTH_SECRET` tiene menos de 32 caracteres o falta `DATABASE_URL`
+(`src/instrumentation.ts`), el servidor responde 500 a todo —incluido `/healthz`—
+y el log dice qué falta; el health check de Render rechaza ese despliegue y
+la versión anterior sigue sirviendo, en vez de quedar "sano" con un `/admin` que
+redirige a `/login` sin explicación. Hay
+que completar manualmente, desde el dashboard de Render (Environment), al menos:
 
 | Variable | Notas |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Dominio propio una vez conectado (ej. `https://www.mpm.com.co`). Si no está definida se usa `RENDER_EXTERNAL_URL`, que Render define sola con la URL pública del servicio; sin ninguna de las dos, el sitemap, las canónicas y `og:image` apuntarían a `localhost` (así estaba producción hasta la auditoría 5) |
+| `NEXT_PUBLIC_SITE_URL` | Dominio propio una vez conectado (ej. `https://www.mpm.com.co`). Si no está definida se usa `RENDER_EXTERNAL_URL`, que Render define sola con la URL pública del servicio; sin ninguna de las dos, el sitemap, las canónicas y `og:image` apuntarían a `localhost` (así estaba producción hasta la auditoría 5). Un valor `http://localhost…` copiado del `.env.example` se ignora en producción si Render informa su URL |
+| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | Base64 válido de 16/24/32 bytes (`openssl rand -base64 32`). Imprescindible al escalar a más de una instancia; no pongas texto de relleno |
 | `DATABASE_POOL_MAX` | Opcional. Máximo de conexiones del pool de Prisma (por defecto 5, pensado para el plan gratuito de la base) |
-| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Respaldo; el valor real se administra desde `/admin/ajustes` |
-| `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Opcionales — actívalos cuando exista la cuenta definitiva |
+| `CLOUDINARY_*` | Reservadas: hoy ninguna pantalla las lee (ver §5). No hace falta definirlas |
+
+El número de WhatsApp, el correo y la identidad **no** son variables de entorno:
+se editan en `/admin/ajustes`. Mientras no se editen, el sitio publica los
+valores provisionales (`573000000000`, `ventas@mpm-ejemplo.com`).
 
 ## 2. Qué corre el `buildCommand`
 
@@ -73,7 +83,7 @@ Render detecta Next.js automáticamente a través del `buildCommand` de
 ## 4. Migraciones y datos: primer despliegue
 
 Las migraciones ya quedan cubiertas por el `buildCommand`. La siembra inicial
-(catálogo real + las dos cuentas de prueba) y, si alguna vez hace falta, la
+(catálogo real + el administrador inicial) y, si alguna vez hace falta, la
 limpieza de contenido de demostración, se corren a mano **una sola vez**,
 desde la shell de Render o apuntando localmente a la base de datos de
 producción:
@@ -92,10 +102,13 @@ contraseña pública de demostración: sin `SEED_ADMIN_PASSWORD` omite los
 usuarios, y con ella crea solo `admin@mpm.local` con esa contraseña (nunca la
 cuenta de ventas de prueba). Si la cuenta ya existe, no se modifica.
 
-`npm run db:seed` es seguro de repetir más adelante (por ejemplo, para
-actualizar las fotos cuando MPM entregue nuevas): en referencias existentes
-solo reemplaza las fotos — nombre, descripción, categoría, tallas, etiquetas
-y precio editados desde `/admin` se conservan. `npm run db:remove-demo-content` en cambio borra por nombre
+`npm run db:seed` es seguro de repetir: contra una base **local** reimporta las
+referencias; contra una base **no local que ya tiene productos** omite el
+catálogo (para no pisar fotos subidas desde `/admin`) salvo que lo confirmes con
+`SEED_REFRESH_CATALOG=1`, y entonces en referencias existentes solo reemplaza las
+fotos — nombre, descripción, categoría, tallas, etiquetas y precio editados
+desde `/admin` se conservan, igual que la visibilidad, nombre, orden y portada de
+las categorías. `npm run db:remove-demo-content` en cambio borra por nombre
 de slug — solo corre esto si de verdad necesitas limpiar datos de
 demostración; nunca lo agregues de vuelta al `buildCommand`.
 
@@ -109,7 +122,12 @@ Tras el primer arranque:
    crea las cuentas reales del equipo desde `/admin/usuarios` y, si quieres,
    cambia el correo/contraseña del administrador inicial.
 
-## 5. Imágenes remotas
+## 5. Imágenes
+
+Las fotos del catálogo viven en `public/catalogo/` y se guardan como rutas del
+propio sitio (`/catalogo/…`); el panel también acepta URLs `http(s)` completas.
+La subida directa a Cloudinary (`src/lib/cloudinary.ts`) está escrita pero **sin
+conectar** al panel.
 
 `next.config.ts` restringe `next/image` a una lista concreta de dominios
 (`images.remotePatterns`): actualmente solo `res.cloudinary.com`. Si el equipo de contenido va
@@ -150,3 +168,93 @@ lista (en vez de permitir cualquier dominio).
       de imagen que se vayan a usar en producción.
 - [ ] `npm run build`, `npm run lint`, `npm run typecheck` y `npm test`
       pasan en limpio contra el commit que se despliega.
+- [ ] `https://<dominio>/healthz` responde `ok`; `robots.txt` y `sitemap.xml`
+      muestran el dominio real (no `localhost`).
+- [ ] La base de datos de producción tiene respaldos (ver §8); el plan gratuito
+      caduca y no es apto para datos de clientes reales.
+
+## 8. Operación
+
+### Despliegue y CI
+
+Render despliega en cada push a `main`, **en paralelo** al CI de GitHub
+(`.github/workflows/ci.yml`): un CI rojo no detiene el despliegue por sí solo.
+Para que lo detenga, una vez que el job `verify` haya pasado en verde en GitHub:
+añade `autoDeployTrigger: checksPass` al servicio en `render.yaml` (o "After CI
+checks pass" en el dashboard) y protege `main` en GitHub exigiendo `verify`. No
+se activó de entrada porque el workflow todavía no se había ejecutado en GitHub y
+un fallo del propio workflow habría bloqueado todo despliegue.
+
+`npm run build` necesita la base de datos (el ícono y la imagen Open Graph la
+consultan): con la base caída o expirada el build falla y **no se puede
+desplegar**; la versión anterior sigue sirviendo mientras tanto.
+
+### Rollback
+
+- **Código**: en el dashboard de Render, vuelve a un despliegue anterior con su
+  opción *Rollback* (o `git revert` y push). Las migraciones **no** se revierten
+  solas.
+- **Migraciones**: son aditivas y se aplican antes de `next build`; si el build
+  falla después, el código viejo corre sobre el esquema nuevo (por eso las
+  migraciones deben ser compatibles hacia atrás: agregar, no renombrar/borrar en
+  el mismo despliegue).
+- **Una migración falló al aplicarse** (el build se detiene en
+  `prisma migrate deploy` con `P3009`/`P3018`): corrige el SQL en una migración
+  **nueva**, nunca edites una ya aplicada (checksum). Si quedó marcada como
+  fallida: `DATABASE_URL=<url> npx prisma migrate resolve --rolled-back <nombre>`
+  y vuelve a desplegar. (Le pasó a una migración durante el desarrollo, en una base local:
+  `CREATE OR REPLACE VIEW` no puede cambiar el tipo de una columna; hace falta un
+  cast.)
+
+### Respaldos y caducidad de la base
+
+El plan **gratuito** de PostgreSQL de Render caduca pasado un periodo limitado
+(consulta el plazo vigente en la documentación de Render) y no está pensado para
+datos que no se puedan perder; esta base guarda datos de clientes (solicitudes).
+Antes de recibir tráfico real: pasa a un plan de pago con respaldos
+(verifica en Render qué retención y restauración incluye el plan elegido) o
+programa un `pg_dump` periódico a un almacenamiento propio:
+
+```bash
+pg_dump --format=custom --no-owner "$DATABASE_URL" > mpm-$(date +%F).dump
+# Restaurar en una base vacía:
+pg_restore --no-owner --dbname "<url-destino>" mpm-AAAA-MM-DD.dump
+```
+
+El plan gratuito del servicio web además se duerme tras inactividad (el primer
+visitante espera varios segundos). Un monitor externo sobre `/healthz` lo
+mantiene despierto y avisa si el servicio cae.
+
+### Rotación de secretos
+
+- `AUTH_SECRET`: cambiarlo cierra la sesión de **todas** las personas del equipo
+  (los JWT firmados con la clave anterior dejan de ser válidos). Hazlo tras
+  cualquier sospecha de filtración, y en un horario tranquilo.
+- Contraseñas de equipo: el administrador las restablece en `/admin/usuarios`
+  (cierra las sesiones de esa persona); cada persona puede cambiar la suya en
+  `/admin/perfil`.
+
+### Datos personales: retención y borrado
+
+La política de datos promete eliminar los datos a solicitud, pero el panel no
+tiene todavía una acción de borrado ni una purga automática: hasta que exista,
+se hace a mano contra la base (primero con `SELECT` para confirmar a quién
+corresponde). Una solicitud se elimina junto con sus ítems y eventos (cascada):
+
+```sql
+SELECT id, "contactName", "contactPhone", "createdAt" FROM "CartRequest"
+ WHERE "contactPhone" = '<teléfono tal como se guardó>';
+DELETE FROM "CartRequest" WHERE id = '<id de arriba>';
+-- Carritos con nombre/teléfono parcial guardados antes de enviar la solicitud:
+UPDATE "CartSession" SET "contactNamePartial" = NULL, "contactPhonePartial" = NULL
+ WHERE "contactPhonePartial" = '<valor guardado>';
+```
+
+La cookie del carrito dura 120 días.
+
+### Registros (logs)
+
+El servidor no escribe registros propios con datos personales. Los errores de
+servidor salen por la salida estándar de Next.js con un `digest` (la pantalla de
+error lo muestra al usuario para poder buscarlo en el log de Render). Si se
+quiere conservar el histórico, reenvía los logs de Render a un destino externo.

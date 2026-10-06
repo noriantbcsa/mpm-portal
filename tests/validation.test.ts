@@ -200,3 +200,68 @@ describe("site settings internal links", () => {
     expect(href.safeParse("/\\evil.com").success).toBe(false);
   });
 });
+
+describe("submitCartRequestSchema — bytes nulos", () => {
+  const valid = {
+    contact: { contactName: "Ana Ruiz", contactPhone: "3001234567", city: "Cali", dataConsent: true as const },
+    items: [{ productId: "p1", quantity: 1 }],
+  };
+
+  it("acepta datos normales", async () => {
+    const { submitCartRequestSchema } = await import("@/lib/validation/cart-request");
+    expect(submitCartRequestSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("rechaza un byte nulo en cualquier texto (PostgreSQL lo rechazaría con un error 500)", async () => {
+    const { submitCartRequestSchema } = await import("@/lib/validation/cart-request");
+    const bad = (patch: object) =>
+      submitCartRequestSchema.safeParse({ ...valid, contact: { ...valid.contact, ...patch } }).success;
+    expect(bad({ contactName: "Ana\u0000 Ruiz" })).toBe(false);
+    expect(bad({ city: "Ca\u0000li" })).toBe(false);
+    expect(bad({ comment: "hola\u0000" })).toBe(false);
+    expect(
+      submitCartRequestSchema.safeParse({ ...valid, items: [{ productId: "p\u00001", quantity: 1 }] }).success,
+    ).toBe(false);
+  });
+});
+
+describe("correo de usuario", () => {
+  it("login: se normaliza a minúsculas y sin espacios (el teclado del móvil capitaliza la primera letra)", () => {
+    const parsed = loginSchema.safeParse({ email: "  Ventas@MPM.local ", password: "x" });
+    expect(parsed.success && parsed.data.email).toBe("ventas@mpm.local");
+  });
+
+  it("login: un correo inválido sigue rechazándose", () => {
+    expect(loginSchema.safeParse({ email: "no-es-correo", password: "x" }).success).toBe(false);
+  });
+
+  it("crear usuario: guarda el correo en minúsculas", async () => {
+    const { createUserSchema } = await import("@/lib/validation/user");
+    const parsed = createUserSchema.safeParse({
+      name: "Ana Ruiz",
+      email: "Ana.Ruiz@MPM.co",
+      role: "SALES",
+      password: "ClaveSegura123",
+    });
+    expect(parsed.success && parsed.data.email).toBe("ana.ruiz@mpm.co");
+  });
+});
+
+describe("productCsvRowSchema — topes de columnas multivaluadas", () => {
+  const row = { referencia: "ABC-1", nombre: "Camiseta", descripcion: "Una camiseta", categoria: "Damas" };
+
+  it("acepta una fila razonable", async () => {
+    const { productCsvRowSchema } = await import("@/lib/validation/product");
+    const parsed = productCsvRowSchema.safeParse({ ...row, tallas: "S, M, L", colores: "Negro, Blanco", material: "Algodón" });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rechaza tallas, colores y material desmesurados con mensajes en español", async () => {
+    const { productCsvRowSchema } = await import("@/lib/validation/product");
+    for (const [field, size] of [["tallas", 301], ["colores", 601], ["material", 161], ["categoria", 121], ["subcategoria", 121]] as const) {
+      const parsed = productCsvRowSchema.safeParse({ ...row, [field]: "x".repeat(size) });
+      expect(parsed.success, field).toBe(false);
+      expect(parsed.error?.issues[0]?.message, field).toMatch(/demasiad/);
+    }
+  });
+});
