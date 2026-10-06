@@ -19,18 +19,19 @@ describe("formatPrice", () => {
 });
 
 describe("formatDate", () => {
-  // Las fechas de campaña (startDate/endDate) son fechas de calendario puras
-  // guardadas como medianoche UTC (vienen de un <input type="date">). Deben
-  // mostrar siempre ese mismo día calendario sin importar el huso horario
-  // del proceso que las formatea (el servidor de desarrollo puede correr en
-  // UTC-5, Vercel en UTC) — de lo contrario, en cualquier huso detrás de
-  // UTC la fecha se muestra un día antes.
-  it("muestra el día calendario en UTC, sin correrlo por el huso horario local", () => {
-    expect(formatDate(new Date("2026-09-22T00:00:00.000Z"))).toBe("22 de sept de 2026");
+  // Las fechas de campaña se guardan como inicio/fin del día en Colombia
+  // (UTC-5). Ambos extremos deben mostrar el día calendario elegido, sin
+  // importar el huso horario del proceso que las formatea.
+  it("muestra el día de Colombia para el inicio del día (05:00 UTC)", () => {
+    expect(formatDate(new Date("2026-09-22T05:00:00.000Z"))).toBe("22 de sept de 2026");
+  });
+
+  it("muestra el mismo día para el final del día (04:59:59.999 UTC del día siguiente)", () => {
+    expect(formatDate(new Date("2026-09-23T04:59:59.999Z"))).toBe("22 de sept de 2026");
   });
 
   it("acepta una fecha en formato string", () => {
-    expect(formatDate("2026-01-01T00:00:00.000Z")).toBe("01 de ene de 2026");
+    expect(formatDate("2026-01-01T05:00:00.000Z")).toBe("01 de ene de 2026");
   });
 });
 

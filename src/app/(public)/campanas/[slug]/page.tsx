@@ -1,10 +1,9 @@
-import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { prisma } from "@/lib/prisma";
+import { getLiveCampaignBySlug } from "@/lib/campaigns";
 import { listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
 import { formatDate } from "@/lib/format";
@@ -15,9 +14,7 @@ export const dynamic = "force-dynamic";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
-async function getCampaign(slug: string) {
-  return prisma.campaign.findUnique({ where: { slug }, include: { priorityCategories: true } });
-}
+const getCampaign = getLiveCampaignBySlug;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -26,6 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: campaign.name,
     description: campaign.description ?? undefined,
+    alternates: { canonical: `/campanas/${campaign.slug}` },
   };
 }
 
@@ -35,13 +33,8 @@ export default async function CampanaPage({ params }: PageProps) {
   if (!campaign) notFound();
 
   const { items, total } = await listProducts({ campaignSlug: slug, pageSize: 60 });
-  const campaignStyle = {
-    "--campaign-primary": campaign.colorPrimary ?? "var(--brand-primary)",
-    "--campaign-secondary": campaign.colorSecondary ?? "var(--brand-secondary)",
-  } as CSSProperties;
-
   return (
-    <div className="campaign-page" style={campaignStyle}>
+    <div className="campaign-page">
       <section className="campaign-showcase relative overflow-hidden">
         <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-14 lg:grid-cols-2">
           <div className="relative z-10 text-white">

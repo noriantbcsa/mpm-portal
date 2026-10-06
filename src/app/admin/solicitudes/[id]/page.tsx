@@ -22,7 +22,7 @@ export const metadata: Metadata = { title: "Detalle de solicitud", robots: { ind
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function SolicitudDetallePage({ params }: PageProps) {
-  await requireUser();
+  const user = await requireUser();
   const { id } = await params;
   const [request, team, settings] = await Promise.all([
     getCartRequestById(id),
@@ -30,6 +30,13 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
     getSiteSettings(),
   ]);
   if (!request) notFound();
+
+  // Un admin gestiona cualquier solicitud. Un vendedor solo la suya o una
+  // libre (para poder tomarla) — ver también assignRequestAction/
+  // changeStatusAction/addNoteAction, que aplican esta misma regla en el
+  // servidor. Aquí solo se refleja en la interfaz para no ofrecer controles
+  // que el servidor igual va a rechazar.
+  const canManage = user.role === "ADMIN" || request.assignedToId === null || request.assignedToId === user.id;
 
   const totalItems = request.items.reduce((sum, i) => sum + i.quantity, 0);
   const whatsappHref = buildAdvisorWhatsAppLink(request.contactPhone, request.contactName, settings.siteName);
@@ -62,43 +69,71 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
         <AdminCard>
           <AdminCardBody>
             <h2 className="text-sm font-semibold text-slate-900">Estado</h2>
-            <form action={changeStatusAction} className="mt-2">
-              <input type="hidden" name="cartRequestId" value={request.id} />
-              <AutoSubmitSelect
-                key={request.status}
-                name="status"
-                defaultValue={request.status}
-                className="w-full"
-              >
-                {CART_REQUEST_STATUS_ORDER.map((status) => (
-                  <option key={status} value={status}>
-                    {CART_REQUEST_STATUS_LABELS[status]}
-                  </option>
-                ))}
-              </AutoSubmitSelect>
-            </form>
+            {canManage ? (
+              <form action={changeStatusAction} className="mt-2">
+                <input type="hidden" name="cartRequestId" value={request.id} />
+                <AutoSubmitSelect
+                  key={request.status}
+                  name="status"
+                  defaultValue={request.status}
+                  className="w-full"
+                >
+                  {CART_REQUEST_STATUS_ORDER.map((status) => (
+                    <option key={status} value={status}>
+                      {CART_REQUEST_STATUS_LABELS[status]}
+                    </option>
+                  ))}
+                </AutoSubmitSelect>
+              </form>
+            ) : (
+              <p className="mt-2 text-sm text-slate-700">{CART_REQUEST_STATUS_LABELS[request.status]}</p>
+            )}
           </AdminCardBody>
         </AdminCard>
 
         <AdminCard>
           <AdminCardBody>
             <h2 className="text-sm font-semibold text-slate-900">Asesor responsable</h2>
-            <form action={assignRequestAction} className="mt-2">
-              <input type="hidden" name="cartRequestId" value={request.id} />
-              <AutoSubmitSelect
-                key={request.assignedToId ?? "unassigned"}
-                name="assignedToId"
-                defaultValue={request.assignedToId ?? ""}
-                className="w-full"
-              >
-                <option value="">Sin asignar</option>
-                {team.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.name}
-                  </option>
-                ))}
-              </AutoSubmitSelect>
-            </form>
+            {user.role === "ADMIN" ? (
+              <form action={assignRequestAction} className="mt-2">
+                <input type="hidden" name="cartRequestId" value={request.id} />
+                <AutoSubmitSelect
+                  key={request.assignedToId ?? "unassigned"}
+                  name="assignedToId"
+                  defaultValue={request.assignedToId ?? ""}
+                  className="w-full"
+                >
+                  <option value="">Sin asignar</option>
+                  {team.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.name}
+                    </option>
+                  ))}
+                </AutoSubmitSelect>
+              </form>
+            ) : canManage ? (
+              // Un vendedor solo puede tomar una solicitud libre o soltar la
+              // suya — nunca pasársela a otro compañero (eso es decisión de
+              // un administrador), así que el único destino posible es él
+              // mismo o "Sin asignar".
+              <form action={assignRequestAction} className="mt-2">
+                <input type="hidden" name="cartRequestId" value={request.id} />
+                <AutoSubmitSelect
+                  key={request.assignedToId ?? "unassigned"}
+                  name="assignedToId"
+                  defaultValue={request.assignedToId ?? ""}
+                  className="w-full"
+                >
+                  <option value="">Sin asignar</option>
+                  <option value={user.id}>Yo ({user.name})</option>
+                </AutoSubmitSelect>
+              </form>
+            ) : (
+              <p className="mt-2 text-sm text-slate-700">
+                {request.assignedTo?.name}{" "}
+                <span className="text-slate-400">— solo un administrador puede reasignarla.</span>
+              </p>
+            )}
           </AdminCardBody>
         </AdminCard>
       </div>
@@ -143,7 +178,14 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <AdminCard>
           <AdminCardBody>
-            <NoteForm cartRequestId={request.id} />
+            {canManage ? (
+              <NoteForm cartRequestId={request.id} />
+            ) : (
+              <p className="text-sm text-slate-500">
+                Esta solicitud está asignada a otro asesor; solo quien la tiene o un administrador
+                puede agregarle notas.
+              </p>
+            )}
           </AdminCardBody>
         </AdminCard>
 

@@ -50,7 +50,7 @@ export default async function EditarProductoPage({ params, searchParams }: PageP
             tags: product.tags,
             campaignId: product.campaignId,
             priceRef: product.priceRef ? Number(product.priceRef) : null,
-            images: product.images.map((i) => ({ url: i.url, alt: i.alt, order: i.order })),
+            images: product.images.map((i) => ({ url: i.url, alt: i.alt, color: i.color, order: i.order })),
           }}
         />
       </div>

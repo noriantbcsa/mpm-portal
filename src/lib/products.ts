@@ -3,10 +3,11 @@ import "server-only";
 import type { Prisma, Audience, ProductStatus, ProductTagType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCategorySubtreeIds } from "@/lib/categories";
-import { CATALOG_PAGE_SIZE, PUBLIC_PRODUCT_STATUSES } from "@/lib/constants";
+import { CATALOG_PAGE_SIZE, PUBLIC_CATEGORY_WHERE, PUBLIC_PRODUCT_STATUSES } from "@/lib/constants";
 import { catalogColorKey, formatCatalogColor, isFilterableCatalogColor } from "@/lib/catalog-colors";
+import type { CatalogSort } from "@/lib/catalog-params";
 
-export type CatalogSort = "relevancia" | "nombre-asc" | "recientes";
+export type { CatalogSort };
 
 export type CatalogFilters = {
   q?: string;
@@ -56,6 +57,7 @@ async function buildWhere(filters: CatalogFilters): Promise<Prisma.ProductWhereI
   } else if (!filters.includeHidden) {
     where.status = { in: PUBLIC_PRODUCT_STATUSES };
   }
+  if (!filters.includeHidden) where.category = PUBLIC_CATEGORY_WHERE;
 
   if (filters.q) {
     where.OR = [
@@ -184,10 +186,13 @@ export async function getProductBySlug(
   slug: string,
   options?: { includeHidden?: boolean },
 ): Promise<ProductDetail | null> {
-  const product = await prisma.product.findUnique({ where: { slug }, include: productDetailInclude });
-  if (!product) return null;
-  if (!options?.includeHidden && !PUBLIC_PRODUCT_STATUSES.includes(product.status)) return null;
-  return product;
+  if (options?.includeHidden) {
+    return prisma.product.findUnique({ where: { slug }, include: productDetailInclude });
+  }
+  return prisma.product.findFirst({
+    where: { slug, status: { in: PUBLIC_PRODUCT_STATUSES }, category: PUBLIC_CATEGORY_WHERE },
+    include: productDetailInclude,
+  });
 }
 
 export async function getRelatedProducts(product: { id: string; categoryId: string }, limit = 4) {
@@ -196,6 +201,7 @@ export async function getRelatedProducts(product: { id: string; categoryId: stri
       categoryId: product.categoryId,
       id: { not: product.id },
       status: { in: PUBLIC_PRODUCT_STATUSES },
+      category: PUBLIC_CATEGORY_WHERE,
     },
     select: productListSelect,
     take: limit,
@@ -205,12 +211,18 @@ export async function getRelatedProducts(product: { id: string; categoryId: stri
 
 export async function getFeaturedProducts(tag: ProductTagType, limit = 8) {
   return prisma.product.findMany({
-    where: { tags: { has: tag }, status: { in: PUBLIC_PRODUCT_STATUSES } },
+    where: { tags: { has: tag }, status: { in: PUBLIC_PRODUCT_STATUSES }, category: PUBLIC_CATEGORY_WHERE },
     select: productListSelect,
     take: limit,
     orderBy: { updatedAt: "desc" },
   });
 }
+
+/** Condiciones para que un producto sea visible al público (sitemap, catálogo). */
+export const PUBLIC_PRODUCT_WHERE = {
+  status: { in: PUBLIC_PRODUCT_STATUSES },
+  category: PUBLIC_CATEGORY_WHERE,
+} satisfies Prisma.ProductWhereInput;
 
 export async function incrementProductViewCount(productId: string) {
   await prisma.product.update({

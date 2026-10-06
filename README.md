@@ -88,9 +88,10 @@ El acceso del equipo está disponible en `/login` y también desde el enlace
 
 ### Credenciales de acceso al panel (`/login`), solo para desarrollo
 
-El seed crea dos cuentas. **Cambia estas contraseñas antes de producción**
-(o bórralas y crea cuentas reales desde `/admin/usuarios` una vez tengas un
-administrador con una contraseña propia):
+Contra la base local (Docker), el seed crea dos cuentas de prueba. Contra
+cualquier otra base (p. ej. la de Render) **no** las crea: exige
+`SEED_ADMIN_PASSWORD` y solo crea el administrador inicial con esa contraseña
+(ver [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
 
 | Rol                | Correo             | Contraseña      |
 | ------------------- | ------------------- | --------------- |
@@ -120,8 +121,9 @@ administrador con una contraseña propia):
   12 referencias de Damas y 6 de Caballero, entregadas por MPM. Ver
   [docs/CATALOG_ASSETS.md](docs/CATALOG_ASSETS.md) para el detalle de la importación.
 - No se publican productos, categorías, campañas ni fotografías de stock de
-  demostración. El seed retira automáticamente los datos sintéticos de
-  versiones anteriores.
+  demostración. Si una base antigua aún tiene datos sintéticos de versiones
+  anteriores, se retiran a mano con `npm run db:remove-demo-content` (ver
+  [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
 - Los archivos entregados no contienen referencias de medias.
 
 ## Cargar el catálogo real de MPM
@@ -131,9 +133,12 @@ administrador con una contraseña propia):
 2. En `/admin/productos/carga-masiva`, descarga la plantilla CSV y complétala
    (una fila por referencia; columnas multivaluadas como tallas/colores
    separadas por `;`).
-3. Sube el archivo: las filas con una categoría inexistente se reportan como
-   error (no se crean a medias); las referencias (SKU) que ya existen se
-   actualizan, las nuevas se crean.
+3. Sube el archivo (separado por comas o por punto y coma, UTF-8 o la
+   codificación de Excel): las filas con una categoría o campaña inexistente,
+   o con un precio/estado/público no reconocido, se reportan como error (no
+   se crean a medias); las referencias (SKU) que ya existen se actualizan y
+   las nuevas se crean. Al actualizar, una celda opcional vacía conserva el
+   valor actual. Los precios se aceptan como `39900`, `39.900` o `$ 39.900`.
 4. Fotos: mientras no haya Cloudinary configurado, pega URLs de imagen ya
    alojadas (columna `fotos`, separadas por `;`). En cuanto configures
    `CLOUDINARY_*` en `.env` (ver más abajo), `src/lib/cloudinary.ts` queda
@@ -152,7 +157,11 @@ más importantes:
   usa en producción se edita desde `/admin/ajustes` (columna `SiteSettings`
   en base de datos) y tiene prioridad sobre esta variable.
 - `NEXT_PUBLIC_SITE_URL` — usado para metadatos SEO (Open Graph, sitemap,
-  `robots.txt`) y JSON-LD.
+  `robots.txt`, URLs canónicas) y JSON-LD. En producción debe ser el dominio
+  real: si queda en `http://localhost:3000`, las canónicas y el sitemap
+  apuntarán ahí.
+- `SEED_ADMIN_PASSWORD` — solo para `npm run db:seed` contra una base no
+  local: contraseña del administrador inicial (mínimo 10 caracteres).
 
 ## Despliegue
 
@@ -194,7 +203,12 @@ calendario festivo y sus modos automático/manual/apagado:
   Actions) se verificaron manualmente navegando la aplicación — ver
   docs/AUDIT_LOOP_1.md y AUDIT_LOOP_2.md; llevarlas a pruebas automatizadas
   requeriría separar esa lógica de negocio del envoltorio de Next.js primero.
+- Los archivos de prueba corren en serie (`fileParallelism: false` en
+  `vitest.config.mts`) porque las pruebas de integración comparten una única
+  base de datos de pruebas.
 - `npm run typecheck` y `npm run lint` deben quedar sin errores/warnings.
+- Bitácoras de auditoría: `docs/AUDIT_LOOP_1.md` … `docs/AUDIT_LOOP_4.md`
+  (la 4 es la más reciente e incluye los riesgos pendientes).
 - `npm run build` debe completar sin errores. Revisa la lista de rutas que
   imprime: cualquier página que dependa de datos editables desde `/admin`
   (SiteSettings, campañas, productos) debe aparecer como `ƒ` (dinámica), no

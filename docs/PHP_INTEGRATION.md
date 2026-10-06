@@ -8,8 +8,11 @@ tablas internas de Prisma, la migración crea dos vistas de solo lectura:
 - `integration.catalog_products`
 
 Ambas usan nombres `snake_case`, no requieren comillas en SQL y solo exponen
-categorías visibles y productos públicos. No exponen usuarios, contraseñas,
-carritos, solicitudes ni información de clientes.
+categorías visibles y productos públicos (con las mismas reglas que el sitio:
+una subcategoría cuya categoría padre está oculta tampoco se expone, desde la
+migración `20261001121000_php_views_respect_hidden_parent_category`). No
+exponen usuarios, contraseñas, carritos, solicitudes ni información de
+clientes.
 
 ## Aplicar el contrato
 

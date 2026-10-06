@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { requireUser } from "@/lib/auth/dal";
-import { listAbandonedCarts, listActiveCartSessions } from "@/lib/admin/carts";
+import { requireUser, type CurrentUser } from "@/lib/auth/dal";
+import { CART_LIST_LIMIT, listAbandonedCarts, listActiveCartSessions } from "@/lib/admin/carts";
 import { ABANDONED_CART_DAYS, CART_REQUEST_STATUS_LABELS, CART_REQUEST_STATUS_ORDER } from "@/lib/constants";
 import { formatRelativeDays } from "@/lib/format";
 import { AdminBadge, AdminEmptyState, AdminTable, AdminTd, AdminTh } from "@/components/admin/ui/display";
@@ -23,10 +23,24 @@ const STATUS_TONE: Record<CartRequestStatus, "neutral" | "blue" | "green" | "amb
 function CommercialStatusControl({
   cart,
   automaticLabel,
+  user,
 }: {
-  cart: { id: string; commercialStatus: CartRequestStatus | null; handledBy: { name: string } | null };
+  cart: { id: string; commercialStatus: CartRequestStatus | null; handledBy: { id: string; name: string } | null };
   automaticLabel: string;
+  user: CurrentUser;
 }) {
+  // Igual que en el servidor: un vendedor no cambia un carrito que ya
+  // gestiona otro compañero.
+  const canManage = user.role === "ADMIN" || !cart.handledBy || cart.handledBy.id === user.id;
+  if (cart.commercialStatus && !canManage) {
+    return (
+      <div className="flex flex-col gap-1">
+        <AdminBadge tone={STATUS_TONE[cart.commercialStatus]}>{CART_REQUEST_STATUS_LABELS[cart.commercialStatus]}</AdminBadge>
+        {cart.handledBy && <span className="text-xs text-slate-500">{cart.handledBy.name}</span>}
+      </div>
+    );
+  }
+
   if (!cart.commercialStatus) {
     return (
       <form action={changeCartSessionStatusAction} className="flex flex-col gap-1">
@@ -53,7 +67,7 @@ function CommercialStatusControl({
 }
 
 export default async function CarritosAbandonadosPage() {
-  await requireUser();
+  const user = await requireUser();
   const [abandoned, active] = await Promise.all([listAbandonedCarts(), listActiveCartSessions()]);
 
   return (
@@ -66,7 +80,7 @@ export default async function CarritosAbandonadosPage() {
 
       <section className="mt-6">
         <h2 className="text-sm font-semibold text-slate-900">
-          Abandonados ({abandoned.length})
+          Abandonados ({abandoned.length === CART_LIST_LIMIT ? `${CART_LIST_LIMIT} más recientes` : abandoned.length})
         </h2>
         <div className="mt-2">
           {abandoned.length === 0 ? (
@@ -97,7 +111,7 @@ export default async function CarritosAbandonadosPage() {
                         ))}
                       </ul>
                     </AdminTd>
-                    <AdminTd><CommercialStatusControl cart={session} automaticLabel="Abandonado" /></AdminTd>
+                    <AdminTd><CommercialStatusControl cart={session} automaticLabel="Abandonado" user={user} /></AdminTd>
                     <AdminTd>
                       {session.contactNamePartial || session.contactPhonePartial ? (
                         <>
@@ -116,7 +130,7 @@ export default async function CarritosAbandonadosPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="text-sm font-semibold text-slate-900">Activos ({active.length})</h2>
+        <h2 className="text-sm font-semibold text-slate-900">Activos ({active.length === CART_LIST_LIMIT ? `${CART_LIST_LIMIT} más recientes` : active.length})</h2>
         <p className="mt-1 text-xs text-slate-500">
           Carritos con movimiento reciente; todavía dentro de la ventana de {ABANDONED_CART_DAYS} días.
         </p>
@@ -139,7 +153,7 @@ export default async function CarritosAbandonadosPage() {
                       <AdminBadge tone="green">{formatRelativeDays(session.updatedAt)}</AdminBadge>
                     </AdminTd>
                     <AdminTd>{session.items.reduce((sum, i) => sum + i.quantity, 0)} prendas</AdminTd>
-                    <AdminTd><CommercialStatusControl cart={session} automaticLabel="Activo" /></AdminTd>
+                    <AdminTd><CommercialStatusControl cart={session} automaticLabel="Activo" user={user} /></AdminTd>
                   </tr>
                 ))}
               </tbody>

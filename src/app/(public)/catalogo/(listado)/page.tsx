@@ -1,38 +1,42 @@
 import type { Metadata } from "next";
 
-import { getCatalogFilterOptions, listProducts, type CatalogSort } from "@/lib/products";
+import { getCatalogFilterOptions, listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
 import { getCategoryTree } from "@/lib/categories";
-import { toArray, toPositiveInt, toSingle, type RawSearchParams } from "@/lib/search-params";
-import type { Audience, ProductTagType } from "@prisma/client";
+import type { RawSearchParams } from "@/lib/search-params";
+import { buildCatalogHref, EMPTY_FILTERS, hasCatalogFilters, parseCatalogParams } from "@/lib/catalog-params";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { FiltersForm } from "@/components/catalog/filters-form";
 import { Pagination } from "@/components/catalog/pagination";
 import { CatalogExplorer } from "@/components/catalog/catalog-explorer";
-import { formatCatalogColor } from "@/lib/catalog-colors";
-
-export const metadata: Metadata = {
-  title: "Catálogo",
-  description: "Explora el catálogo completo de MPM: filtra por categoría, talla, color y más.",
-};
 
 type PageProps = { searchParams: Promise<RawSearchParams> };
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  // Cada combinación de filtros es una variante del mismo listado: se apunta
+  // la URL canónica al catálogo base y las variantes filtradas no se indexan.
+  const params = parseCatalogParams(await searchParams);
+  const filtered = hasCatalogFilters(params);
+  return {
+    title: "Catálogo",
+    description: "Explora el catálogo completo de MPM: filtra por categoría, talla, color y más.",
+    // Cada página de la paginación es canónica de sí misma (recomendación
+    // de Google); solo las variantes filtradas se excluyen del índice.
+    alternates: { canonical: buildCatalogHref("/catalogo", EMPTY_FILTERS, params.pagina) },
+    ...(filtered ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 export default async function CatalogoPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
-  const q = toSingle(params.q);
-  const publico = toSingle(params.publico) as Audience | undefined;
-  const talla = toArray(params.talla);
-  const color = [...new Set(toArray(params.color).map(formatCatalogColor))];
-  const etiqueta = toArray(params.etiqueta) as ProductTagType[];
-  const orden = toSingle(params.orden) as CatalogSort | undefined;
-  const pagina = toPositiveInt(params.pagina, 1);
+  const filters = parseCatalogParams(params);
+  const { q, publico, talla, color, etiqueta, orden, pagina } = filters;
 
   const [{ items, total, page, pageCount }, settings, categories, filterOptions] = await Promise.all([
     listProducts({
       q,
-      audience: publico || undefined,
+      audience: publico,
       sizes: talla,
       colors: color,
       tags: etiqueta,
@@ -44,18 +48,7 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
     getCatalogFilterOptions(),
   ]);
 
-  function buildHref(nextPage: number) {
-    const search = new URLSearchParams();
-    if (q) search.set("q", q);
-    if (publico) search.set("publico", publico);
-    talla.forEach((t) => search.append("talla", t));
-    color.forEach((c) => search.append("color", c));
-    etiqueta.forEach((e) => search.append("etiqueta", e));
-    if (orden) search.set("orden", orden);
-    if (nextPage > 1) search.set("pagina", String(nextPage));
-    const qs = search.toString();
-    return qs ? `/catalogo?${qs}` : "/catalogo";
-  }
+  const buildHref = (nextPage: number) => buildCatalogHref("/catalogo", filters, nextPage);
 
   return (
     <>

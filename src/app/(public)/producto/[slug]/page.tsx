@@ -29,6 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: product.name,
     description: product.description.slice(0, 160),
+    alternates: { canonical: `/producto/${product.slug}` },
     openGraph: {
       title: product.name,
       description: product.description.slice(0, 160),
@@ -62,21 +63,29 @@ export default async function ProductoPage({ params }: PageProps) {
           name: product.name,
           sku: product.sku,
           description: product.description,
-          image: product.images.map((i) => i.url),
+          // Las fotos del catálogo local se guardan como rutas relativas;
+          // schema.org espera URLs absolutas.
+          image: product.images.map((i) => new URL(i.url, siteUrl).toString()),
           category: product.category.name,
           url: `${siteUrl}/producto/${product.slug}`,
-          offers: {
-            "@type": "Offer",
-            availability:
-              product.status === "AGOTADO"
-                ? "https://schema.org/OutOfStock"
-                : product.status === "BAJO_PEDIDO"
-                  ? "https://schema.org/PreOrder"
-                  : "https://schema.org/InStock",
-            priceCurrency: "COP",
-            price: product.priceRef ? Number(product.priceRef).toFixed(0) : undefined,
-            url: `${siteUrl}/producto/${product.slug}`,
-          },
+          // Google exige `price` en un Offer: sin precio público (o con los
+          // precios ocultos desde /admin/ajustes) no se publica la oferta.
+          ...(settings.showPrices && product.priceRef
+            ? {
+                offers: {
+                  "@type": "Offer",
+                  availability:
+                    product.status === "AGOTADO"
+                      ? "https://schema.org/OutOfStock"
+                      : product.status === "BAJO_PEDIDO"
+                        ? "https://schema.org/PreOrder"
+                        : "https://schema.org/InStock",
+                  priceCurrency: "COP",
+                  price: Number(product.priceRef).toFixed(0),
+                  url: `${siteUrl}/producto/${product.slug}`,
+                },
+              }
+            : {}),
         }}
       />
 

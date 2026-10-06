@@ -41,7 +41,8 @@ export function FiltersForm({
           defaultValue={active.orden ?? "relevancia"}
           className="focus-ring mt-2 w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm"
         >
-          <option value="relevancia">Más recientes</option>
+          <option value="relevancia">Actualizados recientemente</option>
+          <option value="recientes">Recién agregados</option>
           <option value="nombre-asc">Nombre (A-Z)</option>
         </select>
       </fieldset>
@@ -107,23 +108,14 @@ export function FiltersForm({
 
       <fieldset>
         <legend className="text-sm font-semibold text-ink">Color</legend>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {options.colors.map((color) => (
-            <label
-              key={color}
-              className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:text-brand-primary"
-            >
-              <input
-                type="checkbox"
-                name="color"
-                value={color}
-                defaultChecked={active.color.includes(color)}
-                className="sr-only"
-              />
-              {color}
-            </label>
-          ))}
-        </div>
+        <select
+          name="color"
+          defaultValue={active.color[0] ?? ""}
+          className="focus-ring mt-2 w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink"
+        >
+          <option value="">Todos los colores</option>
+          {options.colors.map((color) => <option key={color} value={color}>{color}</option>)}
+        </select>
       </fieldset>
 
       <div className="flex gap-2">

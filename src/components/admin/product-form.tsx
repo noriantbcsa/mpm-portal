@@ -18,7 +18,7 @@ import {
 } from "@/components/admin/ui/controls";
 import { AdminCard, AdminCardBody } from "@/components/admin/ui/display";
 
-type ImageRow = { url: string; alt: string; order: number };
+type ImageRow = { url: string; alt: string; color?: string | null; order: number };
 
 export type ProductFormInitial = {
   id: string;
@@ -52,7 +52,7 @@ export function ProductForm({
   const [images, setImages] = useState<ImageRow[]>(initial?.images ?? []);
 
   function addImage() {
-    setImages((prev) => [...prev, { url: "", alt: "", order: prev.length }]);
+    setImages((prev) => [...prev, { url: "", alt: "", color: "", order: prev.length }]);
   }
   function updateImage(index: number, patch: Partial<ImageRow>) {
     setImages((prev) => prev.map((img, i) => (i === index ? { ...img, ...patch } : img)));
@@ -154,24 +154,30 @@ export function ProductForm({
             </AdminButton>
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            Pega la URL de cada imagen (Cloudinary u otro origen ya publicado) y describe qué muestra
-            (texto alternativo, obligatorio por accesibilidad).
+            Pega la URL de cada imagen, describe qué muestra y asigna su color cuando corresponda. Así la galería y el selector público muestran la misma información.
           </p>
           <div className="mt-3 flex flex-col gap-3">
             {images.map((image, index) => (
-              <div key={index} className="flex flex-col gap-2 rounded-md border border-slate-200 p-3 sm:flex-row">
+              <div key={index} className="grid gap-2 rounded-md border border-slate-200 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_10rem_auto]">
                 <input
                   type="url"
                   placeholder="https://…"
                   value={image.url}
                   onChange={(e) => updateImage(index, { url: e.target.value })}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm sm:w-1/2"
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
                 />
                 <input
                   type="text"
                   placeholder="Texto alternativo"
                   value={image.alt}
                   onChange={(e) => updateImage(index, { alt: e.target.value })}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Color (ej. Celeste)"
+                  value={image.color ?? ""}
+                  onChange={(e) => updateImage(index, { color: e.target.value })}
                   className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
                 />
                 <button

@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 
 import { prisma } from "@/lib/prisma";
-import { PUBLIC_PRODUCT_STATUSES } from "@/lib/constants";
+import { PUBLIC_PRODUCT_WHERE } from "@/lib/products";
+import { PUBLIC_CATEGORY_WHERE } from "@/lib/constants";
+import { liveCampaignWhere } from "@/lib/campaigns";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -12,14 +14,14 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, categories, campaigns] = await Promise.all([
     prisma.product.findMany({
-      where: { status: { in: PUBLIC_PRODUCT_STATUSES } },
+      where: PUBLIC_PRODUCT_WHERE,
       select: { slug: true, updatedAt: true },
     }),
     prisma.category.findMany({
-      where: { isVisible: true },
+      where: PUBLIC_CATEGORY_WHERE,
       select: { slug: true, updatedAt: true },
     }),
-    prisma.campaign.findMany({ select: { slug: true, updatedAt: true } }),
+    prisma.campaign.findMany({ where: liveCampaignWhere(), select: { slug: true, updatedAt: true } }),
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [

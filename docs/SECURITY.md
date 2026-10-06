@@ -15,6 +15,9 @@
   porque las Server Actions de Next.js son alcanzables por POST directo
   aunque el botón correspondiente esté oculto en la UI.
 - Un usuario no puede desactivarse ni quitarse el rol `ADMIN` a sí mismo.
+- **Cerrar sesión revoca el token**: además de borrar la cookie incrementa
+  `sessionVersion`, así que un JWT copiado deja de servir de inmediato (y se
+  cierran las sesiones de ese usuario en otros dispositivos).
 - **Bloqueo por intentos fallidos**: tras 5 contraseñas incorrectas seguidas,
   la cuenta se bloquea 15 minutos (`User.failedLoginAttempts`/`lockedUntil`,
   `src/lib/auth/actions.ts`). Mientras está bloqueada, ni siquiera la
@@ -29,6 +32,27 @@
   sincronización y el envío público del carrito se limitan por IP. Es una
   barrera local de proceso; al desplegar varias instancias debe complementarse
   con el WAF/rate limit del proveedor, porque esa memoria no se comparte.
+  La IP se toma de `CF-Connecting-IP`/`X-Real-IP` (fijadas por el borde del
+  proveedor) antes que del primer valor de
+  `X-Forwarded-For`, que el cliente puede falsificar
+  (`src/lib/security/rate-limit.ts`).
+- **Anti-spam del carrito**: el formulario público incluye un campo trampa
+  invisible (`website`); si llega con contenido, la acción responde como
+  éxito sin guardar nada.
+- **Sesiones revocadas**: `src/proxy.ts` solo redirige `/admin` → `/login`
+  cuando no hay cookie válida; ya no redirige `/login` → `/admin` por su
+  cuenta (eso lo hace la página de login tras validar contra la base). Antes,
+  una cookie con firma válida pero revocada (contraseña cambiada, usuario
+  desactivado) producía un bucle infinito de redirecciones.
+- **Permisos de ventas**: un usuario `SALES` solo puede cambiar estado,
+  asignación y notas de solicitudes libres o propias, y solo clasificar
+  carritos que no gestiona otro compañero. Las escrituras son condicionales
+  (`updateMany` con la condición en el `WHERE`) para que dos asesores no se
+  queden a la vez con la misma solicitud.
+- **Seed seguro**: `prisma/seed.ts` no crea cuentas con la contraseña de
+  demostración contra una base que no sea local (o con
+  `NODE_ENV=production`); exige `SEED_ADMIN_PASSWORD` y en ese caso solo crea
+  el administrador inicial.
 - Las acciones de servidor tienen un límite explícito de cuerpo de 1 MB. Las
   listas del carrito se validan en servidor y aceptan como máximo 50 líneas.
 - `AUTH_SECRET` se rechaza al arrancar si es el placeholder o tiene menos de
@@ -88,16 +112,14 @@ solo `res.cloudinary.com`.
 
 ## Dependencias de terceros
 
-`npm audit --omit=dev` reporta 4 vulnerabilidades "high" en dependencias
-**transitivas de la CLI de Prisma** (`mysql2`, `deepmerge-ts` vía
-`@prisma/config`). Prisma empaqueta drivers para varias bases de datos en su
-CLI aunque el proyecto solo use PostgreSQL. Estas librerías **no se incluyen
-en el bundle de la aplicación en runtime** (la app importa `@prisma/client`
-+ `@prisma/adapter-pg`, no el paquete `prisma` en sí). La corrección que npm
-propone es un salto incompatible hacia Prisma 6; Prisma 8 permanece en
-release candidate, por lo que no se fuerza ningún cambio de major en
-producción. Conviene repetir la auditoría antes de cada actualización de
-Prisma y no ejecutar su CLI contra esquemas o configuraciones no confiables.
+`npm audit` reporta **0 vulnerabilidades** (1 de octubre de 2026). Las 4
+"high" que tenía la CLI de Prisma en dependencias transitivas (`mysql2`,
+`deepmerge-ts` vía `@prisma/config`) se corrigieron con `overrides` en
+`package.json` (`mysql2@^3.24.5`, `deepmerge-ts@^8.0.2`), en vez del salto
+incompatible a Prisma 6 que proponía `npm audit fix --force`. Se verificó que
+`prisma validate`, `prisma generate`, `prisma migrate deploy/status` y el seed
+siguen funcionando. Al actualizar Prisma, revisa si los `overrides` siguen
+siendo necesarios y elimínalos cuando la versión oficial ya los incluya.
 
 Se eliminó `xlsx` (SheetJS) del proyecto: la versión publicada en npm tiene
 vulnerabilidades conocidas de *prototype pollution* y ReDoS sin parche
@@ -117,7 +139,7 @@ motor de consultas de Prisma) y `esbuild`/`unrs-resolver` (binarios nativos
 de herramientas de build). No apruebes un script nuevo sin revisar qué
 paquete lo pide y por qué.
 
-## Qué falta antes de producción (ver también `docs/AUDIT_LOOP_2.md`)
+## Qué falta antes de producción (ver también `docs/AUDIT_LOOP_4.md`, sección "Pendiente")
 
 - Revisión legal real del texto de `/politica-de-datos`.
 - Generar un `AUTH_SECRET` de producción propio (nunca reusar el de
@@ -127,7 +149,8 @@ paquete lo pide y por qué.
   `openssl rand -base64 32` **antes del build**. No usar una cadena aleatoria
   que no sea base64 válido.
 - Cambiar o eliminar las credenciales de demostración (`admin@mpm.local` /
-  `CambiaEsto123!`).
+  `CambiaEsto123!`) si existen en la base de producción (el seed actual ya no
+  las crea fuera de una base local).
 - Configurar un WAF/rate limiter distribuido en el CDN/proveedor antes de
   exponer ampliamente el panel. El límite local protege una instancia, pero
   no sustituye esa capa ante tráfico distribuido.

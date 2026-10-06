@@ -72,5 +72,9 @@
     "prisma@7.10.0": true,
     "unrs-resolver@1.12.2": true,
     "esbuild@0.28.2": true
+  },
+  "overrides": {
+    "mysql2": "^3.24.5",
+    "deepmerge-ts": "^8.0.2"
   }
 }

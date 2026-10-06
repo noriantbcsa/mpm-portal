@@ -150,7 +150,10 @@ async function importRealCatalog() {
       await prisma.product.upsert({
         where: { sku },
         create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors: colors.length ? colors : ["Consultar disponibilidad"], tags, images: { create: images } },
-        update: { name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors: colors.length ? colors : ["Consultar disponibilidad"], tags, images: { deleteMany: {}, create: images } },
+        // Repetir el seed solo refresca las fotos entregadas: nombre,
+        // descripción, categoría, tallas, etiquetas, etc. pueden haberse
+        // editado desde /admin y no deben pisarse.
+        update: { images: { deleteMany: {}, create: images } },
       });
       imported += 1;
 
@@ -158,7 +161,7 @@ async function importRealCatalog() {
       // imagen como portada de la categoría (Damas/Caballero), para que
       // "Compra por categoría" en el inicio no se vea vacío. Si un admin ya
       // puso una portada distinta desde /admin/categorias, no se toca.
-      if (!categoryImageSet && images[0]) {
+      if (!categoryImageSet && images[0] && (!category.imageUrl || category.imageUrl.startsWith("/catalogo/"))) {
         await prisma.category.update({ where: { id: category.id }, data: { imageUrl: images[0].url } });
         categoryImageSet = true;
       }
@@ -168,9 +171,36 @@ async function importRealCatalog() {
 }
 
 async function seedUsers() {
+  // La contraseña de demostración es pública (README). Contra una base de
+  // producción no se crean cuentas con ella: hay que pasar una propia en
+  // SEED_ADMIN_PASSWORD (o crear las cuentas desde /admin/usuarios).
+  // Se considera "producción" cualquier base que no sea local, aunque el
+  // seed se corra desde un portátil apuntando a la URL de Render.
+  const databaseHost = (() => {
+    try {
+      return new URL(process.env.DATABASE_URL ?? "").hostname;
+    } catch {
+      return "";
+    }
+  })();
+  const isLocalDatabase = ["localhost", "127.0.0.1", "::1", "[::1]", "db"].includes(databaseHost);
+  const isProduction = process.env.NODE_ENV === "production" || !isLocalDatabase;
+  const password = process.env.SEED_ADMIN_PASSWORD || (isProduction ? null : "CambiaEsto123!");
+  if (!password) {
+    console.warn(
+      "Base de datos no local sin SEED_ADMIN_PASSWORD: no se crean cuentas de demostración. " +
+        "Define SEED_ADMIN_PASSWORD (mínimo 10 caracteres) para crear el administrador inicial.",
+    );
+    return;
+  }
+  if (password.length < 10) throw new Error("SEED_ADMIN_PASSWORD debe tener al menos 10 caracteres.");
+
   const users = [
-    { name: "Administrador MPM", email: "admin@mpm.local", role: "ADMIN" as const, password: "CambiaEsto123!" },
-    { name: "Asesora de ventas", email: "ventas@mpm.local", role: "SALES" as const, password: "CambiaEsto123!" },
+    { name: "Administrador MPM", email: "admin@mpm.local", role: "ADMIN" as const, password },
+    // La cuenta de ventas de prueba solo tiene sentido fuera de producción.
+    ...(isProduction
+      ? []
+      : [{ name: "Asesora de ventas", email: "ventas@mpm.local", role: "SALES" as const, password }]),
   ];
   for (const user of users) {
     const passwordHash = await hashPassword(user.password);
@@ -180,7 +210,11 @@ async function seedUsers() {
       update: {},
     });
   }
-  console.log("Usuarios de demostración listos (ver README.md para credenciales).");
+  console.log(
+    isProduction
+      ? "Administrador inicial listo con la contraseña de SEED_ADMIN_PASSWORD."
+      : "Usuarios de demostración listos (ver README.md para credenciales).",
+  );
 }
 
 async function main() {

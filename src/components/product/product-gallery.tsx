@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 import { cn } from "@/lib/cn";
@@ -19,13 +19,33 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
   const current = images[active];
   const hasMultipleImages = images.length > 1;
 
+  const expandButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Diálogo modal accesible: el foco entra al abrir, no se escapa con Tab
+  // (el único control es "Cerrar"), Escape cierra, la página de fondo no se
+  // desplaza y al cerrar el foco vuelve a "Ampliar foto".
   useEffect(() => {
-    function closeOnEscape(event: KeyboardEvent) {
+    if (!isExpanded) return;
+    const expandButton = expandButtonRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setIsExpanded(false);
+      if (event.key === "Tab") {
+        event.preventDefault();
+        closeButtonRef.current?.focus();
+      }
     }
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, []);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      expandButton?.focus();
+    };
+  }, [isExpanded]);
 
   if (!current) {
     return (
@@ -59,6 +79,9 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
               )}
             >
               <Image src={image.url} alt="" fill sizes="72px" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
+              <span className="absolute inset-x-0 bottom-0 bg-ink/75 px-1 py-1 text-[8px] font-bold uppercase leading-tight tracking-[0.06em] text-white">
+                {image.color ?? viewLabel(image, index)}
+              </span>
               <span className="sr-only">{viewLabel(image, index)}</span>
             </button>
           ))}
@@ -82,7 +105,13 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           decoding="async"
           className="object-cover"
         />
+        {current.color && (
+          <span className="absolute left-3 top-3 bg-paper px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm">
+            Color: {current.color}
+          </span>
+        )}
         <button
+          ref={expandButtonRef}
           type="button"
           onClick={() => setIsExpanded(true)}
           className="focus-ring absolute bottom-3 right-3 bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm hover:bg-brand-secondary"
@@ -102,6 +131,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           <div className="relative h-[min(86vh,980px)] w-[min(94vw,760px)]" onClick={(event) => event.stopPropagation()}>
             <Image src={current.url} alt={current.alt} fill sizes="94vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-contain" />
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={() => setIsExpanded(false)}
               className="focus-ring absolute right-0 top-0 bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink hover:bg-brand-secondary"

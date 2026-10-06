@@ -453,11 +453,21 @@ html[data-festivity] .seasonal-main::after {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  opacity: 0.62;
+  /* Las tres ilustraciones forman una composición fija: derecha, izquierda
+     y derecha. Siempre quedan detrás del contenido del portal. */
+  opacity: 0.5;
   background-image: var(--seasonal-backdrop);
-  background-position: top right;
+  background-position: top 2rem right;
   background-repeat: no-repeat;
-  background-size: max(70rem, 100%) auto;
+  background-size: clamp(18rem, 28vw, 30rem) auto;
+}
+
+/* Las fotos y los controles de cada página nunca deben competir con la
+   decoración de festividad. Sin esta capa, una ilustración lateral puede
+   quedar visualmente encima de la ficha de producto. */
+.seasonal-main > :not(.seasonal-scene) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Una ilustración lateral propia acompaña las páginas extensas sin repetir
@@ -469,13 +479,13 @@ html[data-festivity] .seasonal-main::after {
   width: 100%;
   /* Las ilustraciones WebP miden 1672 × 941. Esta altura conserva la
      proporción a 105% de ancho y evita recortar sus figuras inferiores. */
-  height: max(42rem, 60vw);
+  height: clamp(18rem, 28vw, 30rem);
   content: "";
   opacity: 0.72;
   background-image: var(--seasonal-lateral);
   background-repeat: no-repeat;
   background-position: top left;
-  background-size: max(72rem, 105%) auto;
+  background-size: clamp(18rem, 28vw, 30rem) auto;
 }
 
 /* El complemento inferior es una tercera composición propia, con presencia
@@ -486,13 +496,13 @@ html[data-festivity] .seasonal-main::after {
   top: max(140rem, 182vh);
   right: 0;
   width: 100%;
-  height: max(42rem, 60vw);
+  height: clamp(18rem, 28vw, 30rem);
   content: "";
   opacity: 0.72;
   background-image: var(--seasonal-complement);
   background-repeat: no-repeat;
   background-position: top right;
-  background-size: max(72rem, 105%) auto;
+  background-size: clamp(18rem, 28vw, 30rem) auto;
 }
 
 .seasonal-scene--negros-y-blancos { --seasonal-backdrop: url("/seasonal/negros-y-blancos.webp"); --seasonal-lateral: url("/seasonal/negros-y-blancos-lateral.webp"); --seasonal-complement: url("/seasonal/negros-y-blancos-complemento.webp"); }
@@ -520,9 +530,9 @@ html[data-festivity] .seasonal-main::after {
 .seasonal-scene--feria-cali { --seasonal-backdrop: url("/seasonal/feria-cali.webp"); --seasonal-lateral: url("/seasonal/feria-cali-lateral.webp"); --seasonal-complement: url("/seasonal/feria-cali-complemento.webp"); }
 
 @media (max-width: 639px) {
-  .seasonal-scene { opacity: 0.46; background-size: auto 26rem; }
-  .seasonal-scene::after { top: 45rem; height: 30rem; opacity: 0.62; background-size: auto 30rem; }
-  .seasonal-scene::before { top: 90rem; height: 30rem; opacity: 0.62; background-size: auto 30rem; }
+  .seasonal-scene { opacity: 0.4; background-size: auto 11rem; }
+  .seasonal-scene::after { top: 45rem; height: 14rem; opacity: 0.5; background-size: auto 11rem; }
+  .seasonal-scene::before { top: 90rem; height: 14rem; opacity: 0.5; background-size: auto 11rem; }
 }
 
 .campaign-showcase {

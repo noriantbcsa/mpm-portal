@@ -14,18 +14,90 @@ export type CsvParseResult = {
 // convertirse en miles de consultas secuenciales en una sola petición.
 const MAX_CSV_ROWS = 2000;
 
+const REQUIRED_CSV_COLUMNS = ["referencia", "nombre", "descripcion", "categoria"] as const;
+
+/**
+ * Detecta el delimitador mirando solo la fila de encabezados (que nunca lleva
+ * valores multivaluados). Excel en español/Colombia guarda los CSV con `;`
+ * por defecto; Google Sheets y la plantilla usan `,`.
+ */
+export function detectCsvDelimiter(csvText: string): "," | ";" {
+  const headerLine = csvText.replace(/^\uFEFF/, "").split(/\r?\n/, 1)[0] ?? "";
+  const commas = (headerLine.match(/,/g) ?? []).length;
+  const semicolons = (headerLine.match(/;/g) ?? []).length;
+  return semicolons > commas ? ";" : ",";
+}
+
+/**
+ * Decodifica el archivo subido. Excel guarda "CSV" (no "CSV UTF-8") en
+ * Windows-1252: leerlo como UTF-8 convertía tildes y eñes en "�".
+ */
+export function decodeCsvBytes(bytes: ArrayBuffer | Uint8Array): string {
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    return new TextDecoder("windows-1252").decode(bytes);
+  }
+}
+
+/**
+ * Precio de referencia en pesos colombianos, tal como lo escribe el equipo:
+ * "39900", "39.900", "$ 39.900", "39,900", "39.900,50". Devuelve `null` si
+ * la celda está vacía y `undefined` si el valor es ambiguo o inválido (la
+ * fila se reporta en vez de guardar un precio 1000 veces menor).
+ */
+export function parseCopPrice(raw: string): number | null | undefined {
+  const value = raw.replace(/\s|\$|COP/gi, "");
+  if (value === "") return null;
+  let normalized: string;
+  if (/^\d{1,3}(\.\d{3})+(,\d{1,2})?$/.test(value)) {
+    normalized = value.replace(/\./g, "").replace(",", ".");
+  } else if (/^\d{1,3}(,\d{3})+(\.\d{1,2})?$/.test(value)) {
+    normalized = value.replace(/,/g, "");
+  } else if (/^\d+([.,]\d{1,2})?$/.test(value)) {
+    normalized = value.replace(",", ".");
+  } else {
+    return undefined;
+  }
+  const price = Number(normalized);
+  return Number.isFinite(price) && price >= 0 ? price : undefined;
+}
+
 /**
  * Interpreta el CSV de carga masiva de productos. Espera encabezados en
- * español (ver PRODUCT_CSV_COLUMNS) y delimitador coma. Las columnas
- * multivaluadas (tallas, colores, fotos, etiquetas) usan `;` como separador.
+ * español (ver PRODUCT_CSV_COLUMNS) y delimitador coma o punto y coma
+ * (se detecta solo). Las columnas multivaluadas (tallas, colores, fotos,
+ * etiquetas) usan `;` como separador — en un archivo delimitado por `;` esas
+ * celdas van entre comillas, como las guarda Excel.
  */
 export function parseProductsCsv(csvText: string): CsvParseResult {
-  const rawRows: Record<string, string>[] = parse(csvText, {
-    columns: (header: string[]) => header.map((h) => h.trim().toLowerCase()),
-    skip_empty_lines: true,
-    trim: true,
-    bom: true,
-  });
+  let rawRows: Record<string, string>[];
+  try {
+    rawRows = parse(csvText, {
+      columns: (header: string[]) => header.map((h) => h.trim().toLowerCase()),
+      delimiter: detectCsvDelimiter(csvText),
+      skip_empty_lines: true,
+      trim: true,
+      bom: true,
+    });
+  } catch (error) {
+    const detail = error instanceof Error ? ` (${error.message})` : "";
+    return { rows: [], errors: [{ row: 0, message: `No se pudo leer el archivo CSV${detail}.` }] };
+  }
+
+  const headers = rawRows[0] ? Object.keys(rawRows[0]) : [];
+  const missing = REQUIRED_CSV_COLUMNS.filter((column) => !headers.includes(column));
+  if (rawRows.length > 0 && missing.length > 0) {
+    return {
+      rows: [],
+      errors: [
+        {
+          row: 0,
+          message: `Faltan columnas obligatorias: ${missing.join(", ")}. Usa los encabezados de la plantilla.`,
+        },
+      ],
+    };
+  }
 
   if (rawRows.length > MAX_CSV_ROWS) {
     return {

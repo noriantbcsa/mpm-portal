@@ -11,7 +11,8 @@ const optionalUrl = z
   .nullable();
 const safeHref = z.string().trim().min(1).max(200).refine(
   (value) => {
-    if (value.startsWith("/")) return !value.startsWith("//");
+    // "//dominio" y "/\\dominio" son URLs de otro sitio para el navegador.
+    if (value.startsWith("/")) return !value.startsWith("//") && !value.startsWith("/\\");
     try {
       return ["http:", "https:"].includes(new URL(value).protocol);
     } catch {

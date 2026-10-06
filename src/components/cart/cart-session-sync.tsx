@@ -9,9 +9,12 @@ import { syncCartSessionAction } from "@/app/(public)/carrito/actions";
  * Componente invisible que replica el carrito (localStorage) hacia el
  * servidor de forma silenciosa y con debounce, para poder detectar
  * "carritos abandonados" aunque el visitante nunca complete la solicitud.
+ * La respuesta corrige la copia local: retira prendas que ya no se pueden
+ * pedir y refresca precios que hayan cambiado desde que se agregaron.
  */
 export function CartSessionSync() {
   const items = useCartStore((s) => s.items);
+  const reconcile = useCartStore((s) => s.reconcile);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hadItemsRef = useRef(false);
   const signature = JSON.stringify(
@@ -34,7 +37,11 @@ export function CartSessionSync() {
           color: i.color,
           quantity: i.quantity,
         })),
-      ).catch(() => {
+      )
+        .then((result) => {
+          if (result) reconcile(result.unavailableProductIds, result.prices);
+        })
+        .catch(() => {
         // Silencioso a propósito: nunca debe interrumpir la experiencia de compra.
       });
     }, 1500);

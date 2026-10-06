@@ -5,7 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2, CheckCircle2 } from "lucide-react";
 
-import { useCartStore, cartItemKey } from "@/store/cart-store";
+import { useCartStore, cartItemKey, useHasHydrated } from "@/store/cart-store";
+import { MAX_CART_ITEM_QUANTITY } from "@/lib/constants";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/format";
 import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 import { Button, LinkButton } from "@/components/ui/button";
@@ -23,8 +25,16 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const clear = useCartStore((s) => s.clear);
+  const reconcile = useCartStore((s) => s.reconcile);
 
+  const hydrated = useHasHydrated();
   const [state, formAction, pending] = useActionState(submitCartRequestAction, initialState);
+
+  useEffect(() => {
+    if (state.status === "error" && state.unavailableProductIds?.length) {
+      reconcile(state.unavailableProductIds);
+    }
+  }, [state, reconcile]);
 
   useEffect(() => {
     if (state.status === "success") clear();
@@ -54,6 +64,19 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
           <LinkButton href="/catalogo" variant="ghost">
             Seguir viendo el catálogo
           </LinkButton>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hydrated) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-8" aria-busy="true">
+        <span className="sr-only">Cargando tu carrito…</span>
+        <Skeleton className="h-8 w-64" />
+        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_380px]">
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-64 w-full" />
         </div>
       </div>
     );
@@ -132,7 +155,8 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
                       <button
                         type="button"
                         aria-label={`Aumentar cantidad de ${item.name}`}
-                        className="focus-ring p-1.5"
+                        className="focus-ring p-1.5 disabled:opacity-40"
+                        disabled={item.quantity >= MAX_CART_ITEM_QUANTITY}
                         onClick={() => updateQuantity(key, item.quantity + 1)}
                       >
                         <Plus className="h-3.5 w-3.5" aria-hidden="true" />
@@ -184,6 +208,14 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
             </select>
           </label>
           <TextAreaField label="Comentario (opcional)" name="comment" rows={3} />
+
+          {/* Campo trampa anti-spam: invisible y fuera del orden de tabulación. */}
+          <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+            <label>
+              Sitio web
+              <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
+            </label>
+          </div>
 
           <label className="flex items-start gap-2 text-sm text-ink-soft">
             <input type="checkbox" name="dataConsent" required className="mt-1" />

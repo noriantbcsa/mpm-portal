@@ -34,21 +34,22 @@ export async function proxy(request: NextRequest) {
     return response;
   };
 
-  if (pathname.startsWith("/admin") || pathname === "/login") {
+  if (pathname.startsWith("/admin")) {
     const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     const session = token ? await verifySession(token) : null;
 
     // Chequeo optimista únicamente (solo lee la cookie firmada). La
-    // verificación real contra la base de datos (rol, usuario activo) ocurre en
-    // `requireUser`/`requireRole` dentro de cada página o Server Action.
-    if (pathname.startsWith("/admin") && !session) {
+    // verificación real contra la base de datos (rol, usuario activo,
+    // sessionVersion) ocurre en `requireUser`/`requireRole` dentro de cada
+    // página o Server Action.
+    //
+    // No se redirige /login → /admin aquí: una cookie con firma válida pero
+    // revocada (contraseña cambiada, usuario desactivado) haría que /admin
+    // mande a /login y /login de vuelta a /admin en un bucle infinito. Esa
+    // redirección la hace la propia página de login tras validar en la base.
+    if (!session) {
       const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("next", pathname);
       return withSecurityHeaders(NextResponse.redirect(loginUrl));
-    }
-
-    if (pathname === "/login" && session) {
-      return withSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
     }
   }
 

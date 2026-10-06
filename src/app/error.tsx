@@ -4,10 +4,12 @@ import { useEffect } from "react";
 
 export default function ErrorBoundary({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  // `retry` vuelve a pedir los datos al servidor (útil si la base de datos
+  // tuvo un fallo momentáneo); `reset` solo re-renderizaría lo ya cargado.
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -25,7 +27,7 @@ export default function ErrorBoundary({
       </p>
       <button
         type="button"
-        onClick={reset}
+        onClick={retry}
         className="focus-ring mt-2 inline-flex items-center justify-center rounded-full bg-brand-primary px-6 py-3 text-sm font-medium text-white hover:bg-brand-primary-dark"
       >
         Intentar de nuevo

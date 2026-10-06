@@ -11,17 +11,14 @@ export function formatPrice(value: number | string | null | undefined) {
   return currencyFormatter.format(numeric);
 }
 
-// Fechas de calendario puras (vigencia de campañas: vienen de un <input
-// type="date"> y se guardan como medianoche UTC). Se formatean en UTC para
-// mostrar siempre el día calendario elegido, sin importar en qué huso
-// horario corra el proceso de Node (el servidor de desarrollo puede estar en
-// UTC-5, Vercel corre en UTC): convertir a huso local aquí correría el día
-// hacia atrás en cualquier huso horario detrás de UTC.
+// Fechas de calendario (vigencia de campañas): se guardan como inicio/fin del
+// día en Colombia (ver `campaignStartFromDateKey`), así que se formatean en
+// la zona horaria del negocio, sin depender del huso horario del servidor.
 const dateFormatter = new Intl.DateTimeFormat("es-CO", {
   day: "2-digit",
   month: "short",
   year: "numeric",
-  timeZone: "UTC",
+  timeZone: "America/Bogota",
 });
 
 // Marcas de tiempo reales (creación de solicitudes, bloqueo de cuentas): sí

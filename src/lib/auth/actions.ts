@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validation/user";
 import { hashPassword, verifyPassword } from "@/lib/auth/passwords";
-import { createSessionCookie, clearSessionCookie } from "@/lib/auth/session";
+import { createSessionCookie, clearSessionCookie, getSessionFromCookies } from "@/lib/auth/session";
 import { consumeRateLimit, getRequestRateLimitKey } from "@/lib/security/rate-limit";
 
 export type LoginFormState = { error: string } | undefined;
@@ -101,6 +101,18 @@ export async function loginAction(
 }
 
 export async function logoutAction() {
+  // Además de borrar la cookie, se invalida el token: si alguien lo hubiera
+  // copiado, deja de servir de inmediato en vez de seguir vigente hasta 7
+  // días. Efecto deliberado: cerrar sesión cierra también las sesiones de
+  // ese usuario en otros dispositivos (mismo mecanismo que el cambio de
+  // contraseña, ver sessionVersion en src/lib/auth/dal.ts).
+  const session = await getSessionFromCookies();
+  if (session) {
+    await prisma.user.updateMany({
+      where: { id: session.sub, sessionVersion: session.sessionVersion },
+      data: { sessionVersion: { increment: 1 } },
+    });
+  }
   await clearSessionCookie();
   redirect("/login");
 }

@@ -50,11 +50,16 @@ export async function updateUserAction(
 ): Promise<UserFormState> {
   const currentUser = await requireRole(["ADMIN"]);
 
+  const id = formData.get("id");
+  const isSelf = id === currentUser.id;
   const parsed = updateUserSchema.safeParse({
-    id: formData.get("id"),
+    id,
     name: formData.get("name"),
-    role: formData.get("role"),
-    active: formData.get("active") === "on",
+    // En la propia cuenta el formulario deshabilita rol y "activa" (un campo
+    // deshabilitado no se envía). Sin esto, un admin no podía guardar ni su
+    // nombre ni su contraseña: llegaba role=null/active=false y se rechazaba.
+    role: isSelf ? currentUser.role : formData.get("role"),
+    active: isSelf ? true : formData.get("active") === "on",
     password: formData.get("password") || "",
   });
   if (!parsed.success) {

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { MAX_CART_ITEM_QUANTITY, MAX_CART_LINES } from "@/lib/constants";
+
 const phoneSchema = z
   .string()
   .trim()
@@ -29,13 +31,17 @@ export const cartItemInputSchema = z.object({
   productId: z.string().min(1),
   size: z.string().trim().max(40).optional().nullable(),
   color: z.string().trim().max(40).optional().nullable(),
-  quantity: z.number().int().min(1).max(500),
+  quantity: z
+    .number()
+    .int()
+    .min(1, { error: "La cantidad mínima por prenda es 1." })
+    .max(MAX_CART_ITEM_QUANTITY, { error: `La cantidad máxima por prenda es ${MAX_CART_ITEM_QUANTITY}.` }),
 });
 
 export type CartItemInput = z.infer<typeof cartItemInputSchema>;
 
-export const cartItemsSchema = z.array(cartItemInputSchema).max(50, {
-  error: "El carrito puede tener como máximo 50 referencias.",
+export const cartItemsSchema = z.array(cartItemInputSchema).max(MAX_CART_LINES, {
+  error: `El carrito puede tener como máximo ${MAX_CART_LINES} referencias.`,
 });
 
 export const submitCartRequestSchema = z.object({

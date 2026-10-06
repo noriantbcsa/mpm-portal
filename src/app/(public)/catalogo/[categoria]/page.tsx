@@ -1,51 +1,51 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { getCatalogFilterOptions, listProducts, type CatalogSort } from "@/lib/products";
+import { getCatalogFilterOptions, listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
-import { getCategoryBySlug, getCategoryTree } from "@/lib/categories";
-import { toArray, toPositiveInt, toSingle, type RawSearchParams } from "@/lib/search-params";
-import type { Audience, ProductTagType } from "@prisma/client";
+import { getCategoryBySlug, getCategoryTree, isCategoryPublic } from "@/lib/categories";
+import type { RawSearchParams } from "@/lib/search-params";
+import { buildCatalogHref, EMPTY_FILTERS, hasCatalogFilters, parseCatalogParams } from "@/lib/catalog-params";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { FiltersForm } from "@/components/catalog/filters-form";
 import { Pagination } from "@/components/catalog/pagination";
 import { CatalogExplorer } from "@/components/catalog/catalog-explorer";
-import { formatCatalogColor } from "@/lib/catalog-colors";
 
 type PageProps = {
   params: Promise<{ categoria: string }>;
   searchParams: Promise<RawSearchParams>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { categoria } = await params;
   const category = await getCategoryBySlug(categoria);
-  if (!category) return {};
+  if (!category || !isCategoryPublic(category)) return {};
+  const filters = parseCatalogParams(await searchParams);
+  const filtered = hasCatalogFilters(filters);
   return {
     title: category.name,
     description: category.description ?? `Catálogo de ${category.name} en MPM.`,
+    // Cada página de la paginación es canónica de sí misma (recomendación
+    // de Google); solo las variantes filtradas se excluyen del índice.
+    alternates: { canonical: buildCatalogHref(`/catalogo/${category.slug}`, EMPTY_FILTERS, filters.pagina) },
+    ...(filtered ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
 export default async function CategoriaPage({ params, searchParams }: PageProps) {
   const { categoria } = await params;
   const [category, categories] = await Promise.all([getCategoryBySlug(categoria), getCategoryTree()]);
-  if (!category || !category.isVisible) notFound();
+  if (!category || !isCategoryPublic(category)) notFound();
 
   const sp = await searchParams;
-  const q = toSingle(sp.q);
-  const publico = toSingle(sp.publico) as Audience | undefined;
-  const talla = toArray(sp.talla);
-  const color = [...new Set(toArray(sp.color).map(formatCatalogColor))];
-  const etiqueta = toArray(sp.etiqueta) as ProductTagType[];
-  const orden = toSingle(sp.orden) as CatalogSort | undefined;
-  const pagina = toPositiveInt(sp.pagina, 1);
+  const filters = parseCatalogParams(sp);
+  const { q, publico, talla, color, etiqueta, orden, pagina } = filters;
 
   const [{ items, total, page, pageCount }, settings, filterOptions] = await Promise.all([
     listProducts({
       categorySlug: categoria,
       q,
-      audience: publico || undefined,
+      audience: publico,
       sizes: talla,
       colors: color,
       tags: etiqueta,
@@ -56,18 +56,7 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
     getCatalogFilterOptions(categoria),
   ]);
 
-  function buildHref(nextPage: number) {
-    const search = new URLSearchParams();
-    if (q) search.set("q", q);
-    if (publico) search.set("publico", publico);
-    talla.forEach((t) => search.append("talla", t));
-    color.forEach((c) => search.append("color", c));
-    etiqueta.forEach((e) => search.append("etiqueta", e));
-    if (orden) search.set("orden", orden);
-    if (nextPage > 1) search.set("pagina", String(nextPage));
-    const qs = search.toString();
-    return qs ? `/catalogo/${categoria}?${qs}` : `/catalogo/${categoria}`;
-  }
+  const buildHref = (nextPage: number) => buildCatalogHref(`/catalogo/${categoria}`, filters, nextPage);
 
   return (
     <>

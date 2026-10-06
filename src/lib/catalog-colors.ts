@@ -18,6 +18,8 @@ const COLOR_ALIASES: Record<string, string> = {
   "PALOROSA": "PALO ROSA",
   "TURQUI": "TURQUESA",
   "VINOTINTO": "VINO TINTO",
+  "AZUL CELESTE": "CELESTE",
+  "CELESTE AZUL": "CELESTE",
 };
 
 export function catalogColorKey(value: string) {

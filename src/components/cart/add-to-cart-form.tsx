@@ -5,6 +5,7 @@ import { Check, ShoppingBag } from "lucide-react";
 
 import { useCartStore } from "@/store/cart-store";
 import { Button } from "@/components/ui/button";
+import { MAX_CART_ITEM_QUANTITY, MAX_CART_LINES } from "@/lib/constants";
 
 export function AddToCartForm({
   productId,
@@ -35,6 +36,7 @@ export function AddToCartForm({
   const [size, setSize] = useState(sizes[0] ?? "");
   const [quantity, setQuantity] = useState(1);
   const [confirmation, setConfirmation] = useState<string | null>(null);
+  const [limitError, setLimitError] = useState<string | null>(null);
 
   if (!canOrder) {
     return (
@@ -47,7 +49,7 @@ export function AddToCartForm({
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    addItem(
+    const added = addItem(
       {
         productId,
         slug,
@@ -60,6 +62,12 @@ export function AddToCartForm({
       },
       quantity,
     );
+    if (!added) {
+      setConfirmation(null);
+      setLimitError(`Tu carrito ya tiene ${MAX_CART_LINES} referencias distintas. Envía esta solicitud o quita alguna antes de agregar más.`);
+      return;
+    }
+    setLimitError(null);
     setConfirmation(`Agregaste ${quantity} ${quantity === 1 ? "unidad" : "unidades"} al carrito.`);
   }
 
@@ -130,16 +138,16 @@ export function AddToCartForm({
             id="quantity"
             type="number"
             min={1}
-            max={500}
+            max={MAX_CART_ITEM_QUANTITY}
             value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+            onChange={(e) => setQuantity(Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Math.trunc(Number(e.target.value)) || 1)))}
             className="focus-ring w-14 border-x border-line py-1.5 text-center text-sm"
           />
           <button
             type="button"
             aria-label="Aumentar cantidad"
             className="focus-ring px-3 py-1.5 text-lg"
-            onClick={() => setQuantity((q) => Math.min(500, q + 1))}
+            onClick={() => setQuantity((q) => Math.min(MAX_CART_ITEM_QUANTITY, q + 1))}
           >
             +
           </button>
@@ -150,6 +158,12 @@ export function AddToCartForm({
         <ShoppingBag className="h-4 w-4" aria-hidden="true" />
         Agregar al carrito
       </Button>
+
+      {limitError && (
+        <p role="alert" className="text-sm font-medium text-danger">
+          {limitError}
+        </p>
+      )}
 
       <p role="status" aria-live="polite" className="flex items-center gap-1.5 text-sm text-success">
         {confirmation && (

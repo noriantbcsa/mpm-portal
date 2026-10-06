@@ -10,12 +10,13 @@ import {
   AdminTextField,
 } from "@/components/admin/ui/controls";
 import { AdminCard, AdminCardBody } from "@/components/admin/ui/display";
+import { toColombiaDateKey } from "@/lib/validation/campaign";
 
 const initialState: CampaignFormState = { status: "idle" };
 
 function toDateInputValue(date: Date | null) {
   if (!date) return "";
-  return date.toISOString().slice(0, 10);
+  return toColombiaDateKey(date);
 }
 
 export type CampaignFormInitial = {
@@ -62,8 +63,9 @@ export function CampaignForm({
             defaultValue={initial?.bannerImageUrl ?? ""}
             className="sm:col-span-2"
           />
-          <AdminTextField label="Color principal" name="colorPrimary" defaultValue={initial?.colorPrimary ?? ""} hint="ej. #E4572E" />
-          <AdminTextField label="Color secundario" name="colorSecondary" defaultValue={initial?.colorSecondary ?? ""} hint="ej. #F3A712" />
+          <p className="sm:col-span-2 text-xs leading-5 text-slate-500">
+            La plantilla visual de campaña es fija. Aquí solo se actualizan el texto, la imagen, las fechas y las referencias seleccionadas.
+          </p>
           <AdminTextField label="Fecha de inicio" name="startDate" type="date" defaultValue={toDateInputValue(initial?.startDate ?? null)} />
           <AdminTextField label="Fecha de fin" name="endDate" type="date" defaultValue={toDateInputValue(initial?.endDate ?? null)} />
           <AdminCheckbox

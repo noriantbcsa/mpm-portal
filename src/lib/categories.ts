@@ -37,8 +37,13 @@ export const getAllCategoriesFlat = cache(async (options?: { includeHidden?: boo
 });
 
 export const getCategoryBySlug = cache(async (slug: string) => {
-  return prisma.category.findUnique({ where: { slug } });
+  return prisma.category.findUnique({ where: { slug }, include: { parent: { select: { isVisible: true } } } });
 });
+
+/** Una subcategoría solo es pública si ella y su categoría padre son visibles. */
+export function isCategoryPublic(category: { isVisible: boolean; parent: { isVisible: boolean } | null }) {
+  return category.isVisible && (category.parent?.isVisible ?? true);
+}
 
 /** Aplana el árbol para un <select>, indentando subcategorías con "— ". */
 export function buildCategoryOptions(

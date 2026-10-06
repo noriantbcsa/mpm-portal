@@ -72,3 +72,36 @@ describe("useCartStore", () => {
     expect(useCartStore.getState().totalItems()).toBe(5);
   });
 });
+
+describe("useCartStore limits and reconciliation", () => {
+  beforeEach(() => {
+    useCartStore.getState().clear();
+  });
+
+  it("clamps merged quantities to the server maximum", () => {
+    useCartStore.getState().addItem(baseItem, 400);
+    useCartStore.getState().addItem(baseItem, 400);
+    expect(useCartStore.getState().items[0].quantity).toBe(500);
+    useCartStore.getState().updateQuantity(cartItemKey(baseItem), 9999);
+    expect(useCartStore.getState().items[0].quantity).toBe(500);
+  });
+
+  it("refuses a new line once the cart has 50 distinct references", () => {
+    for (let i = 0; i < 50; i += 1) {
+      expect(useCartStore.getState().addItem({ ...baseItem, productId: `p${i}` })).toBe(true);
+    }
+    expect(useCartStore.getState().addItem({ ...baseItem, productId: "p50" })).toBe(false);
+    expect(useCartStore.getState().items).toHaveLength(50);
+    // Sumar unidades a una línea existente sigue permitido.
+    expect(useCartStore.getState().addItem({ ...baseItem, productId: "p0" })).toBe(true);
+  });
+
+  it("drops unavailable products and refreshes prices", () => {
+    useCartStore.getState().addItem(baseItem, 1);
+    useCartStore.getState().addItem({ ...baseItem, productId: "gone" }, 1);
+    useCartStore.getState().reconcile(["gone"], { [baseItem.productId]: 45000 });
+    const { items } = useCartStore.getState();
+    expect(items).toHaveLength(1);
+    expect(items[0].priceRef).toBe(45000);
+  });
+});

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/dal";
 import { productFormSchema, PRODUCT_TAG_VALUES, httpUrlSchema } from "@/lib/validation/product";
 import { uniqueSlug } from "@/lib/slug";
-import { parseProductsCsv, splitMultiValue } from "@/lib/csv";
+import { decodeCsvBytes, parseCopPrice, parseProductsCsv, splitMultiValue } from "@/lib/csv";
 
 export type ProductFormState =
   | { status: "idle" }
@@ -116,6 +116,12 @@ export async function saveProductAction(
     redirect(`/admin/productos/${created.id}/editar?creado=1`);
   } catch (error) {
     if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
+      // El único otro campo único es el slug (generado del nombre): solo
+      // choca si otra persona creó a la vez un producto con el mismo nombre.
+      const target = JSON.stringify((error as { meta?: unknown }).meta ?? "");
+      if (target.includes("slug")) {
+        return { status: "error", message: "Se creó otro producto con este mismo nombre al mismo tiempo. Intenta guardar de nuevo." };
+      }
       return { status: "error", message: "Ya existe un producto con esa referencia (SKU)." };
     }
     throw error;
@@ -138,7 +144,7 @@ export async function bulkImportProductsAction(
     return { status: "error", message: "Selecciona un archivo CSV." };
   }
 
-  const text = await file.text();
+  const text = decodeCsvBytes(await file.arrayBuffer());
   const { rows, errors: parseErrors } = parseProductsCsv(text);
 
   // Error a nivel de archivo (p. ej. demasiadas filas), no de una fila
@@ -153,6 +159,19 @@ export async function bulkImportProductsAction(
   const categoryByName = new Map(categories.map((c) => [c.name.trim().toLowerCase(), c]));
   const campaigns = await prisma.campaign.findMany();
   const campaignByName = new Map(campaigns.map((c) => [c.name.trim().toLowerCase(), c.id]));
+
+  // Se precargan una sola vez las referencias y slugs existentes: antes cada
+  // fila hacía 1 consulta por SKU más 1+ por cada intento de slug, lo que con
+  // 2000 filas podía agotar el tiempo de la petición.
+  const existingSkus = new Set(
+    (
+      await prisma.product.findMany({
+        where: { sku: { in: rows.map((r) => r.data.referencia) } },
+        select: { sku: true },
+      })
+    ).map((p) => p.sku),
+  );
+  const takenSlugs = new Set((await prisma.product.findMany({ select: { slug: true } })).map((p) => p.slug));
 
   const rowErrors: string[] = parseErrors.map((e) => `Fila ${e.row}: ${e.message}`);
   let created = 0;
@@ -174,25 +193,47 @@ export async function bulkImportProductsAction(
       continue;
     }
 
-    const audience = data.publico.trim().toUpperCase();
-    const audienceValue = (["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const).includes(
-      audience as "HOMBRE",
-    )
-      ? (audience as "HOMBRE" | "MUJER" | "NINO" | "NINA" | "UNISEX")
-      : "UNISEX";
+    const audience = data.publico.trim().toUpperCase().replace("Ñ", "N");
+    const audienceValue = (["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const).find((a) => a === audience);
+    if (data.publico.trim() && !audienceValue) {
+      rowErrors.push(`Fila ${row}: público "${data.publico}" no reconocido (usa hombre, mujer, nino, nina o unisex).`);
+      skipped += 1;
+      continue;
+    }
 
     const status = data.estado.trim().toUpperCase().replace(/\s+/g, "_");
-    const statusValue = (["DISPONIBLE", "BAJO_PEDIDO", "AGOTADO", "OCULTO"] as const).includes(
-      status as "DISPONIBLE",
-    )
-      ? (status as "DISPONIBLE" | "BAJO_PEDIDO" | "AGOTADO" | "OCULTO")
-      : "DISPONIBLE";
+    const statusValue = (["DISPONIBLE", "BAJO_PEDIDO", "AGOTADO", "OCULTO"] as const).find((v) => v === status);
+    if (data.estado.trim() && !statusValue) {
+      rowErrors.push(`Fila ${row}: estado "${data.estado}" no reconocido (usa disponible, bajo pedido, agotado u oculto).`);
+      skipped += 1;
+      continue;
+    }
 
     const tags = splitMultiValue(data.etiquetas)
       .map((t) => t.toUpperCase())
       .filter((t): t is (typeof PRODUCT_TAG_VALUES)[number] => (PRODUCT_TAG_VALUES as readonly string[]).includes(t));
 
+    if (data.etiquetas && splitMultiValue(data.etiquetas).length !== tags.length) {
+      rowErrors.push(
+        `Fila ${row}: etiquetas "${data.etiquetas}" no reconocidas (usa oferta, tendencia, nuevo o recomendado, separadas por ;).`,
+      );
+      skipped += 1;
+      continue;
+    }
+
     const campaignId = data.campana ? campaignByName.get(data.campana.trim().toLowerCase()) : undefined;
+    if (data.campana && !campaignId) {
+      rowErrors.push(`Fila ${row}: no existe la campaña "${data.campana}". Créala primero en Campañas.`);
+      skipped += 1;
+      continue;
+    }
+
+    const priceRef = parseCopPrice(data.precio);
+    if (priceRef === undefined) {
+      rowErrors.push(`Fila ${row}: precio "${data.precio}" no válido (ejemplo: 39900 o 39.900).`);
+      skipped += 1;
+      continue;
+    }
 
     // Igual que las fotos del formulario individual (productImageInputSchema):
     // una URL de foto solo se guarda si de verdad es http(s). Una fila de CSV
@@ -212,35 +253,34 @@ export async function bulkImportProductsAction(
         order,
       }));
 
-    const priceRef = data.precio ? Number(data.precio.replace(/[^0-9.]/g, "")) : null;
-
-    const existing = await prisma.product.findUnique({ where: { sku: data.referencia } });
+    const existing = existingSkus.has(data.referencia);
 
     try {
       if (existing) {
+        // Una celda opcional vacía conserva el valor actual: reimportar una
+        // hoja parcial (p. ej. solo para cambiar precios) no debe borrar
+        // tallas, colores o campaña, ni volver visible un producto oculto.
+        // Para vaciar un campo se usa el formulario del producto.
         await prisma.product.update({
           where: { sku: data.referencia },
           data: {
             name: data.nombre,
             description: data.descripcion,
             categoryId: category.id,
-            audience: audienceValue,
-            sizes: splitMultiValue(data.tallas),
-            colors: splitMultiValue(data.colores),
-            material: data.material || null,
-            status: statusValue,
-            tags,
-            campaignId: campaignId ?? null,
-            priceRef: priceRef && !Number.isNaN(priceRef) ? priceRef : null,
+            ...(audienceValue ? { audience: audienceValue } : {}),
+            ...(data.tallas ? { sizes: splitMultiValue(data.tallas) } : {}),
+            ...(data.colores ? { colors: splitMultiValue(data.colores) } : {}),
+            ...(data.material ? { material: data.material } : {}),
+            ...(statusValue ? { status: statusValue } : {}),
+            ...(data.etiquetas ? { tags } : {}),
+            ...(campaignId ? { campaignId } : {}),
+            ...(priceRef !== null ? { priceRef } : {}),
             ...(images.length > 0 ? { images: { deleteMany: {}, create: images } } : {}),
           },
         });
         updated += 1;
       } else {
-        const slug = await uniqueSlug(data.nombre, async (candidate) => {
-          const found = await prisma.product.findUnique({ where: { slug: candidate } });
-          return Boolean(found);
-        });
+        const slug = await uniqueSlug(data.nombre, async (candidate) => takenSlugs.has(candidate));
         await prisma.product.create({
           data: {
             sku: data.referencia,
@@ -248,17 +288,21 @@ export async function bulkImportProductsAction(
             slug,
             description: data.descripcion,
             categoryId: category.id,
-            audience: audienceValue,
+            audience: audienceValue ?? "UNISEX",
             sizes: splitMultiValue(data.tallas),
             colors: splitMultiValue(data.colores),
             material: data.material || null,
-            status: statusValue,
+            status: statusValue ?? "DISPONIBLE",
             tags,
             campaignId: campaignId ?? null,
-            priceRef: priceRef && !Number.isNaN(priceRef) ? priceRef : null,
+            priceRef,
             images: { create: images },
           },
         });
+        // Una misma referencia repetida más abajo en el archivo se actualiza,
+        // y un nombre repetido recibe otro slug.
+        existingSkus.add(data.referencia);
+        takenSlugs.add(slug);
         created += 1;
       }
     } catch {

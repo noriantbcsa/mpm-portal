@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, MessageCircle, ShoppingBag } from "lucide-react";
@@ -38,11 +37,6 @@ export default async function HomePage() {
   const whatsappHref = buildWhatsAppLink(settings.whatsappNumber, settings.whatsappDefaultMessage);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const spotlightCategories = [women, men].filter((category): category is NonNullable<typeof category> => Boolean(category));
-  const campaignStyle = activeCampaign ? {
-    "--campaign-primary": activeCampaign.colorPrimary ?? settings.primaryColor,
-    "--campaign-secondary": activeCampaign.colorSecondary ?? settings.secondaryColor,
-  } as CSSProperties : undefined;
-
   return (
     <div>
       <JsonLd
@@ -121,7 +115,7 @@ export default async function HomePage() {
 
       {activeCampaign && (
         <section className="mx-auto max-w-7xl px-4 pb-5 sm:px-6 sm:pb-8">
-          <Link href={`/campanas/${activeCampaign.slug}`} style={campaignStyle} className="campaign-showcase focus-ring group grid overflow-hidden sm:grid-cols-[minmax(0,1fr)_minmax(260px,0.8fr)]">
+          <Link href={`/campanas/${activeCampaign.slug}`} className="campaign-showcase focus-ring group grid overflow-hidden sm:grid-cols-[minmax(0,1fr)_minmax(260px,0.8fr)]">
             <div className="flex min-h-64 flex-col justify-end p-7 sm:p-10">
               <p className="campaign-kicker">Selección MPM</p>
               <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">{activeCampaign.name}</h2>

@@ -123,6 +123,17 @@ model Product {
   @@index([campaignId])
   @@index([status])
   @@index([audience])
+  // Filtros del catálogo (`hasSome` sobre arreglos) y ordenamientos.
+  @@index([tags], type: Gin)
+  @@index([sizes], type: Gin)
+  @@index([colors], type: Gin)
+  @@index([updatedAt])
+  @@index([createdAt])
+  // Búsqueda `contains` + `mode: insensitive` (ILIKE '%…%'): índices
+  // trigram (extensión pg_trgm, creada en la migración correspondiente).
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_name_trgm_idx")
+  @@index([sku(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_sku_trgm_idx")
+  @@index([description(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_description_trgm_idx")
 }
 
 model ProductImage {

@@ -34,6 +34,7 @@ export const skuSchema = z
 export const productImageInputSchema = z.object({
   url: httpUrlSchema,
   alt: z.string().trim().min(1, { error: "Describe la imagen (texto alternativo)." }).max(160),
+  color: z.string().trim().max(60).optional().nullable(),
   order: z.number().int().min(0).default(0),
   publicId: z.string().trim().optional().nullable(),
 });
@@ -77,12 +78,14 @@ export const productCsvRowSchema = z.object({
   }),
   categoria: z.string().trim().min(1, { error: "La categoría es obligatoria." }),
   subcategoria: z.string().trim().optional().default(""),
-  publico: z.string().trim().optional().default("unisex"),
+  // Sin valor por defecto: en una actualización, una columna ausente o vacía
+  // conserva el valor actual; en una creación se usa UNISEX/DISPONIBLE.
+  publico: z.string().trim().optional().default(""),
   tallas: z.string().trim().optional().default(""),
   colores: z.string().trim().optional().default(""),
   material: z.string().trim().optional().default(""),
   fotos: z.string().trim().optional().default(""),
-  estado: z.string().trim().optional().default("disponible"),
+  estado: z.string().trim().optional().default(""),
   etiquetas: z.string().trim().optional().default(""),
   campana: z.string().trim().optional().default(""),
   precio: z.string().trim().optional().default(""),

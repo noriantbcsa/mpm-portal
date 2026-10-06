@@ -79,16 +79,22 @@ producción:
 
 ```bash
 DATABASE_URL="<url-de-produccion>" npx prisma migrate deploy
-DATABASE_URL="<url-de-produccion>" npm run db:seed
+DATABASE_URL="<url-de-produccion>" SEED_ADMIN_PASSWORD="<contraseña-propia-de-10+-caracteres>" npm run db:seed
 # Solo si el entorno todavía tiene categorías/productos/campañas de
 # demostración de una versión anterior del portal (no debería, en un
 # entorno nuevo):
 DATABASE_URL="<url-de-produccion>" npm run db:remove-demo-content
 ```
 
+Contra una base que no sea local, el seed **no** crea cuentas con la
+contraseña pública de demostración: sin `SEED_ADMIN_PASSWORD` omite los
+usuarios, y con ella crea solo `admin@mpm.local` con esa contraseña (nunca la
+cuenta de ventas de prueba). Si la cuenta ya existe, no se modifica.
+
 `npm run db:seed` es seguro de repetir más adelante (por ejemplo, para
-actualizar las fotos cuando MPM entregue nuevas): solo hace upserts por
-`sku`/`email`. `npm run db:remove-demo-content` en cambio borra por nombre
+actualizar las fotos cuando MPM entregue nuevas): en referencias existentes
+solo reemplaza las fotos — nombre, descripción, categoría, tallas, etiquetas
+y precio editados desde `/admin` se conservan. `npm run db:remove-demo-content` en cambio borra por nombre
 de slug — solo corre esto si de verdad necesitas limpiar datos de
 demostración; nunca lo agregues de vuelta al `buildCommand`.
 
@@ -98,8 +104,9 @@ Tras el primer arranque:
    `/admin/productos` cuando MPM los suministre.
 2. Entra a `/admin/ajustes` y reemplaza la identidad provisional (colores,
    WhatsApp, textos) por los datos reales de MPM.
-3. Cambia la contraseña de `admin@mpm.local` (la de siembra,
-   `CambiaEsto123!`, es pública en este mismo documento y en el README).
+3. Entra con `admin@mpm.local` y la contraseña de `SEED_ADMIN_PASSWORD`;
+   crea las cuentas reales del equipo desde `/admin/usuarios` y, si quieres,
+   cambia el correo/contraseña del administrador inicial.
 
 ## 5. Imágenes remotas
 
@@ -129,7 +136,9 @@ lista (en vez de permitir cualquier dominio).
 
 - [ ] `AUTH_SECRET` de producción generado y distinto al de desarrollo
       (Render lo genera solo la primera vez — no lo pises a mano).
-- [ ] Migraciones aplicadas (`prisma migrate deploy`).
+- [ ] Migraciones aplicadas (`prisma migrate deploy`), incluida
+      `20261001120000_anchor_campaign_dates_to_bogota`, que corrige las
+      fechas de campañas ya guardadas.
 - [ ] Al menos un usuario `ADMIN` real creado, con contraseña propia (no
       `CambiaEsto123!`).
 - [ ] Las 18 referencias del catálogo real revisadas y sus imágenes WebP visibles.

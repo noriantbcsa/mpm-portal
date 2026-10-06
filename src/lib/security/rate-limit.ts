@@ -46,10 +46,18 @@ export function consumeRateLimit(key: string, { limit, windowMs }: RateLimit) {
   };
 }
 
-/** Identificador de origen para límites de frecuencia, sin guardar PII. */
+/**
+ * Identificador de origen para límites de frecuencia, sin guardar PII.
+ *
+ * Se prefiere `CF-Connecting-IP`, que Cloudflare (delante de Render) siempre
+ * sobrescribe con la IP real. `True-Client-IP` solo lo fija Cloudflare en
+ * algunos planes, así que no se usa: si el borde no lo pisa, el cliente
+ * podría elegir su propio contador. El primer valor de `X-Forwarded-For` lo
+ * controla el cliente; solo es el último recurso (p. ej. desarrollo local).
+ */
 export async function getRequestRateLimitKey() {
   const requestHeaders = await headers();
-  const forwarded = requestHeaders.get("x-forwarded-for");
-  const clientIp = forwarded?.split(",")[0]?.trim() || requestHeaders.get("x-real-ip");
-  return clientIp || "unknown";
+  const trusted = requestHeaders.get("cf-connecting-ip") ?? requestHeaders.get("x-real-ip");
+  const forwarded = requestHeaders.get("x-forwarded-for")?.split(",")[0];
+  return (trusted ?? forwarded)?.trim() || "unknown";
 }

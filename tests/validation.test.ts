@@ -147,3 +147,56 @@ describe("siteSettingsFormSchema", () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe("campaign dates (Colombia calendar days)", () => {
+  it("anchors start and end to the Bogotá day boundaries", async () => {
+    const { campaignStartFromDateKey, campaignEndFromDateKey, toColombiaDateKey } = await import(
+      "@/lib/validation/campaign"
+    );
+    const start = campaignStartFromDateKey("2026-10-31");
+    const end = campaignEndFromDateKey("2026-10-31");
+    expect(start.toISOString()).toBe("2026-10-31T05:00:00.000Z");
+    expect(end.toISOString()).toBe("2026-11-01T04:59:59.999Z");
+    expect(toColombiaDateKey(start)).toBe("2026-10-31");
+    expect(toColombiaDateKey(end)).toBe("2026-10-31");
+  });
+
+  it("rejects non-hex campaign colors", async () => {
+    const { campaignFormSchema } = await import("@/lib/validation/campaign");
+    const base = { name: "Campaña", isActive: false };
+    expect(campaignFormSchema.safeParse({ ...base, colorPrimary: "#E4572E" }).success).toBe(true);
+    expect(campaignFormSchema.safeParse({ ...base, colorPrimary: "red; background:url(x)" }).success).toBe(false);
+  });
+});
+
+describe("catalog search params", () => {
+  it("drops unknown enum values instead of passing them to Prisma", async () => {
+    const { parseCatalogParams, hasCatalogFilters } = await import("@/lib/catalog-params");
+    const parsed = parseCatalogParams({ publico: "x", etiqueta: ["foo", "OFERTA"], orden: "drop table", pagina: "-3" });
+    expect(parsed.publico).toBeUndefined();
+    expect(parsed.etiqueta).toEqual(["OFERTA"]);
+    expect(parsed.orden).toBeUndefined();
+    expect(parsed.pagina).toBe(1);
+    expect(hasCatalogFilters(parseCatalogParams({}))).toBe(false);
+    expect(hasCatalogFilters(parsed)).toBe(true);
+  });
+
+  it("keeps valid values and caps the search length", async () => {
+    const { parseCatalogParams } = await import("@/lib/catalog-params");
+    const parsed = parseCatalogParams({ publico: "MUJER", orden: "nombre-asc", q: "a".repeat(500) });
+    expect(parsed.publico).toBe("MUJER");
+    expect(parsed.orden).toBe("nombre-asc");
+    expect(parsed.q).toHaveLength(100);
+  });
+});
+
+describe("site settings internal links", () => {
+  it("rejects protocol-relative tricks", async () => {
+    const { siteSettingsFormSchema } = await import("@/lib/validation/site-settings");
+    const shape = siteSettingsFormSchema.shape as Record<string, { safeParse: (v: unknown) => { success: boolean } }>;
+    const href = shape.heroCtaHref;
+    expect(href.safeParse("/catalogo").success).toBe(true);
+    expect(href.safeParse("//evil.com").success).toBe(false);
+    expect(href.safeParse("/\\evil.com").success).toBe(false);
+  });
+});

@@ -2,6 +2,8 @@ import "server-only";
 
 import { cache } from "react";
 
+import type { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
 
 /** Opciones compactas para que administración elija referencias de una campaña. */
@@ -17,16 +19,31 @@ export async function getCampaignProductOptions() {
   });
 }
 
+/** Campaña activa y dentro de su vigencia en este momento. */
+export function liveCampaignWhere(now = new Date()) {
+  return {
+    isActive: true,
+    AND: [
+      { OR: [{ startDate: null }, { startDate: { lte: now } }] },
+      { OR: [{ endDate: null }, { endDate: { gte: now } }] },
+    ],
+  } satisfies Prisma.CampaignWhereInput;
+}
+
 export const getActiveCampaign = cache(async () => {
-  const now = new Date();
   return prisma.campaign.findFirst({
-    where: {
-      isActive: true,
-      AND: [
-        { OR: [{ startDate: null }, { startDate: { lte: now } }] },
-        { OR: [{ endDate: null }, { endDate: { gte: now } }] },
-      ],
-    },
+    where: liveCampaignWhere(),
+    // Si por error quedaran dos activas, se muestra siempre la más reciente
+    // en vez de una distinta en cada consulta.
+    orderBy: { updatedAt: "desc" },
     include: { priorityCategories: true },
+  });
+});
+
+/** Página pública de campaña: solo existe mientras la campaña está vigente. */
+export const getLiveCampaignBySlug = cache(async (slug: string) => {
+  return prisma.campaign.findFirst({
+    where: { slug, ...liveCampaignWhere() },
+    include: { priorityCategories: { where: { isVisible: true } } },
   });
 });
