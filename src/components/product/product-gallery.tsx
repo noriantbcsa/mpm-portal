@@ -64,13 +64,12 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
       )}
     >
       {hasMultipleImages && (
-        <div className="order-2 flex gap-2 overflow-x-auto pb-1 sm:order-1 sm:max-h-[calc(100vh-9rem)] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden" role="tablist" aria-label="Vistas del producto">
+        <div className="order-2 flex gap-2 overflow-x-auto pb-1 sm:order-1 sm:max-h-[calc(100vh-9rem)] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden" role="group" aria-label="Vistas del producto">
           {images.map((image, index) => (
             <button
               key={image.url}
               type="button"
-              role="tab"
-              aria-selected={index === active}
+              aria-pressed={index === active}
               aria-label={`Ver ${viewLabel(image, index)}`}
               onClick={() => setActive(index)}
               className={cn(
@@ -82,7 +81,6 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
               <span className="absolute inset-x-0 bottom-0 bg-ink/75 px-1 py-1 text-[8px] font-bold uppercase leading-tight tracking-[0.06em] text-white">
                 {image.color ?? viewLabel(image, index)}
               </span>
-              <span className="sr-only">{viewLabel(image, index)}</span>
             </button>
           ))}
         </div>

@@ -5,6 +5,11 @@ import { getSiteSettings } from "@/lib/site-config";
 export const size = { width: 64, height: 64 };
 export const contentType = "image/png";
 
+// Se regenera cada 5 minutos: sin esto Next la dejaba estática (congelada en
+// el build), y cambiar nombre/color en /admin/ajustes no llegaba al favicon ni
+// a la imagen para compartir hasta el siguiente despliegue.
+export const revalidate = 300;
+
 // Ícono generado a partir de SiteSettings (identidad provisional): la
 // inicial del nombre del sitio sobre el color de marca. Si más adelante hay
 // un logo real, basta con subir el favicon manualmente a `src/app/icon.*` o

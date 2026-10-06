@@ -74,13 +74,13 @@ export function AddToCartForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {sizes.length > 0 && (
-        <div>
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink">Talla</span>
+        <fieldset>
+          <legend className="text-xs font-bold uppercase tracking-[0.12em] text-ink">Talla</legend>
           <div className="mt-1.5 flex flex-wrap gap-2">
             {sizes.map((s) => (
               <label
                 key={s}
-                className="has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white focus-within:ring-2 focus-within:ring-brand-secondary cursor-pointer border border-line px-3 py-2 text-xs font-bold uppercase tracking-[0.06em] text-ink-soft"
+                className="has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white focus-ring-within cursor-pointer border border-line px-3 py-2 text-xs font-bold uppercase tracking-[0.06em] text-ink-soft"
               >
                 <input
                   type="radio"
@@ -94,17 +94,17 @@ export function AddToCartForm({
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
       )}
 
       {colors.length > 0 && (
-        <div>
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink">Color: <span className="font-medium normal-case tracking-normal">{color}</span></span>
+        <fieldset>
+          <legend className="text-xs font-bold uppercase tracking-[0.12em] text-ink">Color: <span className="font-medium normal-case tracking-normal">{color}</span></legend>
           <div className="mt-1.5 flex flex-wrap gap-2">
             {colors.map((c) => (
               <label
                 key={c}
-                className="has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white focus-within:ring-2 focus-within:ring-brand-secondary cursor-pointer border border-line px-3 py-2 text-xs font-bold uppercase tracking-[0.06em] text-ink-soft"
+                className="has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-white focus-ring-within cursor-pointer border border-line px-3 py-2 text-xs font-bold uppercase tracking-[0.06em] text-ink-soft"
               >
                 <input
                   type="radio"
@@ -118,7 +118,7 @@ export function AddToCartForm({
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
       )}
 
       <div>

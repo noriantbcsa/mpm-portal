@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { catalogColorKey, formatCatalogColor, isFilterableCatalogColor } from "@/lib/catalog-colors";
+import {
+  catalogColorKey,
+  formatCatalogColor,
+  isFilterableCatalogColor,
+  isFilterableCatalogSize,
+} from "@/lib/catalog-colors";
 
 describe("catalogColorKey", () => {
   it("expande el prefijo 'V.'/'V ' a 'VERDE' en vez de borrarlo", () => {
@@ -46,5 +51,19 @@ describe("isFilterableCatalogColor", () => {
 
   it("acepta un color real", () => {
     expect(isFilterableCatalogColor("Blanco")).toBe(true);
+  });
+});
+
+describe("isFilterableCatalogSize", () => {
+  it("conserva tallas numéricas (no se les quitan los números como a los colores)", () => {
+    expect(isFilterableCatalogSize("38")).toBe(true);
+    expect(isFilterableCatalogSize("2")).toBe(true);
+    expect(isFilterableCatalogSize("XXL")).toBe(true);
+    expect(isFilterableCatalogSize("Talla única")).toBe(true);
+  });
+
+  it("descarta el texto de reserva y los vacíos", () => {
+    expect(isFilterableCatalogSize("Consultar disponibilidad")).toBe(false);
+    expect(isFilterableCatalogSize("  ")).toBe(false);
   });
 });

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight, MessageCircle, ShoppingBag } from "lucide-react";
 
 import { getSiteSettings } from "@/lib/site-config";
+import { getSiteUrl } from "@/lib/site-url";
 import { getActiveCampaign } from "@/lib/campaigns";
 import { getCategoryTree } from "@/lib/categories";
 import { listProducts } from "@/lib/products";
@@ -35,7 +36,7 @@ export default async function HomePage() {
   const latestProducts = latestResult.items;
   const heroImage = settings.heroImageUrl ?? latestProducts[0]?.images[0]?.url ?? null;
   const whatsappHref = buildWhatsAppLink(settings.whatsappNumber, settings.whatsappDefaultMessage);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const spotlightCategories = [women, men].filter((category): category is NonNullable<typeof category> => Boolean(category));
   return (
     <div>

@@ -5,6 +5,11 @@ import { getSiteSettings } from "@/lib/site-config";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+// Se regenera cada 5 minutos: sin esto Next la dejaba estática (congelada en
+// el build), y cambiar nombre/color en /admin/ajustes no llegaba al favicon ni
+// a la imagen para compartir hasta el siguiente despliegue.
+export const revalidate = 300;
+
 // Imagen genérica para compartir en redes (WhatsApp, Facebook, etc.) cuando
 // una página no define la suya propia (por ejemplo, un producto sin fotos
 // todavía). Next.js usa automáticamente la más específica disponible por

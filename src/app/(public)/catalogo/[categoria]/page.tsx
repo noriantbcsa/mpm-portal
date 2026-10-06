@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { getCatalogFilterOptions, listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
@@ -57,6 +57,9 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
   ]);
 
   const buildHref = (nextPage: number) => buildCatalogHref(`/catalogo/${categoria}`, filters, nextPage);
+  // Una página más allá de la última se redirige a la página real en vez de
+  // servir un duplicado de la última con canónica propia.
+  if (page !== pagina) redirect(buildHref(page));
 
   return (
     <>

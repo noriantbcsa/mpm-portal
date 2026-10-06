@@ -42,6 +42,24 @@ export async function saveCategoryAction(
     }
   }
 
+  if (data.parentId) {
+    // Solo dos niveles (categoría → subcategoría): las reglas de visibilidad
+    // pública (PUBLIC_CATEGORY_WHERE y las vistas PHP) miran únicamente al
+    // padre directo, así que una tercera capa bajo una categoría oculta
+    // seguiría siendo pública.
+    const parent = await prisma.category.findUnique({
+      where: { id: data.parentId },
+      select: { parentId: true },
+    });
+    if (!parent) return { status: "error", message: "La categoría padre ya no existe." };
+    if (parent.parentId !== null) {
+      return { status: "error", message: "Las categorías admiten solo dos niveles: elige una categoría principal como padre." };
+    }
+    if (id && (await prisma.category.count({ where: { parentId: id } })) > 0) {
+      return { status: "error", message: "Esta categoría ya tiene subcategorías, así que no puede ser subcategoría de otra." };
+    }
+  }
+
   if (id) {
     await prisma.category.update({
       where: { id },

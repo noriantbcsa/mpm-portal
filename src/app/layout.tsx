@@ -4,14 +4,13 @@ import { headers } from "next/headers";
 
 import { getSiteSettings } from "@/lib/site-config";
 import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   return {
-    metadataBase: new URL(siteUrl),
+    metadataBase: new URL(getSiteUrl()),
     title: {
       default: `${settings.siteName} · ${settings.tagline}`,
       template: `%s · ${settings.siteName}`,

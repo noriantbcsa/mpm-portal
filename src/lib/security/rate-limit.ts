@@ -27,10 +27,19 @@ export function consumeRateLimit(key: string, { limit, windowMs }: RateLimit) {
     for (const [bucketKey, bucket] of buckets) {
       if (bucket.resetAt <= now) buckets.delete(bucketKey);
     }
-    // Evita que claves aleatorias conviertan el rate limiter en un consumo de
-    // memoria no acotado. Perder límites antiguos es preferible a degradar el
-    // proceso completo.
-    if (buckets.size >= MAX_BUCKETS) buckets.clear();
+    // Si sigue lleno (claves aleatorias que todavía no vencen), se descartan
+    // solo las más antiguas —el Map conserva el orden de inserción—. Antes se
+    // hacía `buckets.clear()`: bastaba generar ~10 000 claves distintas
+    // (p. ej. correos inventados) para borrar los contadores de todos los
+    // demás, incluido el envío de solicitudes del carrito.
+    if (buckets.size >= MAX_BUCKETS) {
+      const toDrop = Math.ceil(MAX_BUCKETS * 0.1);
+      let dropped = 0;
+      for (const bucketKey of buckets.keys()) {
+        buckets.delete(bucketKey);
+        if (++dropped >= toDrop) break;
+      }
+    }
   }
 
   const current = buckets.get(key);

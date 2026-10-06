@@ -68,12 +68,17 @@ describe("loginAction — bloqueo por intentos fallidos", () => {
       name: "Test",
     });
 
+    updateMock.mockResolvedValue({ failedLoginAttempts: 3 });
+
     const result = await loginAction(undefined, formDataFor("user@mpm.local", "Incorrecta"));
 
     expect(result).toEqual({ error: "Correo o contraseña incorrectos." });
+    // Incremento atómico en la base, no "leer + escribir el total".
+    expect(updateMock).toHaveBeenCalledTimes(1);
     expect(updateMock).toHaveBeenCalledWith({
       where: { id: "u1" },
-      data: { failedLoginAttempts: 3, lockedUntil: null },
+      data: { failedLoginAttempts: { increment: 1 } },
+      select: { failedLoginAttempts: true },
     });
   });
 
@@ -89,10 +94,13 @@ describe("loginAction — bloqueo por intentos fallidos", () => {
       name: "Test",
     });
 
+    // La base devuelve el valor ya incrementado (5): ahí se decide bloquear.
+    updateMock.mockResolvedValueOnce({ failedLoginAttempts: 5 }).mockResolvedValueOnce({});
+
     const result = await loginAction(undefined, formDataFor("user@mpm.local", "Incorrecta"));
 
     expect(result?.error).toContain("bloqueada por 15 minutos");
-    expect(updateMock).toHaveBeenCalledWith({
+    expect(updateMock).toHaveBeenLastCalledWith({
       where: { id: "u1" },
       data: { failedLoginAttempts: 0, lockedUntil: expect.any(Date) },
     });

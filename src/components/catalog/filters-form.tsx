@@ -38,6 +38,7 @@ export function FiltersForm({
         <legend className="text-sm font-semibold text-ink">Ordenar por</legend>
         <select
           name="orden"
+          aria-label="Ordenar por"
           defaultValue={active.orden ?? "relevancia"}
           className="focus-ring mt-2 w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm"
         >
@@ -91,7 +92,7 @@ export function FiltersForm({
           {options.sizes.map((size) => (
             <label
               key={size}
-              className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:text-brand-primary"
+              className="focus-ring-within flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:text-brand-primary"
             >
               <input
                 type="checkbox"
@@ -110,6 +111,7 @@ export function FiltersForm({
         <legend className="text-sm font-semibold text-ink">Color</legend>
         <select
           name="color"
+          aria-label="Color"
           defaultValue={active.color[0] ?? ""}
           className="focus-ring mt-2 w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink"
         >

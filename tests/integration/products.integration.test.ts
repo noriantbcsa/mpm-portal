@@ -3,7 +3,7 @@ import "./test-db";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { prisma } from "@/lib/prisma";
-import { listProducts } from "@/lib/products";
+import { getCatalogFilterOptions, incrementProductViewCount, listProducts } from "@/lib/products";
 
 // Requiere una base de datos de pruebas real (ver tests/integration/test-db.ts).
 // Si no está disponible (por ejemplo, una máquina sin Docker/Postgres
@@ -153,5 +153,55 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
     expect(result.page).toBe(1);
     expect(result.items).toHaveLength(1);
     expect(result.items[0].sku).toBe("IT-0004");
+  });
+
+  it("contar una vista incrementa viewCount pero NO reescribe updatedAt (que ordena el catálogo)", async () => {
+    const before = await prisma.product.findUniqueOrThrow({ where: { sku: "IT-0001" } });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    await incrementProductViewCount(before.id);
+    await incrementProductViewCount(before.id);
+
+    const after = await prisma.product.findUniqueOrThrow({ where: { sku: "IT-0001" } });
+    expect(after.viewCount).toBe(before.viewCount + 2);
+    expect(after.updatedAt.getTime()).toBe(before.updatedAt.getTime());
+  });
+
+  it("el orden por defecto es estable: sin repetir ni saltar filas entre páginas", async () => {
+    const all = await listProducts({ pageSize: 50, q: "IT-000" });
+    const seen: string[] = [];
+    for (let page = 1; page <= all.total; page += 1) {
+      const result = await listProducts({ pageSize: 1, page, q: "IT-000" });
+      seen.push(...result.items.map((item) => item.id));
+    }
+    expect(new Set(seen).size).toBe(seen.length);
+    expect(seen).toHaveLength(all.total);
+  });
+
+  it("el filtro de color encuentra variantes guardadas con otro nombre (mayúsculas, número final, V. = Verde)", async () => {
+    await prisma.product.create({
+      data: {
+        sku: "IT-0005", name: "Blusa variantes", slug: "it-blusa-variantes", description: "Prueba de variantes de color.",
+        categoryId: vestidosId, audience: "MUJER", sizes: ["38", "Consultar disponibilidad"],
+        colors: ["BLANCO 1", "V. CALI"], status: "DISPONIBLE", tags: [],
+      },
+    });
+
+    const white = await listProducts({ colors: ["Blanco"], q: "IT-0005" });
+    expect(white.items.map((p) => p.sku)).toEqual(["IT-0005"]);
+
+    const green = await listProducts({ colors: ["Verde Cali"], q: "IT-0005" });
+    expect(green.items.map((p) => p.sku)).toEqual(["IT-0005"]);
+
+    const none = await listProducts({ colors: ["Fucsia"], q: "IT-0005" });
+    expect(none.total).toBe(0);
+  });
+
+  it("las opciones de filtro conservan tallas numéricas y excluyen el texto de reserva", async () => {
+    const options = await getCatalogFilterOptions("it-vestidos");
+    expect(options.sizes).toContain("38");
+    expect(options.sizes).not.toContain("Consultar disponibilidad");
+    expect(options.colors).toContain("Blanco");
+    expect(options.colors).toContain("Verde Cali");
   });
 });

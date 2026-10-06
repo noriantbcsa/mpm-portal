@@ -27,8 +27,20 @@
   los 15 minutos desde `/admin/usuarios/[id]` (botón "Desbloquear ahora").
   Probado con un usuario de prueba real en el navegador (5 intentos fallidos
   → bloqueo → la contraseña correcta sigue rechazada → desbloqueo manual) y
-  con pruebas unitarias (`tests/login-lockout.test.ts`).
-- **Límite de frecuencia adicional**: el login se limita por IP y correo; la
+  con pruebas unitarias (`tests/login-lockout.test.ts`). El contador se
+  incrementa de forma **atómica** en la base (`{ increment: 1 }`): leer el
+  valor, sumar 1 y escribir el total dejaba que intentos paralelos (bcrypt
+  tarda ~250 ms) esquivaran el bloqueo.
+  *Riesgo aceptado*: como el correo del administrador es conocido, alguien
+  puede mantener bloqueada esa cuenta enviando 5 contraseñas malas cada 15
+  minutos (denegación de servicio, no acceso). Lo acotan el límite por IP del
+  login y que otro administrador puede desbloquearla; si el panel se expone
+  ampliamente, usa un WAF y un segundo administrador.
+- **Límite de frecuencia adicional**: el login se limita por IP + correo (10 por
+  15 min) y además por IP sola (30 por 15 min, para frenar probar muchos correos
+  distintos); al llenarse, el limitador descarta solo las claves más antiguas
+  (antes un `clear()` total permitía borrar los contadores de todos generando
+  ~10 000 claves). El cambio de contraseña propio se limita por usuario. La
   sincronización y el envío público del carrito se limitan por IP. Es una
   barrera local de proceso; al desplegar varias instancias debe complementarse
   con el WAF/rate limit del proveedor, porque esa memoria no se comparte.
@@ -36,6 +48,13 @@
   proveedor) antes que del primer valor de
   `X-Forwarded-For`, que el cliente puede falsificar
   (`src/lib/security/rate-limit.ts`).
+- **Autoservicio de contraseña** (`/admin/perfil`): exige la contraseña actual,
+  se limita por usuario (5 intentos / 15 min), sube `sessionVersion` (cierra las
+  demás sesiones) y renueva la cookie de la sesión actual.
+- **Cuándo se cierran las sesiones de un usuario**: al cambiar su contraseña,
+  su rol o su estado activo (`updateUserAction`), al cerrar sesión y al cambiar
+  la propia contraseña. Antes reactivar una cuenta desactivada revivía un JWT
+  viejo aún no vencido.
 - **Anti-spam del carrito**: el formulario público incluye un campo trampa
   invisible (`website`); si llega con contenido, la acción responde como
   éxito sin guardar nada.
@@ -100,6 +119,11 @@
   `script-src` estricto. Esto reduce XSS y clickjacking sin habilitar scripts
   inline arbitrarios. Si se añade una fuente externa de scripts, imágenes o
   conexiones, revísala explícitamente en esa política antes de permitirla.
+- También `Cross-Origin-Opener-Policy: same-origin`; se desactiva
+  `X-Powered-By`. `style-src 'unsafe-inline'` es un compromiso conocido
+  (estilos de marca en atributos `style` y `next/image`); lo que importa —
+  ejecución de scripts— sigue restringido por el nonce.
+- Los fondos estacionales (`/seasonal/*`) se sirven con caché de un día.
 
 ## Imágenes remotas
 
@@ -139,7 +163,7 @@ motor de consultas de Prisma) y `esbuild`/`unrs-resolver` (binarios nativos
 de herramientas de build). No apruebes un script nuevo sin revisar qué
 paquete lo pide y por qué.
 
-## Qué falta antes de producción (ver también `docs/AUDIT_LOOP_4.md`, sección "Pendiente")
+## Qué falta antes de producción (ver también `docs/AUDIT_LOOP_5.md`, sección "Pendiente")
 
 - Revisión legal real del texto de `/politica-de-datos`.
 - Generar un `AUTH_SECRET` de producción propio (nunca reusar el de
@@ -151,6 +175,17 @@ paquete lo pide y por qué.
 - Cambiar o eliminar las credenciales de demostración (`admin@mpm.local` /
   `CambiaEsto123!`) si existen en la base de producción (el seed actual ya no
   las crea fuera de una base local).
+- **Vista PHP y precios**: `integration.catalog_products.price_ref` es `NULL`
+  mientras `SiteSettings.showPrices` esté apagado (migración
+  `20261006180000_…`); antes la vista exponía el precio de referencia aunque el
+  sitio lo ocultara.
+- **Categorías**: solo dos niveles (categoría → subcategoría). La visibilidad
+  pública (y las vistas PHP) solo mira al padre directo, así que un tercer nivel
+  bajo una categoría oculta habría seguido siendo público.
+- **Dependencias**: `npm audit --omit=dev` = 0 vulnerabilidades (el CI lo
+  exige). Queda un aviso de `braces` en la cadena de `eslint-config-next`
+  (solo lint, no se despliega) sin versión parcheada; forzar el "arreglo"
+  degradaría `eslint-config-next` a la 14.
 - Configurar un WAF/rate limiter distribuido en el CDN/proveedor antes de
   exponer ampliamente el panel. El límite local protege una instancia, pero
   no sustituye esa capa ante tráfico distribuido.

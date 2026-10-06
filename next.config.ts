@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // No anunciar la tecnología del servidor en cada respuesta.
+  poweredByHeader: false,
   // TypeScript 5 expone la API completa. Usarla evita depender de un proceso
   // separado para el chequeo de tipos durante el build (más estable en CI y
   // contenedores con procesos aislados).
@@ -29,11 +31,20 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+          // Aísla el contexto de navegación de ventanas de otros orígenes.
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
         ],
+      },
+      {
+        // Los fondos estacionales son estáticos y pesan ~100–175 KB cada uno;
+        // `public/` se servía con max-age=0, así que se volvían a descargar en
+        // cada visita. Un día de caché + revalidación en segundo plano.
+        source: "/seasonal/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       },
     ];
   },

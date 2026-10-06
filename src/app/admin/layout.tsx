@@ -25,7 +25,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <div className="flex min-h-screen flex-1 flex-col">
           <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
             <div>
-              <p className="text-sm font-medium text-slate-900">{user.name}</p>
+              <Link href="/admin/perfil" className="text-sm font-medium text-slate-900 hover:underline">
+                {user.name}
+              </Link>
               <p className="text-xs text-slate-500">{ROLE_LABELS[user.role]}</p>
             </div>
             <div className="flex items-center gap-2">

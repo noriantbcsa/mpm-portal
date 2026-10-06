@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { getCatalogFilterOptions, listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
@@ -49,6 +50,9 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
   ]);
 
   const buildHref = (nextPage: number) => buildCatalogHref("/catalogo", filters, nextPage);
+  // Una página más allá de la última ya no se sirve como duplicado de la
+  // última (con canónica propia): se redirige a la página real.
+  if (page !== pagina) redirect(buildHref(page));
 
   return (
     <>

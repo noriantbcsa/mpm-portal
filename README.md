@@ -98,6 +98,15 @@ cualquier otra base (p. ej. la de Render) **no** las crea: exige
 | Administrador general | `admin@mpm.local` | `CambiaEsto123!` |
 | Equipo de ventas    | `ventas@mpm.local`  | `CambiaEsto123!` |
 
+### Mi perfil (cada persona del equipo)
+
+Desde `/admin/perfil`, cada administrador o vendedor ve su carga de trabajo
+(solicitudes asignadas por estado y las nuevas sin asignar), edita su nombre y
+**cambia su propia contraseña** (exige la actual; cierra las sesiones abiertas
+en otros dispositivos y mantiene la actual). Un vendedor solo gestiona las
+solicitudes y carritos que están libres o son suyos; un administrador gestiona
+todos.
+
 ## Scripts disponibles
 
 | Script | Qué hace |
@@ -112,6 +121,7 @@ cualquier otra base (p. ej. la de Render) **no** las crea: exige
 | `npm run db:migrate` | Aplica migraciones en desarrollo (`prisma migrate dev`) |
 | `npm run db:migrate:deploy` | Aplica migraciones en producción (`prisma migrate deploy`) |
 | `npm run db:seed` | Ejecuta `prisma/seed.ts` |
+| `npm run db:drift` | Comprueba que las migraciones producen exactamente `schema.prisma` (requiere `SHADOW_DATABASE_URL`, una base desechable; lo corre el CI) |
 | `npm run db:studio` | Abre Prisma Studio para inspeccionar la base de datos |
 | `npm run db:reset` | ⚠️ Borra y recrea la base de datos local desde cero |
 
@@ -158,8 +168,9 @@ más importantes:
   en base de datos) y tiene prioridad sobre esta variable.
 - `NEXT_PUBLIC_SITE_URL` — usado para metadatos SEO (Open Graph, sitemap,
   `robots.txt`, URLs canónicas) y JSON-LD. En producción debe ser el dominio
-  real: si queda en `http://localhost:3000`, las canónicas y el sitemap
-  apuntarán ahí.
+  real. Si no está definida se usa `RENDER_EXTERNAL_URL` (Render la define sola);
+  solo en desarrollo se cae a `http://localhost:3000` (ver `src/lib/site-url.ts`).
+- `DATABASE_POOL_MAX` — opcional; máximo de conexiones del pool (por defecto 5).
 - `SEED_ADMIN_PASSWORD` — solo para `npm run db:seed` contra una base no
   local: contraseña del administrador inicial (mínimo 10 caracteres).
 
@@ -207,8 +218,11 @@ calendario festivo y sus modos automático/manual/apagado:
   `vitest.config.mts`) porque las pruebas de integración comparten una única
   base de datos de pruebas.
 - `npm run typecheck` y `npm run lint` deben quedar sin errores/warnings.
-- Bitácoras de auditoría: `docs/AUDIT_LOOP_1.md` … `docs/AUDIT_LOOP_4.md`
-  (la 4 es la más reciente e incluye los riesgos pendientes).
+- Integración continua: `.github/workflows/ci.yml` corre en cada push/PR a
+  `main` (PostgreSQL real, deriva de migraciones, tipos, lint, pruebas, build y
+  `npm audit --omit=dev`). Un fallo ahí no debe llegar a producción.
+- Bitácoras de auditoría: `docs/AUDIT_LOOP_1.md` … `docs/AUDIT_LOOP_5.md`
+  (la 5 es la más reciente e incluye los riesgos pendientes).
 - `npm run build` debe completar sin errores. Revisa la lista de rutas que
   imprime: cualquier página que dependa de datos editables desde `/admin`
   (SiteSettings, campañas, productos) debe aparecer como `ƒ` (dinámica), no

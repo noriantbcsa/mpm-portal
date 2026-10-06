@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2, CheckCircle2 } from "lucide-react";
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/format";
 import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 import { Button, LinkButton } from "@/components/ui/button";
-import { TextField, TextAreaField } from "@/components/ui/field";
+import { TextField, TextAreaField, SelectField } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   submitCartRequestAction,
@@ -19,6 +19,72 @@ import {
 } from "@/app/(public)/carrito/actions";
 
 const initialState: SubmitCartRequestState = { status: "idle" };
+
+/**
+ * Cantidad de una línea: se puede escribir un número (útil para pedidos al
+ * por mayor, donde llegar a 120 con "+" es inviable) además de usar ±. El
+ * "−" se detiene en 1: antes, restar desde 1 borraba la línea sin avisar
+ * (para quitarla está la papelera). Botones de 40 px para dedos en móvil.
+ */
+function QuantityControl({
+  name,
+  quantity,
+  onChange,
+}: {
+  name: string;
+  quantity: number;
+  onChange: (next: number) => void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+
+  function commit() {
+    if (draft === null) return;
+    const parsed = Number.parseInt(draft, 10);
+    setDraft(null);
+    if (Number.isFinite(parsed) && parsed >= 1) onChange(Math.min(parsed, MAX_CART_ITEM_QUANTITY));
+  }
+
+  const buttonClass = "focus-ring flex h-10 w-10 items-center justify-center disabled:opacity-40";
+  return (
+    <div className="flex items-center rounded-full border border-line">
+      <button
+        type="button"
+        aria-label={`Disminuir cantidad de ${name}`}
+        className={buttonClass}
+        disabled={quantity <= 1}
+        onClick={() => onChange(quantity - 1)}
+      >
+        <Minus className="h-3.5 w-3.5" aria-hidden="true" />
+      </button>
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        aria-label={`Cantidad de ${name}`}
+        className="focus-ring h-10 w-14 bg-transparent text-center text-sm"
+        value={draft ?? String(quantity)}
+        onChange={(event) => setDraft(event.target.value.replace(/\D/g, "").slice(0, 3))}
+        onBlur={commit}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commit();
+          }
+        }}
+      />
+      <button
+        type="button"
+        aria-label={`Aumentar cantidad de ${name}`}
+        className={buttonClass}
+        disabled={quantity >= MAX_CART_ITEM_QUANTITY}
+        onClick={() => onChange(quantity + 1)}
+      >
+        <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
 
 export function CartPageClient({ showPrices }: { showPrices: boolean }) {
   const items = useCartStore((s) => s.items);
@@ -29,6 +95,10 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
 
   const hydrated = useHasHydrated();
   const [state, formAction, pending] = useActionState(submitCartRequestAction, initialState);
+  // Tras un error el servidor devuelve lo que se escribió: React reinicia los
+  // campos no controlados al terminar la acción, y estos valores los repoblan.
+  const values = state.status === "error" ? state.values : undefined;
+  const fieldErrors = state.status === "error" ? state.fieldErrors : undefined;
 
   useEffect(() => {
     if (state.status === "error" && state.unavailableProductIds?.length) {
@@ -140,32 +210,15 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
                     </p>
                   )}
                   <div className="mt-auto flex items-center justify-between pt-2">
-                    <div className="flex items-center rounded-full border border-line">
-                      <button
-                        type="button"
-                        aria-label={`Disminuir cantidad de ${item.name}`}
-                        className="focus-ring p-1.5"
-                        onClick={() => updateQuantity(key, item.quantity - 1)}
-                      >
-                        <Minus className="h-3.5 w-3.5" aria-hidden="true" />
-                      </button>
-                      <span className="w-8 text-center text-sm" aria-live="polite">
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        aria-label={`Aumentar cantidad de ${item.name}`}
-                        className="focus-ring p-1.5 disabled:opacity-40"
-                        disabled={item.quantity >= MAX_CART_ITEM_QUANTITY}
-                        onClick={() => updateQuantity(key, item.quantity + 1)}
-                      >
-                        <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                      </button>
-                    </div>
+                    <QuantityControl
+                      name={item.name}
+                      quantity={item.quantity}
+                      onChange={(next) => updateQuantity(key, next)}
+                    />
                     <button
                       type="button"
                       aria-label={`Quitar ${item.name} del carrito`}
-                      className="focus-ring rounded-full p-2 text-ink-soft hover:bg-danger/10 hover:text-danger"
+                      className="focus-ring flex h-10 w-10 items-center justify-center rounded-full text-ink-soft hover:bg-danger/10 hover:text-danger"
                       onClick={() => removeItem(key)}
                     >
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -189,7 +242,14 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
 
           <h2 className="font-display text-lg font-medium text-ink">Tus datos de contacto</h2>
 
-          <TextField label="Nombre completo" name="contactName" required autoComplete="name" />
+          <TextField
+            label="Nombre completo"
+            name="contactName"
+            required
+            autoComplete="name"
+            defaultValue={values?.contactName}
+            error={fieldErrors?.contactName}
+          />
           <TextField
             label="WhatsApp o teléfono"
             name="contactPhone"
@@ -197,17 +257,36 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
             required
             autoComplete="tel"
             hint="Te contactaremos por este medio."
+            defaultValue={values?.contactPhone}
+            error={fieldErrors?.contactPhone}
           />
-          <TextField label="Ciudad" name="city" required autoComplete="address-level2" />
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
-            Modalidad de compra <span className="font-normal text-ink-soft">(opcional)</span>
-            <select name="companyName" defaultValue="" className="focus-ring border border-line bg-paper px-3 py-2 text-sm font-normal text-ink">
-              <option value="">Selecciona una opción</option>
-              <option value="Al detal">Al detal</option>
-              <option value="Al por mayor">Al por mayor</option>
-            </select>
-          </label>
-          <TextAreaField label="Comentario (opcional)" name="comment" rows={3} />
+          <TextField
+            label="Ciudad"
+            name="city"
+            required
+            autoComplete="address-level2"
+            defaultValue={values?.city}
+            error={fieldErrors?.city}
+          />
+          <SelectField
+            // React no reaplica `defaultValue` a un <select> ya montado; sin
+            // la `key`, el reinicio del formulario lo dejaba en "vacío".
+            key={values?.companyName ?? ""}
+            label="Modalidad de compra (opcional)"
+            name="companyName"
+            defaultValue={values?.companyName ?? ""}
+          >
+            <option value="">Selecciona una opción</option>
+            <option value="Al detal">Al detal</option>
+            <option value="Al por mayor">Al por mayor</option>
+          </SelectField>
+          <TextAreaField
+            label="Comentario (opcional)"
+            name="comment"
+            rows={3}
+            defaultValue={values?.comment}
+            error={fieldErrors?.comment}
+          />
 
           {/* Campo trampa anti-spam: invisible y fuera del orden de tabulación. */}
           <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
@@ -218,7 +297,14 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
           </div>
 
           <label className="flex items-start gap-2 text-sm text-ink-soft">
-            <input type="checkbox" name="dataConsent" required className="mt-1" />
+            <input
+              type="checkbox"
+              name="dataConsent"
+              required
+              defaultChecked={values?.dataConsent}
+              aria-invalid={Boolean(fieldErrors?.dataConsent)}
+              className="mt-1"
+            />
             <span>
               Acepto la{" "}
               <Link href="/politica-de-datos" className="underline hover:text-ink" target="_blank">
@@ -228,9 +314,11 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
             </span>
           </label>
 
-          {state.status === "error" && (
+          {/* Con errores por campo ya se muestran junto a cada campo; este
+              mensaje general queda para los errores que no son de un campo. */}
+          {state.status === "error" && (!fieldErrors || fieldErrors.dataConsent || state.unavailableProductIds) && (
             <p role="alert" className="text-sm font-medium text-danger">
-              {state.message}
+              {fieldErrors?.dataConsent ?? state.message}
             </p>
           )}
 

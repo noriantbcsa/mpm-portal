@@ -73,18 +73,31 @@ export async function updateUserAction(
     return { status: "error", message: "No puedes quitarte a ti mismo el rol de administrador." };
   }
 
+  const existing = await prisma.user.findUnique({
+    where: { id: parsed.data.id },
+    select: { role: true, active: true },
+  });
+  if (!existing) return { status: "error", message: "Ese usuario ya no existe." };
+
+  // Cambiar contraseña, rol o estado activo cierra las sesiones abiertas de
+  // ese usuario (ver sessionVersion en getCurrentUser, src/lib/auth/dal.ts).
+  // Antes solo ocurría con la contraseña: un usuario desactivado y luego
+  // reactivado recuperaba un JWT viejo que aún no había vencido (hasta 7
+  // días), y un cambio de rol dejaba vigentes sesiones emitidas con el rol
+  // anterior.
+  const invalidateSessions =
+    Boolean(parsed.data.password) ||
+    existing.active !== parsed.data.active ||
+    existing.role !== parsed.data.role;
+
   await prisma.user.update({
     where: { id: parsed.data.id },
     data: {
       name: parsed.data.name,
       role: parsed.data.role,
       active: parsed.data.active,
-      // Cambiar la contraseña también cierra cualquier sesión abierta con la
-      // anterior (en este u otro dispositivo): ver sessionVersion en
-      // getCurrentUser (src/lib/auth/dal.ts).
-      ...(parsed.data.password
-        ? { passwordHash: await hashPassword(parsed.data.password), sessionVersion: { increment: 1 } }
-        : {}),
+      ...(parsed.data.password ? { passwordHash: await hashPassword(parsed.data.password) } : {}),
+      ...(invalidateSessions ? { sessionVersion: { increment: 1 } } : {}),
     },
   });
 
@@ -96,7 +109,7 @@ export async function unlockUserAction(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "").trim();
   if (!id) return;
 
-  await prisma.user.update({
+  await prisma.user.updateMany({
     where: { id },
     data: { failedLoginAttempts: 0, lockedUntil: null },
   });

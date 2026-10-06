@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: mpm
+          POSTGRES_PASSWORD: mpm_ci_password
+          POSTGRES_DB: mpm_portal_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mpm -d mpm_portal_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      DATABASE_URL: postgresql://mpm:mpm_ci_password@localhost:5432/mpm_portal_test?schema=public
+      TEST_DATABASE_URL: postgresql://mpm:mpm_ci_password@localhost:5432/mpm_portal_test?schema=public
+      SHADOW_DATABASE_URL: postgresql://mpm:mpm_ci_password@localhost:5432/mpm_portal_shadow?schema=public
+      # Solo para este job: nunca un secreto real.
+      AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Prisma client + migraciones
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+
+      - name: Deriva entre migraciones y schema.prisma
+        run: |
+          PGPASSWORD=mpm_ci_password psql -h localhost -U mpm -d postgres -c 'CREATE DATABASE mpm_portal_shadow;'
+          npm run db:drift
+
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Pruebas (unitarias + integración contra PostgreSQL)
+        run: npm test
+      - run: npm run build
+
+      - name: Vulnerabilidades en dependencias de producción
+        run: npm audit --omit=dev --audit-level=high

@@ -24,7 +24,10 @@ type PageProps = { searchParams: Promise<RawSearchParams> };
 export default async function SolicitudesPage({ searchParams }: PageProps) {
   await requireUser();
   const sp = await searchParams;
-  const status = toSingle(sp.estado) as CartRequestStatus | undefined;
+  // Solo valores conocidos: un `?estado=` inventado llegaba tal cual a Prisma
+  // y respondía con un error 500 en vez de ignorarse.
+  const rawStatus = toSingle(sp.estado);
+  const status = CART_REQUEST_STATUS_ORDER.find((s) => s === rawStatus);
   const assignedToId = toSingle(sp.asesor);
   const q = toSingle(sp.q);
   const pagina = toPositiveInt(sp.pagina, 1);

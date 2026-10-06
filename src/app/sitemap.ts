@@ -4,14 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { PUBLIC_PRODUCT_WHERE } from "@/lib/products";
 import { PUBLIC_CATEGORY_WHERE } from "@/lib/constants";
 import { liveCampaignWhere } from "@/lib/campaigns";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { getSiteUrl } from "@/lib/site-url";
 
 // Regenera el sitemap cada hora en vez de solo en cada despliegue, sin
 // consultar la base de datos en cada visita de un rastreador.
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const siteUrl = getSiteUrl();
   const [products, categories, campaigns] = await Promise.all([
     prisma.product.findMany({
       where: PUBLIC_PRODUCT_WHERE,

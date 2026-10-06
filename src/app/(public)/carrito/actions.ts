@@ -92,10 +92,9 @@ export async function syncCartSessionAction(items: RawCartItem[]): Promise<CartR
     }),
     ...(newlyAddedProductIds.length > 0
       ? [
-          prisma.product.updateMany({
-            where: { id: { in: newlyAddedProductIds } },
-            data: { addToCartCount: { increment: 1 } },
-          }),
+          // SQL directo: `updateMany` de Prisma también reescribe
+          // `Product.updatedAt` (ver incrementProductViewCount).
+          prisma.$executeRaw`UPDATE "Product" SET "addToCartCount" = "addToCartCount" + 1 WHERE "id" IN (${Prisma.join(newlyAddedProductIds)})`,
         ]
       : []),
   ]);
@@ -114,10 +113,41 @@ function cartItemsSignature(
     .join(";");
 }
 
+/** Lo que la persona escribió, para repoblar el formulario tras un error. */
+export type SubmittedContactValues = {
+  contactName: string;
+  contactPhone: string;
+  city: string;
+  companyName: string;
+  comment: string;
+  dataConsent: boolean;
+};
+
 export type SubmitCartRequestState =
   | { status: "idle" }
-  | { status: "error"; message: string; unavailableProductIds?: string[] }
+  | {
+      status: "error";
+      message: string;
+      unavailableProductIds?: string[];
+      // React 19 reinicia los campos no controlados de un <form action> al
+      // terminar la acción: sin devolver estos valores, cualquier error de
+      // validación borraba todo lo que el cliente había escrito.
+      values?: SubmittedContactValues;
+      fieldErrors?: Partial<Record<keyof SubmittedContactValues, string>>;
+    }
   | { status: "success"; whatsappUrl: string };
+
+function submittedValues(formData: FormData): SubmittedContactValues {
+  const text = (name: string) => String(formData.get(name) ?? "").slice(0, 1000);
+  return {
+    contactName: text("contactName"),
+    contactPhone: text("contactPhone"),
+    city: text("city"),
+    companyName: text("companyName"),
+    comment: text("comment"),
+    dataConsent: formData.get("dataConsent") === "on",
+  };
+}
 
 export async function submitCartRequestAction(
   _prevState: SubmitCartRequestState,
@@ -131,6 +161,7 @@ export async function submitCartRequestAction(
     return {
       status: "error",
       message: `Has enviado muchas solicitudes. Intenta de nuevo en ${Math.ceil(rateLimit.retryAfterSeconds / 60)} minutos.`,
+      values: submittedValues(formData),
     };
   }
 
@@ -147,7 +178,11 @@ export async function submitCartRequestAction(
     if (!Array.isArray(decoded)) throw new Error("items must be an array");
     rawItems = decoded.filter((i): i is RawCartItem => typeof i === "object" && i !== null);
   } catch {
-    return { status: "error", message: "No pudimos leer tu carrito. Intenta de nuevo." };
+    return {
+      status: "error",
+      message: "No pudimos leer tu carrito. Intenta de nuevo.",
+      values: submittedValues(formData),
+    };
   }
 
   const parsed = submitCartRequestSchema.safeParse({
@@ -168,8 +203,20 @@ export async function submitCartRequestAction(
   });
 
   if (!parsed.success) {
+    const fieldErrors: NonNullable<Extract<SubmitCartRequestState, { status: "error" }>["fieldErrors"]> = {};
+    for (const issue of parsed.error.issues) {
+      const [group, field] = issue.path;
+      if (group === "contact" && typeof field === "string" && !(field in fieldErrors)) {
+        fieldErrors[field as keyof SubmittedContactValues] = issue.message;
+      }
+    }
     const first = parsed.error.issues[0];
-    return { status: "error", message: first?.message ?? "Revisa los datos del formulario." };
+    return {
+      status: "error",
+      message: first?.message ?? "Revisa los datos del formulario.",
+      values: submittedValues(formData),
+      fieldErrors: Object.keys(fieldErrors).length > 0 ? fieldErrors : undefined,
+    };
   }
 
   const resolvedItems = await resolveCartItems(parsed.data.items);
@@ -179,6 +226,7 @@ export async function submitCartRequestAction(
       status: "error",
       message: "Las prendas de tu carrito ya no están disponibles. Vuelve al catálogo para elegir otras.",
       unavailableProductIds,
+      values: submittedValues(formData),
     };
   }
   if (unavailableProductIds.length > 0) {
@@ -189,6 +237,7 @@ export async function submitCartRequestAction(
       message:
         "Algunas prendas de tu carrito ya no están disponibles y las retiramos. Revisa el carrito y vuelve a enviar tu solicitud.",
       unavailableProductIds,
+      values: submittedValues(formData),
     };
   }
 

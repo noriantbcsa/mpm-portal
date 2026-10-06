@@ -1,10 +1,16 @@
 import "server-only";
 
+import { cache } from "react";
 import type { Prisma, Audience, ProductStatus, ProductTagType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCategorySubtreeIds } from "@/lib/categories";
 import { CATALOG_PAGE_SIZE, PUBLIC_CATEGORY_WHERE, PUBLIC_PRODUCT_STATUSES } from "@/lib/constants";
-import { catalogColorKey, formatCatalogColor, isFilterableCatalogColor } from "@/lib/catalog-colors";
+import {
+  catalogColorKey,
+  formatCatalogColor,
+  isFilterableCatalogColor,
+  isFilterableCatalogSize,
+} from "@/lib/catalog-colors";
 import type { CatalogSort } from "@/lib/catalog-params";
 
 export type { CatalogSort };
@@ -83,12 +89,16 @@ async function buildWhere(filters: CatalogFilters): Promise<Prisma.ProductWhereI
   if (filters.colors && filters.colors.length > 0) {
     // PostgreSQL compara arrays de texto de forma exacta. Buscamos primero las
     // variantes guardadas que representan el color elegido, para que "Blanco"
-    // encuentre también archivos importados como "BLANCO 1" o "V BLANCO".
+    // encuentre también archivos importados como "BLANCO 1" o "V. BLANCO".
+    // Se piden solo los valores DISTINTOS (unas decenas de filas) en vez de
+    // leer las filas completas de todos los productos que cumplen el resto de
+    // filtros, como se hacía antes: coste y memoria crecían con el catálogo.
     const requestedColors = new Set(filters.colors.map(catalogColorKey));
-    const colorRows = await prisma.product.findMany({ where, select: { colors: true } });
-    const matchingStoredColors = [...new Set(
-      colorRows.flatMap((product) => product.colors.filter((color) => requestedColors.has(catalogColorKey(color)))),
-    )];
+    const storedColors = await prisma.$queryRaw<{ color: string }[]>`
+      SELECT DISTINCT unnest("colors") AS color FROM "Product"`;
+    const matchingStoredColors = storedColors
+      .map((row) => row.color)
+      .filter((color) => requestedColors.has(catalogColorKey(color)));
     where.colors = { hasSome: matchingStoredColors.length ? matchingStoredColors : ["__none__"] };
   }
 
@@ -102,12 +112,14 @@ async function buildWhere(filters: CatalogFilters): Promise<Prisma.ProductWhereI
 
 function buildOrderBy(sort?: CatalogSort): Prisma.ProductOrderByWithRelationInput[] {
   switch (sort) {
+    // `id` desempata: sin él, filas con el mismo valor de orden pueden
+    // repetirse o saltarse entre una página y la siguiente.
     case "nombre-asc":
-      return [{ name: "asc" }];
+      return [{ name: "asc" }, { id: "asc" }];
     case "recientes":
-      return [{ createdAt: "desc" }];
+      return [{ createdAt: "desc" }, { id: "asc" }];
     default:
-      return [{ updatedAt: "desc" }];
+      return [{ updatedAt: "desc" }, { id: "asc" }];
   }
 }
 
@@ -151,7 +163,20 @@ export async function listProducts(filters: CatalogFilters = {}) {
  * fija (que puede no coincidir en mayúsculas, acentos o nombres con lo que se
  * importó), el catálogo ofrece exactamente las variantes que sí existen.
  */
+// Calcular las opciones recorre las tallas/colores de todos los productos del
+// ámbito; con el catálogo previsto (300+ referencias y creciendo) hacerlo en
+// cada visita es desperdicio. Se memoiza 60 s por ámbito: un producto nuevo
+// aparece en los filtros como máximo un minuto después. En pruebas no se
+// memoiza para que cada caso vea sus propios datos.
+const FILTER_OPTIONS_TTL_MS = 60_000;
+const filterOptionsCache = new Map<string, { expiresAt: number; value: CatalogFilterOptions }>();
+
 export async function getCatalogFilterOptions(categorySlug?: string): Promise<CatalogFilterOptions> {
+  const cacheKey = categorySlug ?? "";
+  const useCache = process.env.NODE_ENV !== "test";
+  const cached = useCache ? filterOptionsCache.get(cacheKey) : undefined;
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
+
   const where = await buildWhere({ categorySlug });
   const products = await prisma.product.findMany({
     where,
@@ -163,8 +188,8 @@ export async function getCatalogFilterOptions(categorySlug?: string): Promise<Ca
       a.localeCompare(b, "es", { sensitivity: "base" }),
     );
 
-  return {
-    sizes: uniqueSorted(products.flatMap((product) => product.sizes)),
+  const value: CatalogFilterOptions = {
+    sizes: uniqueSorted(products.flatMap((product) => product.sizes).filter(isFilterableCatalogSize)),
     colors: uniqueSorted(
       products
         .flatMap((product) => product.colors)
@@ -172,6 +197,12 @@ export async function getCatalogFilterOptions(categorySlug?: string): Promise<Ca
         .map(formatCatalogColor),
     ),
   };
+
+  if (useCache) {
+    if (filterOptionsCache.size > 200) filterOptionsCache.clear();
+    filterOptionsCache.set(cacheKey, { expiresAt: Date.now() + FILTER_OPTIONS_TTL_MS, value });
+  }
+  return value;
 }
 
 const productDetailInclude = {
@@ -182,17 +213,26 @@ const productDetailInclude = {
 
 export type ProductDetail = Prisma.ProductGetPayload<{ include: typeof productDetailInclude }>;
 
-export async function getProductBySlug(
+// `generateMetadata` y la página piden el mismo producto en la misma petición:
+// con `cache()` la consulta (con todas sus relaciones) se hace una sola vez.
+// Los argumentos son primitivos para que la memoización por argumentos funcione.
+const getProductBySlugCached = cache(
+  async (slug: string, includeHidden: boolean): Promise<ProductDetail | null> => {
+    if (includeHidden) {
+      return prisma.product.findUnique({ where: { slug }, include: productDetailInclude });
+    }
+    return prisma.product.findFirst({
+      where: { slug, status: { in: PUBLIC_PRODUCT_STATUSES }, category: PUBLIC_CATEGORY_WHERE },
+      include: productDetailInclude,
+    });
+  },
+);
+
+export function getProductBySlug(
   slug: string,
   options?: { includeHidden?: boolean },
 ): Promise<ProductDetail | null> {
-  if (options?.includeHidden) {
-    return prisma.product.findUnique({ where: { slug }, include: productDetailInclude });
-  }
-  return prisma.product.findFirst({
-    where: { slug, status: { in: PUBLIC_PRODUCT_STATUSES }, category: PUBLIC_CATEGORY_WHERE },
-    include: productDetailInclude,
-  });
+  return getProductBySlugCached(slug, Boolean(options?.includeHidden));
 }
 
 export async function getRelatedProducts(product: { id: string; categoryId: string }, limit = 4) {
@@ -205,16 +245,7 @@ export async function getRelatedProducts(product: { id: string; categoryId: stri
     },
     select: productListSelect,
     take: limit,
-    orderBy: { updatedAt: "desc" },
-  });
-}
-
-export async function getFeaturedProducts(tag: ProductTagType, limit = 8) {
-  return prisma.product.findMany({
-    where: { tags: { has: tag }, status: { in: PUBLIC_PRODUCT_STATUSES }, category: PUBLIC_CATEGORY_WHERE },
-    select: productListSelect,
-    take: limit,
-    orderBy: { updatedAt: "desc" },
+    orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
   });
 }
 
@@ -224,9 +255,15 @@ export const PUBLIC_PRODUCT_WHERE = {
   category: PUBLIC_CATEGORY_WHERE,
 } satisfies Prisma.ProductWhereInput;
 
+/**
+ * Suma una vista sin tocar `updatedAt`. Un `product.update()` de Prisma
+ * reescribe `@updatedAt`, y ese campo es el orden por defecto del catálogo,
+ * los "relacionados" y el `lastmod` del sitemap: cada visita (incluidos
+ * los bots) reordenaba el catálogo y movía la paginación. Con SQL directo el
+ * contador cambia pero la fecha de edición real del producto no.
+ */
 export async function incrementProductViewCount(productId: string) {
-  await prisma.product.update({
-    where: { id: productId },
-    data: { viewCount: { increment: 1 } },
-  }).catch(() => undefined);
+  await prisma
+    .$executeRaw`UPDATE "Product" SET "viewCount" = "viewCount" + 1 WHERE "id" = ${productId}`
+    .catch(() => undefined);
 }

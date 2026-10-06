@@ -46,3 +46,14 @@ export function isFilterableCatalogColor(value: string) {
   const key = catalogColorKey(value);
   return Boolean(key) && key !== "CONSULTAR DISPONIBILIDAD";
 }
+
+/**
+ * Las tallas no se normalizan como los colores (quitar números finales
+ * convertiría "38" o "2" en vacío); solo se descarta el texto de reserva que
+ * el seed guarda cuando todavía no se conoce la talla, para que no aparezca
+ * como si fuera una talla filtrable.
+ */
+export function isFilterableCatalogSize(value: string) {
+  const trimmed = value.trim();
+  return trimmed !== "" && trimmed.toLowerCase() !== "consultar disponibilidad";
+}

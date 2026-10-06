@@ -23,7 +23,15 @@ function createPrismaClient() {
     );
   }
 
-  const adapter = new PrismaPg({ connectionString });
+  // El pool por defecto del driver (10 conexiones, sin tiempo de espera) es
+  // demasiado para una base pequeña (plan gratuito de Render) y, si se
+  // satura, las consultas esperaban indefinidamente. Acotado y con límite de
+  // espera para que un problema se vea como error en vez de colgar la página.
+  const adapter = new PrismaPg({
+    connectionString,
+    max: Number(process.env.DATABASE_POOL_MAX) || 5,
+    connectionTimeoutMillis: 10_000,
+  });
   return new PrismaClient({ adapter });
 }
 

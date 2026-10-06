@@ -40,7 +40,8 @@ dashboard de Render (Environment), al menos:
 
 | Variable | Notas |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | El dominio asignado por Render (o el dominio propio una vez conectado) |
+| `NEXT_PUBLIC_SITE_URL` | Dominio propio una vez conectado (ej. `https://www.mpm.com.co`). Si no está definida se usa `RENDER_EXTERNAL_URL`, que Render define sola con la URL pública del servicio; sin ninguna de las dos, el sitemap, las canónicas y `og:image` apuntarían a `localhost` (así estaba producción hasta la auditoría 5) |
+| `DATABASE_POOL_MAX` | Opcional. Máximo de conexiones del pool de Prisma (por defecto 5, pensado para el plan gratuito de la base) |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Respaldo; el valor real se administra desde `/admin/ajustes` |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Opcionales — actívalos cuando exista la cuenta definitiva |
 

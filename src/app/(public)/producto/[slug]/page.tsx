@@ -9,6 +9,7 @@ import {
   incrementProductViewCount,
 } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
+import { getSiteUrl } from "@/lib/site-url";
 import {
   AUDIENCE_LABELS,
   PRODUCT_STATUS_LABELS,
@@ -52,7 +53,7 @@ export default async function ProductoPage({ params }: PageProps) {
 
   const canOrder = product.status === "DISPONIBLE" || product.status === "BAJO_PEDIDO";
   const price = settings.showPrices ? formatPrice(product.priceRef ? Number(product.priceRef) : null) : null;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = getSiteUrl();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">

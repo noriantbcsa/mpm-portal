@@ -36,10 +36,13 @@ export async function loginAction(
   const { email, password } = parsed.data;
 
   const rateLimitKey = await getRequestRateLimitKey();
-  const rateLimit = consumeRateLimit(`login:${rateLimitKey}:${email.toLowerCase()}`, {
-    limit: 10,
-    windowMs: 15 * 60_000,
-  });
+  // Dos límites: por IP + correo (frena la fuerza bruta contra una cuenta) y
+  // por IP sola (frena probar muchos correos distintos: la clave con correo
+  // la elige el atacante y por sí sola no limita ese caso).
+  const ipLimit = consumeRateLimit(`login-ip:${rateLimitKey}`, { limit: 30, windowMs: 15 * 60_000 });
+  const rateLimit = ipLimit.allowed
+    ? consumeRateLimit(`login:${rateLimitKey}:${email.toLowerCase()}`, { limit: 10, windowMs: 15 * 60_000 })
+    : ipLimit;
   if (!rateLimit.allowed) {
     return {
       error: `Demasiados intentos. Intenta de nuevo en ${Math.ceil(rateLimit.retryAfterSeconds / 60)} minutos.`,
@@ -66,16 +69,23 @@ export async function loginAction(
   const validPassword = await verifyPassword(password, user.passwordHash);
 
   if (!validPassword) {
-    const attempts = user.failedLoginAttempts + 1;
-    const lockingOut = attempts >= MAX_FAILED_ATTEMPTS;
-    await prisma.user.update({
+    // Incremento atómico en la base de datos: leer el contador, sumar 1 y
+    // escribir el total (lo que se hacía antes) permite que varios intentos
+    // en paralelo —bcrypt tarda ~250 ms, así que se solapan— lean el mismo
+    // valor y escriban el mismo total, esquivando el bloqueo a los 5 intentos.
+    const { failedLoginAttempts } = await prisma.user.update({
       where: { id: user.id },
-      data: {
-        failedLoginAttempts: lockingOut ? 0 : attempts,
-        lockedUntil: lockingOut ? new Date(Date.now() + LOCKOUT_MINUTES * 60_000) : null,
-      },
+      data: { failedLoginAttempts: { increment: 1 } },
+      select: { failedLoginAttempts: true },
     });
-    if (lockingOut) {
+    if (failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedLoginAttempts: 0,
+          lockedUntil: new Date(Date.now() + LOCKOUT_MINUTES * 60_000),
+        },
+      });
       return {
         error: `Demasiados intentos fallidos. Tu cuenta quedó bloqueada por ${LOCKOUT_MINUTES} minutos.`,
       };

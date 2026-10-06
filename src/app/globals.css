@@ -66,6 +66,15 @@ body {
   outline-offset: 1px;
   box-shadow: 0 0 0 4px var(--ink);
 }
+/*
+ * Mismo anillo para las "fichas" de talla/color: el <input> real está oculto
+ * (sr-only) y el foco de teclado debe verse en la ficha que lo contiene.
+ */
+.focus-ring-within:has(:focus-visible) {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 4px var(--ink);
+}
 
 .seasonal-ribbon {
   position: relative;

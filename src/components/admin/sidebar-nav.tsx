@@ -12,6 +12,7 @@ import {
   Users,
   Settings,
   Palette,
+  UserRound,
 } from "lucide-react";
 
 import { cx } from "@/components/admin/ui/controls";
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { href: "/admin/festividades", label: "Diseño festivo", icon: Palette, roles: ["ADMIN"] as Role[] },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users, roles: ["ADMIN"] as Role[] },
   { href: "/admin/ajustes", label: "Ajustes del sitio", icon: Settings, roles: ["ADMIN"] as Role[] },
+  { href: "/admin/perfil", label: "Mi perfil", icon: UserRound, roles: ["ADMIN", "SALES"] as Role[] },
 ];
 
 export function SidebarNav({ role }: { role: Role }) {
