@@ -29,7 +29,7 @@ export function NoteForm({ cartRequestId }: { cartRequestId: string }) {
         name="note"
         rows={2}
         required
-        className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+        className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         placeholder="Ej: cliente confirmó por llamada, pendiente enviar cotización…"
       />
       {state.status === "error" && (

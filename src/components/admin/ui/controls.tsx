@@ -36,7 +36,7 @@ type ButtonVariant = keyof typeof buttonVariants;
 type ButtonSize = keyof typeof buttonSizes;
 
 const buttonBase =
-  "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed";
+  "inline-flex min-h-10 items-center justify-center rounded-md font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed";
 
 export function AdminButton({
   variant = "primary",

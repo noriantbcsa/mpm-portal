@@ -132,7 +132,7 @@ export default async function ProductoPage({ params }: PageProps) {
           ))}
         </div>
 
-        <h1 className="mt-4 font-display text-3xl font-semibold leading-none tracking-[-0.045em] text-ink sm:text-4xl">
+        <h1 className="mt-4 break-words font-display text-3xl font-semibold leading-none tracking-[-0.045em] text-ink sm:text-4xl">
           {product.name}
         </h1>
         <p className="mt-2 text-xs font-medium uppercase tracking-[0.12em] text-ink-soft">Ref. {product.sku}</p>

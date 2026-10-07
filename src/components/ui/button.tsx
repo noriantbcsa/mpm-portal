@@ -25,7 +25,7 @@ export type ButtonVariant = keyof typeof variantClasses;
 export type ButtonSize = keyof typeof sizeClasses;
 
 const base =
-  "focus-ring inline-flex items-center justify-center rounded-none font-semibold uppercase tracking-[0.08em] transition-colors disabled:cursor-not-allowed";
+  "focus-ring inline-flex max-w-full items-center justify-center rounded-none text-center leading-tight font-semibold uppercase tracking-[0.08em] transition-colors disabled:cursor-not-allowed";
 
 type CommonProps = {
   variant?: ButtonVariant;

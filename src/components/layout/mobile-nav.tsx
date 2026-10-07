@@ -38,7 +38,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
       <button
         ref={toggleRef}
         type="button"
-        className="focus-ring inline-flex items-center justify-center rounded-full border border-line p-2"
+        className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-line"
         aria-expanded={open}
         aria-controls="mobile-nav-panel"
         aria-label={open ? "Cerrar menú" : "Abrir menú"}

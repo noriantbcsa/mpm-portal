@@ -46,7 +46,7 @@ export function ProductCard({
             {PRODUCT_STATUS_LABELS[product.status]}
           </span>
         )}
-        <span className="absolute bottom-3 right-3 translate-y-2 bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ink opacity-0 shadow-sm transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+        <span className="absolute bottom-3 right-3 translate-y-2 bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ink opacity-0 shadow-sm transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100">
           Ver prenda
         </span>
       </div>
@@ -54,7 +54,7 @@ export function ProductCard({
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
           {categoryLabel}
         </p>
-        <h3 className="font-display text-sm font-semibold leading-snug text-ink line-clamp-2 sm:text-base">
+        <h3 className="break-words font-display text-sm font-semibold leading-snug text-ink line-clamp-2 sm:text-base">
           {product.name}
         </h3>
         <p className="text-xs text-ink-soft">Ref. {product.sku}</p>

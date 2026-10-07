@@ -78,7 +78,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
               )}
             >
               <Image src={image.url} alt="" fill sizes="72px" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
-              <span className="absolute inset-x-0 bottom-0 bg-ink/75 px-1 py-1 text-[8px] font-bold uppercase leading-tight tracking-[0.06em] text-white">
+              <span className="absolute inset-x-0 bottom-0 break-words bg-ink/75 px-1 py-1 text-[8px] font-bold uppercase leading-tight tracking-[0.06em] text-white">
                 {image.color ?? viewLabel(image, index)}
               </span>
             </button>
@@ -104,7 +104,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           className="object-cover"
         />
         {current.color && (
-          <span className="absolute left-3 top-3 bg-paper px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm">
+          <span className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] break-words bg-paper px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm">
             Color: {current.color}
           </span>
         )}
@@ -112,7 +112,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           ref={expandButtonRef}
           type="button"
           onClick={() => setIsExpanded(true)}
-          className="focus-ring absolute bottom-3 right-3 bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm hover:bg-brand-secondary"
+          className="focus-ring absolute bottom-3 right-3 inline-flex min-h-10 items-center bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm hover:bg-brand-secondary"
         >
           Ampliar foto
         </button>
@@ -124,15 +124,17 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           aria-modal="true"
           aria-label={`Foto ampliada de ${productName}`}
           className="fixed inset-0 z-50 grid place-items-center bg-black/90 p-4"
-          onClick={() => setIsExpanded(false)}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setIsExpanded(false);
+          }}
         >
-          <div className="relative h-[min(86vh,980px)] w-[min(94vw,760px)]" onClick={(event) => event.stopPropagation()}>
+          <div className="relative h-[min(86vh,980px)] w-[min(94vw,760px)]">
             <Image src={current.url} alt={current.alt} fill sizes="94vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-contain" />
             <button
               ref={closeButtonRef}
               type="button"
               onClick={() => setIsExpanded(false)}
-              className="focus-ring absolute right-0 top-0 bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink hover:bg-brand-secondary"
+              className="focus-ring absolute right-0 top-0 inline-flex min-h-10 items-center bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink hover:bg-brand-secondary"
             >
               Cerrar
             </button>

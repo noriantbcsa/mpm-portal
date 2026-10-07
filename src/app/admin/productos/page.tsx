@@ -61,10 +61,17 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
           type="search"
           name="q"
           defaultValue={q}
+          aria-label="Buscar productos"
+          autoComplete="off"
           placeholder="Buscar por nombre o referencia…"
-          className="w-64 rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="w-64 rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         />
-        <select name="categoria" defaultValue={categoria ?? ""} className="rounded-md border border-slate-300 px-3 py-2 text-sm">
+        <select
+          name="categoria"
+          aria-label="Filtrar por categoría"
+          defaultValue={categoria ?? ""}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        >
           <option value="">Todas las categorías</option>
           {categories.map((c) => (
             <option key={c.id} value={c.slug}>
@@ -72,7 +79,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
             </option>
           ))}
         </select>
-        <button type="submit" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">
+        <button type="submit" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
           Filtrar
         </button>
       </form>

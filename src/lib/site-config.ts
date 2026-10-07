@@ -54,6 +54,12 @@ export type SiteSettingsData = typeof DEFAULT_SITE_SETTINGS;
 let lastGoodSettings: SiteSettingsData | null = null;
 
 export const getSiteSettings = cache(async (): Promise<SiteSettingsData> => {
+  // El build no debe requerir acceso a la base de producción. Los segmentos
+  // dinámicos leen los ajustes reales por solicitud cuando el servidor ya
+  // está en marcha; aquí solo necesitamos valores seguros para poder generar
+  // los artefactos de Next.
+  if (process.env.NEXT_PHASE === "phase-production-build") return DEFAULT_SITE_SETTINGS;
+
   try {
     const settings = await prisma.siteSettings.findUnique({ where: { id: "default" } });
     lastGoodSettings = settings ?? DEFAULT_SITE_SETTINGS;

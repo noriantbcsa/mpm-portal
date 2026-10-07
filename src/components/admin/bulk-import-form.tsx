@@ -58,12 +58,16 @@ export function BulkImportForm() {
             conservan el valor actual. Los precios pueden escribirse como 39900 o 39.900.
           </p>
           <form action={formAction} onSubmit={checkFileSize} className="mt-3 flex flex-wrap items-center gap-3">
+            <label htmlFor="bulk-import-file" className="sr-only">
+              Archivo CSV de productos
+            </label>
             <input
+              id="bulk-import-file"
               type="file"
               name="file"
               accept=".csv,text/csv"
               required
-              className="text-sm text-slate-700"
+              className="text-sm text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             />
             <AdminButton type="submit" disabled={pending}>
               {pending ? "Procesando…" : "Cargar archivo"}

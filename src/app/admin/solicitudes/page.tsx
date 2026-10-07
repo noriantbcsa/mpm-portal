@@ -57,10 +57,17 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
           type="search"
           name="q"
           defaultValue={q}
+          aria-label="Buscar solicitudes"
+          autoComplete="off"
           placeholder="Buscar por nombre, teléfono o ciudad…"
-          className="w-64 rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="w-64 rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         />
-        <select name="estado" defaultValue={status ?? ""} className="rounded-md border border-slate-300 px-3 py-2 text-sm">
+        <select
+          name="estado"
+          aria-label="Filtrar por estado"
+          defaultValue={status ?? ""}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        >
           <option value="">Todos los estados</option>
           {CART_REQUEST_STATUS_ORDER.map((s) => (
             <option key={s} value={s}>
@@ -68,7 +75,12 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
             </option>
           ))}
         </select>
-        <select name="asesor" defaultValue={assignedToId ?? ""} className="rounded-md border border-slate-300 px-3 py-2 text-sm">
+        <select
+          name="asesor"
+          aria-label="Filtrar por asesor"
+          defaultValue={assignedToId ?? ""}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        >
           <option value="">Todos los asesores</option>
           <option value="unassigned">Sin asignar</option>
           {team.map((member) => (
@@ -77,7 +89,7 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
             </option>
           ))}
         </select>
-        <button type="submit" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">
+        <button type="submit" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
           Filtrar
         </button>
       </form>

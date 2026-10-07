@@ -35,10 +35,29 @@
   --font-display: var(--font-heading);
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   background: var(--paper);
   color: var(--ink);
   letter-spacing: -0.01em;
+}
+
+/* Texto o URLs introducidos desde administración nunca deben ensanchar la
+   interfaz en móviles estrechos. */
+a,
+p,
+h1,
+h2,
+h3,
+h4,
+dd,
+li {
+  overflow-wrap: anywhere;
 }
 
 * {
@@ -558,6 +577,37 @@ html[data-festivity] .seasonal-main::after {
     linear-gradient(125deg, color-mix(in srgb, var(--campaign-primary) 94%, #000), var(--campaign-primary) 62%, color-mix(in srgb, var(--campaign-secondary) 42%, var(--campaign-primary)));
   color: white;
   box-shadow: 0 20px 44px color-mix(in srgb, var(--campaign-primary) 22%, transparent);
+}
+
+.campaign-announcement {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-bottom: 3px solid var(--brand-secondary);
+  background:
+    linear-gradient(90deg, transparent 0 48%, color-mix(in srgb, white 10%, transparent) 48% 49%, transparent 49% 100%),
+    linear-gradient(115deg, var(--brand-primary), color-mix(in srgb, var(--brand-primary) 78%, #303b43));
+  color: white;
+}
+
+.campaign-announcement::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  opacity: 0.34;
+  background: radial-gradient(circle at 14% 50%, var(--brand-secondary) 0 2px, transparent 3px);
+  background-size: 18px 18px;
+}
+
+.campaign-announcement-label {
+  padding: 0.28rem 0.5rem;
+  background: var(--brand-secondary);
+  color: var(--brand-primary);
+  font-size: 0.61rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
 }
 
 .campaign-showcase::before {

@@ -1,10 +1,17 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
+const requestHeaders = vi.hoisted(() => ({ value: new Headers() }));
+vi.mock("next/headers", () => ({ headers: async () => requestHeaders.value }));
 
-const { consumeRateLimit } = await import("@/lib/security/rate-limit");
+const { consumeRateLimit, getRequestRateLimitKey } = await import("@/lib/security/rate-limit");
 
 describe("consumeRateLimit", () => {
+  beforeEach(() => {
+    requestHeaders.value = new Headers();
+  });
+
+  afterEach(() => vi.unstubAllEnvs());
+
   it("permite hasta el límite y luego rechaza dentro de la ventana", () => {
     const opts = { limit: 3, windowMs: 60_000 };
     expect(consumeRateLimit("t:basic", opts).allowed).toBe(true);
@@ -30,5 +37,21 @@ describe("consumeRateLimit", () => {
     // de las recientes: su contador debe sobrevivir.
     expect(consumeRateLimit("ruido:9000", opts).allowed).toBe(false);
     expect(consumeRateLimit("ruido:10499", opts).allowed).toBe(false);
+  });
+});
+
+describe("getRequestRateLimitKey", () => {
+  it("no confía en X-Forwarded-For controlado por el cliente en producción", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    requestHeaders.value = new Headers({ "x-forwarded-for": "203.0.113.20" });
+
+    await expect(getRequestRateLimitKey()).resolves.toBe("unknown");
+  });
+
+  it("acepta encabezados de IP confiables", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    requestHeaders.value = new Headers({ "cf-connecting-ip": "203.0.113.21" });
+
+    await expect(getRequestRateLimitKey()).resolves.toBe("203.0.113.21");
   });
 });

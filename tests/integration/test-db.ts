@@ -22,9 +22,18 @@ process.env.DATABASE_URL =
  * `TEST_DATABASE_URL` mal puesto daba una ejecución verde sin correr ni una
  * prueba de integración, así que allí el error de conexión se propaga.
  */
-export async function connectOrSkip(prisma: { $connect(): Promise<unknown> }): Promise<boolean> {
+type TestDatabaseClient = {
+  $connect(): Promise<unknown>;
+  $queryRaw<T = unknown>(query: TemplateStringsArray): Promise<T>;
+};
+
+export async function connectOrSkip(prisma: TestDatabaseClient): Promise<boolean> {
   try {
     await prisma.$connect();
+    // Con el adaptador de Prisma, $connect() puede completarse antes de que
+    // exista una conexión de red real. La consulta mínima evita marcar la
+    // base como disponible y fallar después durante la siembra de datos.
+    await prisma.$queryRaw`SELECT 1`;
     return true;
   } catch (error) {
     if (process.env.CI) throw error;

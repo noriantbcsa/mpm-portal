@@ -14,7 +14,7 @@ export async function Footer() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="font-display text-lg font-semibold text-brand-primary">{settings.siteName}</p>
-          <p className="mt-2 text-sm text-ink-soft">{settings.footerText}</p>
+          <p className="mt-2 break-words text-sm text-ink-soft">{settings.footerText}</p>
         </div>
 
         <nav aria-label="Enlaces del portal">
@@ -38,13 +38,13 @@ export async function Footer() {
             </li>
             {settings.contactEmail && (
               <li>
-                <a className="hover:text-ink" href={`mailto:${settings.contactEmail}`}>
+                <a className="break-all hover:text-ink" href={`mailto:${settings.contactEmail}`}>
                   {settings.contactEmail}
                 </a>
               </li>
             )}
-            {settings.contactPhone && <li>{settings.contactPhone}</li>}
-            {settings.address && <li>{settings.address}</li>}
+            {settings.contactPhone && <li className="break-words">{settings.contactPhone}</li>}
+            {settings.address && <li className="break-words">{settings.address}</li>}
           </ul>
         </div>
 
@@ -57,7 +57,7 @@ export async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram de MPM"
-                className="focus-ring rounded-full border border-line p-2 hover:bg-paper"
+                className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-line hover:bg-paper"
               >
                 <Camera className="h-4 w-4" aria-hidden="true" />
               </a>
@@ -68,7 +68,7 @@ export async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook de MPM"
-                className="focus-ring rounded-full border border-line p-2 hover:bg-paper"
+                className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-line hover:bg-paper"
               >
                 <UsersRound className="h-4 w-4" aria-hidden="true" />
               </a>
@@ -79,7 +79,7 @@ export async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok de MPM"
-                className="focus-ring rounded-full border border-line p-2 hover:bg-paper"
+                className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-line hover:bg-paper"
               >
                 <Music2 className="h-4 w-4" aria-hidden="true" />
               </a>

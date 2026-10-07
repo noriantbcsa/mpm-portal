@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   catalogColorKey,
   formatCatalogColor,
+  getCatalogColorSwatch,
   isFilterableCatalogColor,
   isFilterableCatalogSize,
 } from "@/lib/catalog-colors";
@@ -41,6 +42,18 @@ describe("formatCatalogColor", () => {
   it("muestra el prefijo Verde con mayúscula inicial, no como palabra suelta", () => {
     expect(formatCatalogColor("V. CALI")).toBe("Verde Cali");
     expect(formatCatalogColor("V BOTELLA")).toBe("Verde Botella");
+  });
+});
+
+describe("getCatalogColorSwatch", () => {
+  it("devuelve el tono visual y un texto legible para el color elegido", () => {
+    expect(getCatalogColorSwatch("Cacao")).toEqual({ background: "#70452d", foreground: "#ffffff" });
+    expect(getCatalogColorSwatch("Celeste")).toEqual({ background: "#8cc9e8", foreground: "#101417" });
+  });
+
+  it("usa la normalización del catálogo para los alias de color", () => {
+    expect(getCatalogColorSwatch("V. Cali")).toEqual({ background: "#3c9b69", foreground: "#101417" });
+    expect(getCatalogColorSwatch("Azul Celeste")).toEqual({ background: "#8cc9e8", foreground: "#101417" });
   });
 });
 

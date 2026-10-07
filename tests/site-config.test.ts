@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const findUnique = vi.fn();
 vi.mock("@/lib/prisma", () => ({ prisma: { siteSettings: { findUnique } } }));
@@ -8,6 +8,16 @@ describe("getSiteSettings", () => {
     vi.resetModules();
     findUnique.mockReset();
     vi.spyOn(console, "error").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("usa ajustes temporales durante el build sin conectarse a producción", async () => {
+    vi.stubEnv("NEXT_PHASE", "phase-production-build");
+    const { DEFAULT_SITE_SETTINGS, getSiteSettings } = await import("@/lib/site-config");
+
+    await expect(getSiteSettings()).resolves.toEqual(DEFAULT_SITE_SETTINGS);
+    expect(findUnique).not.toHaveBeenCalled();
   });
 
   it("si la base falla y nunca hubo una lectura correcta, propaga el error (no inventa ajustes)", async () => {

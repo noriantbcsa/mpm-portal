@@ -204,11 +204,11 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
                     <Image src={item.imageUrl} alt={item.name} fill sizes="96px" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
                   )}
                 </div>
-                <div className="flex flex-1 flex-col">
-                  <Link href={`/producto/${item.slug}`} className="focus-ring font-medium text-ink hover:underline">
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <Link href={`/producto/${item.slug}`} className="focus-ring break-words font-medium text-ink hover:underline">
                     {item.name}
                   </Link>
-                  <p className="text-xs text-ink-soft">
+                  <p className="break-words text-xs text-ink-soft">
                     Ref. {item.sku}
                     {item.size && ` · Talla ${item.size}`}
                     {item.color && ` · ${item.color}`}

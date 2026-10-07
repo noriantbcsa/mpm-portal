@@ -19,7 +19,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       <SkipLink />
       <SeasonalThemeNotice theme={seasonalTheme} />
       <Header />
-      <main id="contenido" className="seasonal-main relative flex-1 overflow-hidden">
+      <main id="contenido" className="seasonal-main relative min-w-0 flex-1 overflow-hidden">
         <SeasonalBackdrop theme={seasonalTheme} />
         {children}
       </main>
