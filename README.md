@@ -34,18 +34,14 @@ Navidad. Las fechas se interpretan en la zona horaria de Colombia.
   disponible era beta y no tenía compatibilidad confirmada con Next.js 16
   (que renombró `middleware.ts` a `proxy.ts`); el patrón implementado es el
   que la propia documentación de Next.js recomienda para este caso.
-- **Cloudinary**: reservado para subir fotos de producto. `src/lib/cloudinary.ts`
-  existe pero **todavía no está conectado al panel**; hoy las fotos se pegan como
-  URL (o rutas `/catalogo/…` del propio sitio).
+- **Fotos de producto**: se pegan como URL (o rutas `/catalogo/…` del propio
+  sitio). `res.cloudinary.com` está permitido en CSP y `next/image` por si se
+  alojan allí; no hay subida desde el panel.
 - **WhatsApp** vía enlaces `wa.me` estructurados (sin integración de pago).
 - **Vitest** para pruebas unitarias.
 - Desplegado en **Render** (`render.yaml` en la raíz define el servicio web
   y la base de datos administrada).
 
-Si otro sistema desarrollado en PHP debe consumir el catálogo, usa las vistas
-de solo lectura documentadas en [docs/PHP_INTEGRATION.md](docs/PHP_INTEGRATION.md).
-No conectes ese sistema con la cuenta principal del portal ni con acceso a las
-tablas internas.
 
 ## Requisitos
 
@@ -157,8 +153,7 @@ todos.
    valor actual. Los precios se aceptan como `39900`, `39.900` o `$ 39.900`.
 4. Fotos: pega URLs de imagen ya alojadas (columna `fotos`, separadas por
    `;`; se aceptan URLs `http(s)` completas o rutas del propio sitio como
-   `/catalogo/…`). La subida directa desde el panel con Cloudinary está
-   pendiente de conectar (ver `src/lib/cloudinary.ts` y docs/DEPLOYMENT.md §5).
+   `/catalogo/…`). No hay subida directa de archivos desde el panel.
 
 ## Variables de entorno
 
@@ -167,8 +162,6 @@ más importantes:
 
 - `DATABASE_URL` — cadena de conexión PostgreSQL.
 - `AUTH_SECRET` — clave para firmar la sesión del panel (`openssl rand -base64 32`).
-- `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` —
-  reservadas: todavía no las lee ninguna pantalla (ver arriba).
 - El número de WhatsApp, el correo y demás datos de contacto **no** son
   variables de entorno: se editan en `/admin/ajustes` (fila `SiteSettings`).
 - `NEXT_PUBLIC_SITE_URL` — usado para metadatos SEO (Open Graph, sitemap,
@@ -209,8 +202,7 @@ calendario festivo y sus modos automático/manual/apagado:
   base de datos PostgreSQL real; 7 suites): filtros, orden estable y paginación
   del catálogo (`listProducts`), opciones de filtro, recorrido del árbol de
   categorías, campañas activas, visibilidad pública, listado de solicitudes,
-  detección de carritos abandonados y las vistas SQL para PHP (incluida la que
-  oculta precios). Necesitan una base de datos de pruebas **separada** de la de
+  detección de carritos abandonados. Necesitan una base de datos de pruebas **separada** de la de
   desarrollo (para no mezclar datos):
 
   ```bash
@@ -264,7 +256,7 @@ src/components/
   admin/              UI del panel (kit propio, sin depender del anterior)
   auth/               formulario de login
 src/lib/              capa de datos y lógica de negocio (Prisma, validación,
-                      WhatsApp, CSV, autenticación, Cloudinary…)
+                      WhatsApp, CSV, autenticación…)
 src/store/            estado de carrito en el navegador (Zustand)
 src/proxy.ts           protección de rutas /admin (reemplaza a "middleware.ts")
 tests/                 pruebas Vitest

@@ -54,10 +54,6 @@ export function buildCartRequestMessage(input: CartRequestMessageInput) {
   return lines.join("\n");
 }
 
-export function buildGeneralInquiryMessage(defaultMessage: string) {
-  return defaultMessage;
-}
-
 /**
  * Enlace que usa el equipo de ventas (panel /admin) para abrir WhatsApp
  * directamente con el cliente que dejó la solicitud, con un mensaje inicial

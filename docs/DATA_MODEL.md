@@ -73,7 +73,7 @@ filtrar por "Damas" incluya automáticamente todas sus subcategorías.
 
 El esquema técnicamente admite cualquier profundidad, pero **el servidor impone
 dos niveles** (`saveCategoryAction`): la regla de visibilidad pública
-(`PUBLIC_CATEGORY_WHERE` y las vistas PHP) solo mira al padre directo, así que
+(`PUBLIC_CATEGORY_WHERE`) solo mira al padre directo, así que
 una tercera capa bajo una categoría oculta seguiría siendo pública. La regla se
 aplica al crear o al cambiar de padre; una categoría anterior a la regla puede
 seguir editándose sin moverla.
@@ -135,17 +135,13 @@ Están en `prisma/migrations/` en orden cronológico (15 al 6 de octubre de
 - `20260922185129_add_product_image_color` y `20260927170000_update_bogota_brand_defaults`:
   color por foto; corrige textos provisionales de la primera siembra sin pisar
   lo personalizado.
-- `20260927160000_add_php_catalog_integration`: esquema `integration` con las
-  vistas `catalog_*` de solo lectura para el sistema PHP (ver
-  `docs/PHP_INTEGRATION.md`). Las vistas se reemplazan con `CREATE OR REPLACE`
-  y **no pueden cambiar el tipo de una columna**: hace falta un cast
-  (`::numeric(12,2)`) para conservar el tipo existente.
+- `20260927160000_add_php_catalog_integration`, `20261001121000_…` y
+  `20261006180000_…`: crearon y ajustaron las vistas `integration.catalog_*`
+  para un sistema PHP; `20261007120000_drop_php_integration_views` las elimina
+  (la integración se retiró).
 - `20261001040221_add_user_session_version`: `User.sessionVersion`.
 - `20261001120000_anchor_campaign_dates_to_bogota`: corrige las fechas de
   campañas ya guardadas (datos).
-- `20261001121000_php_views_respect_hidden_parent_category` y
-  `20261006180000_php_view_respects_show_prices`: las vistas PHP respetan la
-  categoría padre oculta y `SiteSettings.showPrices`.
 - `20261001161846_add_catalog_search_indexes`: `pg_trgm` + índices GIN para el
   buscador y los filtros de tallas/colores/etiquetas.
 - `20261006190000_lowercase_user_emails`: normaliza a minúsculas los correos

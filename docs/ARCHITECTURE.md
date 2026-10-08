@@ -18,7 +18,7 @@ inventario, pagos, envíos, chatbot) sin reescribir lo existente:
                 │
                 ▼
         src/lib/**  (capa de dominio: validación zod, WhatsApp,
-                      CSV, autenticación, Cloudinary, consultas Prisma)
+                      CSV, autenticación, consultas Prisma)
                 │
                 ▼
         src/lib/prisma.ts  (PrismaClient + @prisma/adapter-pg)

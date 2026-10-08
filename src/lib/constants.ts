@@ -17,12 +17,6 @@ export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
 
 /**
  * Estados que un visitante puede ver en el catálogo público.
- *
- * La vista SQL `integration.catalog_products` (migración
- * 20260927160000_add_php_catalog_integration, para el consumo desde PHP)
- * repite esta misma lista en una cláusula WHERE porque no puede importar
- * esta constante. Si cambia aquí, hay que replicarlo allá con una migración
- * nueva (`CREATE OR REPLACE VIEW`) — no edites esa migración ya aplicada.
  */
 export const PUBLIC_PRODUCT_STATUSES: ProductStatus[] = [
   "DISPONIBLE",
@@ -80,12 +74,6 @@ export const CART_REQUEST_STATUS_ORDER: CartRequestStatus[] = [
   "CANCELADO",
 ];
 
-export const CART_REQUEST_OPEN_STATUSES: CartRequestStatus[] = [
-  "NUEVO",
-  "CONTACTADO",
-  "EN_NEGOCIACION",
-];
-
 export const CART_REQUEST_EVENT_LABELS: Record<CartRequestEventType, string> = {
   NOTE: "Nota",
   STATUS_CHANGE: "Cambio de estado",
@@ -98,40 +86,6 @@ export const ROLE_LABELS: Record<Role, string> = {
   SALES: "Equipo de ventas",
 };
 
-/** Tallas sugeridas al crear un producto; el campo real acepta texto libre. */
-export const SUGGESTED_SIZES = [
-  "XS",
-  "S",
-  "M",
-  "L",
-  "XL",
-  "XXL",
-  "2",
-  "4",
-  "6",
-  "8",
-  "10",
-  "12",
-  "14",
-  "16",
-  "Única",
-] as const;
-
-/** Colores sugeridos al crear un producto; el campo real acepta texto libre. */
-export const SUGGESTED_COLORS = [
-  "Negro",
-  "Blanco",
-  "Gris",
-  "Azul",
-  "Azul oscuro",
-  "Rojo",
-  "Verde",
-  "Beige",
-  "Café",
-  "Rosado",
-  "Amarillo",
-  "Estampado",
-] as const;
 
 /** Días de inactividad de un carrito antes de marcarlo como abandonado. */
 export const ABANDONED_CART_DAYS = 8;

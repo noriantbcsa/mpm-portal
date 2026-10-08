@@ -52,8 +52,8 @@ export async function saveCategoryAction(
 
   if (data.parentId && parentChanged) {
     // Solo dos niveles (categoría → subcategoría): las reglas de visibilidad
-    // pública (PUBLIC_CATEGORY_WHERE y las vistas PHP) miran únicamente al
-    // padre directo, así que una tercera capa bajo una categoría oculta
+    // pública (PUBLIC_CATEGORY_WHERE) mira únicamente al padre
+    // directo, así que una tercera capa bajo una categoría oculta
     // seguiría siendo pública.
     const parent = await prisma.category.findUnique({
       where: { id: data.parentId },

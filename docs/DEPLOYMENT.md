@@ -49,7 +49,6 @@ que completar manualmente, desde el dashboard de Render (Environment), al menos:
 | `NEXT_PUBLIC_SITE_URL` | Dominio propio una vez conectado (ej. `https://www.mpm.com.co`). Si no está definida se usa `RENDER_EXTERNAL_URL`, que Render define sola con la URL pública del servicio; sin ninguna de las dos, el sitemap, las canónicas y `og:image` apuntarían a `localhost` (así estaba producción hasta la auditoría 5). Un valor `http://localhost…` copiado del `.env.example` se ignora en producción si Render informa su URL |
 | `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | Base64 válido de 16/24/32 bytes (`openssl rand -base64 32`). Imprescindible al escalar a más de una instancia; no pongas texto de relleno |
 | `DATABASE_POOL_MAX` | Opcional. Máximo de conexiones del pool de Prisma (por defecto 5, pensado para el plan gratuito de la base) |
-| `CLOUDINARY_*` | Reservadas: hoy ninguna pantalla las lee (ver §5). No hace falta definirlas |
 
 El número de WhatsApp, el correo y la identidad **no** son variables de entorno:
 se editan en `/admin/ajustes`. Mientras no se editen, el sitio publica los
@@ -126,8 +125,7 @@ Tras el primer arranque:
 
 Las fotos del catálogo viven en `public/catalogo/` y se guardan como rutas del
 propio sitio (`/catalogo/…`); el panel también acepta URLs `http(s)` completas.
-La subida directa a Cloudinary (`src/lib/cloudinary.ts`) está escrita pero **sin
-conectar** al panel.
+No hay subida de archivos desde el panel.
 
 `next.config.ts` restringe `next/image` a una lista concreta de dominios
 (`images.remotePatterns`): actualmente solo `res.cloudinary.com`. Si el equipo de contenido va

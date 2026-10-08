@@ -190,12 +190,8 @@ paquete lo pide y por qué.
 - Cambiar o eliminar las credenciales de demostración (`admin@mpm.local` /
   `CambiaEsto123!`) si existen en la base de producción (el seed actual ya no
   las crea fuera de una base local).
-- **Vista PHP y precios**: `integration.catalog_products.price_ref` es `NULL`
-  mientras `SiteSettings.showPrices` esté apagado (migración
-  `20261006180000_…`); antes la vista exponía el precio de referencia aunque el
-  sitio lo ocultara.
 - **Categorías**: solo dos niveles (categoría → subcategoría). La visibilidad
-  pública (y las vistas PHP) solo mira al padre directo, así que un tercer nivel
+  pública solo mira al padre directo, así que un tercer nivel
   bajo una categoría oculta habría seguido siendo público.
 - **Dependencias**: `npm audit --omit=dev` = 0 vulnerabilidades (el CI lo
   exige). Queda un aviso de `braces` en la cadena de `eslint-config-next`

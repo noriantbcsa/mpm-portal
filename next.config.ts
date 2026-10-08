@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     // El catálogo entregado se sirve localmente en WebP. Cloudinary queda
-    // permitido únicamente para futuras imágenes reales cargadas por MPM.
+    // permitido para imágenes alojadas allí y pegadas como URL.
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
     ],

@@ -121,3 +121,15 @@ Línea base: `typecheck`, `lint` limpios; 259 pruebas; `npm audit --omit=dev`: 0
 Corregido después: enlaces de cabecera del admin ("Panel MPM", "Ver sitio público")
 pasaron de 16 px a 32–40 px de alto táctil. Pendiente: un servidor `next start` antiguo en el puerto 3000 responde 500
 en `/login` por quedar desfasado respecto de `.next` (el `next dev` del 3001 funciona).
+
+### Retiro de la integración PHP y código muerto (7 de octubre de 2026)
+
+Por decisión del dueño: se eliminó la integración con PHP — migración
+`20261007120000_drop_php_integration_views` (`DROP SCHEMA integration CASCADE`; las
+migraciones antiguas se conservan como historial), `docs/PHP_INTEGRATION.md` y su prueba
+de integración (−2 pruebas: 257). Código muerto verificado por búsqueda de usos y
+retirado: `src/lib/cloudinary.ts` y la dependencia `cloudinary` (la CSP y
+`remotePatterns` de `res.cloudinary.com` se conservan para URLs pegadas),
+`ui/spinner`, `ui/card`, `catalog/category-chips`, `buildGeneralInquiryMessage`,
+`SUGGESTED_SIZES/COLORS`, `CART_REQUEST_OPEN_STATUSES` y las 5 SVG de plantilla de
+`public/`. `typecheck`, `lint`, 257 pruebas y `db:drift` limpios; audit: 0.
