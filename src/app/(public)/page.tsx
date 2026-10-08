@@ -124,15 +124,14 @@ export default async function HomePage() {
         <section className="mx-auto max-w-[1440px] px-4 pb-8 sm:px-6 sm:pb-12">
           <Link
             href={`/campanas/${activeCampaign.slug}`}
-            className={`campaign-showcase focus-ring group grid overflow-hidden ${activeCampaign.bannerImageUrl ? "min-h-[26rem] sm:grid-cols-2" : "min-h-[16rem]"}`}
+            className="campaign-showcase focus-ring group block overflow-hidden"
           >
-            <div className="flex flex-col justify-center gap-4 p-8 sm:p-14">
+            <div className="mx-auto flex min-h-[16rem] max-w-4xl flex-col items-center justify-center gap-4 px-6 py-14 text-center sm:px-14 sm:py-20">
               <p className="campaign-kicker">Campaña</p>
-              <h2 className="font-display text-3xl font-semibold uppercase leading-tight tracking-[0.04em] sm:text-5xl">{activeCampaign.name}</h2>
-              {activeCampaign.description && <p className="max-w-md text-base leading-7 text-ink-soft">{activeCampaign.description}</p>}
+              <h2 className="font-display text-3xl font-semibold uppercase leading-tight tracking-[0.06em] sm:text-5xl">{activeCampaign.name}</h2>
+              {activeCampaign.description && <p className="max-w-xl text-base leading-7 text-ink-soft">{activeCampaign.description}</p>}
               <span className="mt-2 w-fit border-b border-current pb-1 text-sm font-semibold uppercase tracking-[0.14em] group-hover:opacity-70">Ver colección</span>
             </div>
-            {activeCampaign.bannerImageUrl && <div className="campaign-visual relative min-h-72 sm:min-h-full"><Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="(min-width: 640px) 50vw, 100vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.02]" /></div>}
           </Link>
         </section>
       )}

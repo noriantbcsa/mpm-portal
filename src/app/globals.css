@@ -573,10 +573,6 @@ html[data-festivity] .seasonal-main::after {
   color: var(--brand-primary);
 }
 
-.campaign-visual {
-  background: #e4e1da;
-}
-
 .campaign-kicker {
   color: #5b646b;
   font-size: 0.68rem;
@@ -586,28 +582,9 @@ html[data-festivity] .seasonal-main::after {
 }
 
 .campaign-hero {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
   background: #f3f1ec;
   color: var(--brand-primary);
-}
-
-.campaign-hero--image {
-  background: var(--brand-primary);
-  color: white;
-}
-
-.campaign-hero--image::after {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  content: "";
-  background: linear-gradient(0deg, rgb(0 0 0 / 0.62), rgb(0 0 0 / 0.08) 62%);
-}
-
-.campaign-hero--image .campaign-kicker {
-  color: rgb(255 255 255 / 0.8);
+  border-bottom: 1px solid #e4e1da;
 }
 
 /* El catálogo también adopta la temporada sin sacrificar la lectura de las

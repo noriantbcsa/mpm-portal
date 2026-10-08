@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -8,7 +7,6 @@ import { listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
 import { formatDate } from "@/lib/format";
 import { ProductGrid } from "@/components/catalog/product-grid";
-import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export const dynamic = "force-dynamic";
 
@@ -35,16 +33,13 @@ export default async function CampanaPage({ params }: PageProps) {
   const { items, total } = await listProducts({ campaignSlug: slug, pageSize: 60 });
   return (
     <div className="campaign-page">
-      <section className={`campaign-hero ${campaign.bannerImageUrl ? "campaign-hero--image" : ""}`}>
-        {campaign.bannerImageUrl && (
-          <Image src={campaign.bannerImageUrl} alt="" fill priority sizes="100vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="-z-10 object-cover object-center" />
-        )}
-        <div className={`mx-auto flex max-w-6xl flex-col justify-end gap-4 px-4 py-14 sm:py-20 ${campaign.bannerImageUrl ? "min-h-[26rem] sm:min-h-[32rem]" : "min-h-[16rem]"}`}>
+      <section className="campaign-hero">
+        <div className="mx-auto flex min-h-[16rem] max-w-4xl flex-col items-center justify-center gap-4 px-4 py-14 text-center sm:py-20">
           <p className="campaign-kicker">Campaña</p>
-          <h1 className="max-w-3xl font-display text-4xl font-semibold uppercase leading-tight tracking-[0.04em] sm:text-6xl">{campaign.name}</h1>
-          {campaign.description && <p className="max-w-xl text-base leading-7 opacity-90 sm:text-lg">{campaign.description}</p>}
+          <h1 className="font-display text-4xl font-semibold uppercase leading-tight tracking-[0.06em] sm:text-6xl">{campaign.name}</h1>
+          {campaign.description && <p className="max-w-xl text-base leading-7 text-ink-soft sm:text-lg">{campaign.description}</p>}
           {(campaign.startDate || campaign.endDate) && (
-            <p className="text-sm uppercase tracking-[0.12em] opacity-75">
+            <p className="text-sm uppercase tracking-[0.12em] text-ink-soft">
               {campaign.startDate ? formatDate(campaign.startDate) : "—"}
               {campaign.endDate ? ` — ${formatDate(campaign.endDate)}` : ""}
             </p>

@@ -33,7 +33,6 @@ export default async function EditarCampanaPage({ params }: PageProps) {
             id: campaign.id,
             name: campaign.name,
             description: campaign.description,
-            bannerImageUrl: campaign.bannerImageUrl,
             colorPrimary: campaign.colorPrimary,
             colorSecondary: campaign.colorSecondary,
             startDate: campaign.startDate,

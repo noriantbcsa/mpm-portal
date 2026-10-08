@@ -29,7 +29,6 @@ export async function saveCampaignAction(
   const parsed = campaignFormSchema.safeParse({
     name: formData.get("name"),
     description: String(formData.get("description") ?? "").trim() || null,
-    bannerImageUrl: String(formData.get("bannerImageUrl") ?? "").trim() || null,
     startDate: String(formData.get("startDate") ?? "").trim() || null,
     endDate: String(formData.get("endDate") ?? "").trim() || null,
     isActive: formData.get("isActive") === "on",
@@ -63,7 +62,6 @@ export async function saveCampaignAction(
   const commonData = {
     name: data.name,
     description: data.description,
-    bannerImageUrl: data.bannerImageUrl || null,
     startDate: data.startDate ? campaignStartFromDateKey(data.startDate) : null,
     endDate: data.endDate ? campaignEndFromDateKey(data.endDate) : null,
     isActive: data.isActive,
