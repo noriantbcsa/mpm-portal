@@ -493,6 +493,14 @@ html[data-festivity] .seasonal-band {
   backdrop-filter: blur(3px);
 }
 
+/* Dentro del vidrio el gris secundario se oscurece: es el texto más tenue y el
+   que más sufre sobre una pintura. */
+html[data-festivity] .seasonal-glass,
+html[data-festivity] .catalog-page-header,
+html[data-festivity] .seasonal-band {
+  --color-ink-soft: #3b444a;
+}
+
 html[data-festivity] .catalog-page-header {
   position: relative;
   border-bottom: 1px solid color-mix(in srgb, var(--seasonal-primary) 22%, transparent);
