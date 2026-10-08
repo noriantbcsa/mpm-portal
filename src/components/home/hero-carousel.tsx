@@ -80,9 +80,9 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               aria-roledescription="diapositiva"
               aria-label={`${slideIndex + 1} de ${slides.length}`}
               aria-hidden={slideIndex !== index}
-              className="grid w-full shrink-0 snap-center items-center gap-6 px-4 pb-16 pt-8 sm:px-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)] lg:gap-12 lg:pb-14 lg:pt-10"
+              className="grid w-full shrink-0 snap-center items-center gap-6 px-4 pb-16 pt-8 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)] lg:gap-12 lg:pb-20 lg:pt-10"
             >
-              <div className="max-w-xl rounded-sm bg-[rgb(255_252_246/0.62)] p-4 backdrop-blur-[1.5px] sm:p-6 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+              <div className="max-w-xl lg:order-2 rounded-sm bg-[rgb(255_252_246/0.62)] p-4 backdrop-blur-[1.5px] sm:p-6 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink-soft">{slide.kicker}</p>
                 <h2 className="mt-3 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.045em] text-ink sm:text-5xl lg:text-6xl">
                   {slide.title}
@@ -97,7 +97,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 </Link>
               </div>
 
-              <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+              <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:order-1">
                 {slide.photos.slice(0, 3).map((photo, photoIndex) => (
                   <li key={photo.url} className={photoIndex === 2 ? "hidden sm:block" : undefined}>
                     <Link

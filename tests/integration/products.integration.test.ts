@@ -199,6 +199,9 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
     expect(options.sizes.slice(0, 6)).toEqual(["XS", "S", "M", "L", "XL", "XXL"]);
     expect(options.sizes.indexOf("38")).toBeGreaterThan(5);
     expect(options.sizes).not.toContain("Talla única");
+    // Solo etiquetas que alguna prenda del ámbito tiene (OFERTA sí, por IT-0001; RECOMENDADO no).
+    expect(options.tags).toContain("OFERTA");
+    expect(options.tags).not.toContain("RECOMENDADO");
     expect(options.colors).toContain("Blanco");
     expect(options.colors).toContain("Verde Cali");
   });
@@ -224,5 +227,33 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
 
     const adminView = await getProductBySlug("it-sin-talla", { includeHidden: true });
     expect(adminView?.sizes).toEqual(["Consultar disponibilidad"]);
+  });
+  it("ordena por nombre alfabéticamente (sin distinguir mayúsculas ni acentos, números naturales) y pagina sin repetir", async () => {
+    const names = ["Zeta", "árbol", "CMLR nuevo", "Camisón", "Ref 10", "Ref 2", "banana"];
+    await prisma.product.createMany({
+      data: names.map((name, i) => ({
+        sku: `IT-ORD-${i}`,
+        name,
+        slug: `it-ord-${i}`,
+        description: "Prueba de orden por nombre.",
+        categoryId: caballeroId,
+        audience: "HOMBRE" as const,
+        sizes: [],
+        colors: [],
+        status: "DISPONIBLE" as const,
+        tags: [],
+      })),
+    });
+
+    const all = await listProducts({ q: "IT-ORD-", sort: "nombre-asc", pageSize: 50 });
+    expect(all.items.map((p) => p.name)).toEqual(["árbol", "banana", "Camisón", "CMLR nuevo", "Ref 2", "Ref 10", "Zeta"]);
+
+    const first = await listProducts({ q: "IT-ORD-", sort: "nombre-asc", pageSize: 3, page: 1 });
+    const second = await listProducts({ q: "IT-ORD-", sort: "nombre-asc", pageSize: 3, page: 2 });
+    const third = await listProducts({ q: "IT-ORD-", sort: "nombre-asc", pageSize: 3, page: 3 });
+    expect([...first.items, ...second.items, ...third.items].map((p) => p.name)).toEqual(all.items.map((p) => p.name));
+    expect(first.pageCount).toBe(3);
+    // Una página fuera de rango devuelve la última válida.
+    expect((await listProducts({ q: "IT-ORD-", sort: "nombre-asc", pageSize: 3, page: 99 })).page).toBe(3);
   });
 });

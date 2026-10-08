@@ -24,8 +24,11 @@ export function FiltersForm({
   options,
 }: {
   active: ActiveFilters;
-  options: { sizes: string[]; colors: string[] };
+  options: { sizes: string[]; colors: string[]; tags: ProductTagType[] };
 }) {
+  // Solo etiquetas que alguna prenda tiene (más las activas, para poder quitarlas).
+  const visibleTagOptions = TAG_OPTIONS.filter(([value]) => options.tags.includes(value) || active.etiqueta.includes(value));
+
   return (
     <form
       method="GET"
@@ -70,10 +73,11 @@ export function FiltersForm({
         </div>
       </fieldset>
 
+      {visibleTagOptions.length > 0 && (
       <fieldset>
         <legend className="text-sm font-semibold text-ink">Etiquetas</legend>
         <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1.5">
-          {TAG_OPTIONS.map(([value, label]) => (
+          {visibleTagOptions.map(([value, label]) => (
             <label key={value} className="flex items-center gap-2 text-sm text-ink-soft">
               <input
                 type="checkbox"
@@ -86,6 +90,7 @@ export function FiltersForm({
           ))}
         </div>
       </fieldset>
+      )}
 
       <fieldset>
         <legend className="text-sm font-semibold text-ink">Talla</legend>

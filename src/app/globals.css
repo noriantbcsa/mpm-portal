@@ -393,6 +393,11 @@ html[data-festivity] .seasonal-main::after {
   background-position: var(--side) top;
 }
 
+/* Reflejo horizontal para alternar el lado del motivo. */
+.seasonal-art--flip {
+  transform: scaleX(-1);
+}
+
 /* Arriba: pegada al borde superior, se funde hacia abajo. */
 .seasonal-art--top {
   top: 0;
@@ -468,24 +473,19 @@ html[data-festivity] .seasonal-main::after {
 
 /* El catálogo también adopta la temporada sin sacrificar la lectura de las
    fichas: una franja de color y superficies muy suaves, no fondos pesados. */
+/* Vidrio esmerilado: las bandas con texto llevan un velo translúcido con
+   desenfoque; la pintura festiva se ve suave detrás y el texto siempre se lee. */
+html[data-festivity] .seasonal-glass,
+html[data-festivity] .catalog-page-header,
+html[data-festivity] .seasonal-band {
+  background: rgb(255 252 246 / 0.54);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
 html[data-festivity] .catalog-page-header {
   position: relative;
   border-bottom: 1px solid color-mix(in srgb, var(--seasonal-primary) 22%, transparent);
-  /* Sin fondo propio: deja ver la pintura festiva de la página. */
-  background: none;
-}
-
-/* Texto que queda sobre la pintura: un halo de papel lo mantiene legible sin
-   usar cajas que tapen el fondo. */
-html[data-festivity] .catalog-page-header,
-html[data-festivity] .seasonal-band {
-  text-shadow: 0 0 0.5rem rgb(255 252 246 / 0.95), 0 0 1.1rem rgb(255 252 246 / 0.9);
-}
-
-/* Bandas que antes tapaban el fondo: translúcidas para que se vea la pintura
-   sin perder lectura. */
-html[data-festivity] .seasonal-band {
-  background: color-mix(in srgb, white 52%, transparent);
 }
 
 html[data-festivity] .catalog-filters {

@@ -90,7 +90,7 @@ export default async function ProductoPage({ params }: PageProps) {
         }}
       />
 
-      <nav aria-label="Ruta de navegación" className="mb-6 text-xs text-ink-soft">
+      <nav aria-label="Ruta de navegación" className="seasonal-glass mb-6 w-fit px-2 py-1 text-xs text-ink-soft">
         <Link href="/" className="hover:text-ink">Inicio</Link>
         {" / "}
         <Link href="/catalogo" className="hover:text-ink">Catálogo</Link>

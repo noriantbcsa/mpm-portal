@@ -53,6 +53,8 @@ export type ProductListItem = Prisma.ProductGetPayload<{ select: typeof productL
 export type CatalogFilterOptions = {
   sizes: string[];
   colors: string[];
+  /** Solo las etiquetas que alguna prenda del ámbito tiene (las demás devolverían 0). */
+  tags: ProductTagType[];
 };
 
 async function buildWhere(filters: CatalogFilters): Promise<Prisma.ProductWhereInput> {
@@ -128,10 +130,37 @@ export async function countProducts(filters: CatalogFilters = {}) {
   return prisma.product.count({ where: await buildWhere(filters) });
 }
 
+// PostgreSQL ordena en modo binario (mayúsculas antes que minúsculas, acentos al
+// final), así que "CMLR" quedaba antes que "Camisón". El orden alfabético por
+// nombre se resuelve con el criterio del español: sin distinguir mayúsculas ni
+// acentos y con números naturales ("Ref 2" antes de "Ref 10").
+const NAME_COLLATOR = new Intl.Collator("es", { sensitivity: "base", numeric: true });
+
+async function listProductsByName(where: Prisma.ProductWhereInput, requestedPage: number, pageSize: number) {
+  // Solo id y nombre de los que cumplen los filtros (liviano aun con cientos de
+  // referencias); después se traen completas únicamente las de la página.
+  const names = await prisma.product.findMany({ where, select: { id: true, name: true } });
+  names.sort((a, b) => NAME_COLLATOR.compare(a.name, b.name) || (a.id < b.id ? -1 : 1));
+
+  const total = names.length;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const ids = names.slice((page - 1) * pageSize, page * pageSize).map((row) => row.id);
+
+  const found = await prisma.product.findMany({ where: { id: { in: ids } }, select: productListSelect });
+  const byId = new Map(found.map((product) => [product.id, product]));
+  const items = ids.map((id) => byId.get(id)).filter((product): product is ListedProduct => Boolean(product));
+
+  return { items, total, page, pageSize, pageCount };
+}
+
+type ListedProduct = Prisma.ProductGetPayload<{ select: typeof productListSelect }>;
+
 export async function listProducts(filters: CatalogFilters = {}) {
   const requestedPage = Math.max(1, filters.page ?? 1);
   const pageSize = filters.pageSize ?? CATALOG_PAGE_SIZE;
   const where = await buildWhere(filters);
+  if (filters.sort === "nombre-asc") return listProductsByName(where, requestedPage, pageSize);
   const orderBy = buildOrderBy(filters.sort);
 
   const [firstItems, total] = await Promise.all([
@@ -186,6 +215,9 @@ export function withStandardSizes(found: string[]) {
   return [...STANDARD_CATALOG_SIZES, ...extras];
 }
 
+// Orden en que se ofrecen las etiquetas en el filtro.
+const PRODUCT_TAG_ORDER: ProductTagType[] = ["OFERTA", "TENDENCIA", "NUEVO", "RECOMENDADO"];
+
 const FILTER_OPTIONS_TTL_MS = 60_000;
 const filterOptionsCache = new Map<string, { expiresAt: number; value: CatalogFilterOptions }>();
 
@@ -198,7 +230,7 @@ export async function getCatalogFilterOptions(categorySlug?: string): Promise<Ca
   const where = await buildWhere({ categorySlug });
   const products = await prisma.product.findMany({
     where,
-    select: { sizes: true, colors: true },
+    select: { sizes: true, colors: true, tags: true },
   });
 
   const uniqueSorted = (values: string[]) =>
@@ -206,7 +238,9 @@ export async function getCatalogFilterOptions(categorySlug?: string): Promise<Ca
       a.localeCompare(b, "es", { sensitivity: "base" }),
     );
 
+  const presentTags = new Set(products.flatMap((product) => product.tags));
   const value: CatalogFilterOptions = {
+    tags: PRODUCT_TAG_ORDER.filter((tag) => presentTags.has(tag)),
     sizes: withStandardSizes(uniqueSorted(products.flatMap((product) => product.sizes).filter(isFilterableCatalogSize))),
     colors: uniqueSorted(
       products

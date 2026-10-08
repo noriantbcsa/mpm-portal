@@ -170,3 +170,10 @@ Pedido del dueño: fondos de festividades continuos, no cortados ni separados, c
 - **Carrusel** (`src/components/home/hero-carousel.tsx`): portada, Damas, Caballero y Nosotros; táctil con snap, flechas, puntos, avance automático pausable y respeta "reducir movimiento"; fotos 3:4 con `object-contain`.
 - **Fotos completas**: tarjetas de producto y galería pasan de `object-cover` a `object-contain` (había ~60 fotos más angostas que 3:4 que recortaban la prenda).
 - Verificado en navegador a 375, 768, 1024, 1280 y 1440 px, con Carnaval, Velitas y Día del Hombre; las 15 festividades renderizan sus 3 capas.
+
+### Ajustes del fondo festivo y revisión de filtros (8 de octubre de 2026)
+
+- **Alternancia izquierda–derecha–izquierda**: las tres pinturas se reflejan (`seasonal-art--flip`) cuando el motivo está del lado contrario; se verificó con la hoja de contactos de las 45 imágenes que ninguna tiene letras. Prueba (`tests/seasonal-backdrop.test.tsx`) que lo garantiza en las 15 festividades.
+- **Texto sobre el fondo**: halo de papel heredado en todo el contenido (excepto texto blanco y botones llenos) y **vidrio esmerilado** (`.seasonal-glass`: velo 54 % + desenfoque) en encabezado y banda del catálogo, Nosotros, carrito, política y migas de pan. Hero del inicio: fotos a la izquierda y texto a la derecha en escritorio; velo en celular. Verificado a 375, 768, 1280 y 1440 px.
+- **Ficha de producto**: la foto principal tenía el alto de la columna de texto (hasta 1369 px) y `object-contain` dejaba una franja vacía; ahora marco fijo 3:4.
+- **Filtros verificados contra SQL** (todas las opciones): público (6/12), 4 etiquetas, 6 tallas, 46 colores, 4 categorías, búsqueda y combinaciones (Hombre + XXL + Blanco = 2, coincide). Dos correcciones: (1) **Nombre A–Z no era alfabético** (PostgreSQL ordena en binario: "CMLR" antes de "Camisón"); ahora ordena con `Intl.Collator("es")` (sin mayúsculas/acentos, números naturales) con paginación estable; prueba de integración. (2) El filtro de **etiquetas** ofrecía opciones sin productos (3 de 4 en desarrollo); ahora solo aparecen las que alguna prenda tiene (más las activas en la URL).

@@ -122,7 +122,7 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
 
   if (state.status === "success") {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
+      <div className="seasonal-glass mx-auto my-6 max-w-lg px-4 py-16 text-center">
         <CheckCircle2 className="mx-auto h-14 w-14 text-success" aria-hidden="true" />
         <h1 className="mt-4 font-display text-2xl font-semibold text-ink">
           ¡Recibimos tu solicitud!
@@ -181,7 +181,7 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
   const totalPrice = items.reduce((sum, i) => sum + (i.priceRef ?? 0) * i.quantity, 0);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="seasonal-glass mx-auto my-6 max-w-5xl px-4 py-8 sm:px-6">
       <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">
         Tu carrito de pedido
       </h1>

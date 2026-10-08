@@ -88,8 +88,8 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
 
       <div
         className={cn(
-          "order-1 relative min-h-96 w-full min-w-0 overflow-hidden bg-[#f5f5f2]",
-          hasMultipleImages && "sm:order-2 sm:min-h-0 sm:aspect-[3/4]",
+          "order-1 relative aspect-[3/4] w-full min-w-0 overflow-hidden bg-[#f5f5f2]",
+          hasMultipleImages && "sm:order-2",
         )}
       >
         <Image

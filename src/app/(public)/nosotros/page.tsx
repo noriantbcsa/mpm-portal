@@ -28,7 +28,7 @@ export default async function NosotrosPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-      <section className="grid gap-8 border-b border-line pb-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end">
+      <section className="seasonal-glass grid gap-8 border-b border-line p-6 sm:p-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-end">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Desde 2017 · Bogotá</p>
           <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-[-0.05em] text-ink sm:text-5xl">Moda hecha con oficio, constancia y cercanía.</h1>
@@ -36,7 +36,7 @@ export default async function NosotrosPage() {
         <p className="max-w-xl text-base leading-7 text-ink-soft">{settings.siteName} nació con la intención de construir una marca propia y crecer con cada prenda, cada pedido y cada relación de confianza.</p>
       </section>
 
-      <section className="py-12 sm:py-16">
+      <section className="seasonal-glass p-6 sm:p-8">
         <div className="mb-8 max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-soft">Nuestra historia</p>
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-4xl">Un recorrido que sigue en movimiento</h2>
@@ -57,7 +57,7 @@ export default async function NosotrosPage() {
         </ol>
       </section>
 
-      <section className="grid gap-8 border-y border-line py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.9fr)]">
+      <section className="seasonal-glass grid gap-8 border-y border-line p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.9fr)]">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-soft">Nuestra línea de trabajo</p>
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-4xl">Confección que acompaña cada necesidad</h2>
@@ -73,7 +73,7 @@ export default async function NosotrosPage() {
         </div>
       </section>
 
-      <section className="py-12 text-center sm:py-16">
+      <section className="seasonal-glass p-6 text-center sm:p-8">
         <h2 className="font-display text-3xl font-semibold tracking-[-0.04em] text-ink">Hablemos de tu próximo pedido</h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-ink-soft">Escríbenos para resolver dudas sobre referencias, pedidos por volumen o dotación empresarial.</p>
         <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="focus-ring mt-6 inline-flex min-h-10 items-center justify-center rounded-full bg-[#25D366] px-6 py-3 text-base font-semibold text-[#0b3d24] hover:brightness-95">Escribir por WhatsApp</a>

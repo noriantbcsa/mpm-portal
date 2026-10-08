@@ -42,7 +42,7 @@ export default async function PoliticaDeDatosPage() {
   const text = settings.dataPolicyText?.trim() || FALLBACK_POLICY;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
+    <div className="seasonal-glass mx-auto my-6 max-w-2xl px-4 py-12 sm:px-8">
       <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">
         Política de tratamiento de datos personales
       </h1>
