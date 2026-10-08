@@ -1,5 +1,6 @@
 import {
   AUDIENCE_LABELS,
+  CATALOG_AUDIENCES,
   PRODUCT_TAG_LABELS,
 } from "@/lib/constants";
 import type { Audience, ProductTagType } from "@prisma/client";
@@ -15,7 +16,7 @@ export type ActiveFilters = {
   orden?: string;
 };
 
-const AUDIENCE_OPTIONS = Object.entries(AUDIENCE_LABELS) as [Audience, string][];
+const AUDIENCE_OPTIONS = CATALOG_AUDIENCES.map((value) => [value, AUDIENCE_LABELS[value]] as [Audience, string]);
 const TAG_OPTIONS = Object.entries(PRODUCT_TAG_LABELS) as [ProductTagType, string][];
 
 export function FiltersForm({

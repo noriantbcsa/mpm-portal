@@ -56,6 +56,9 @@ export const AUDIENCE_LABELS: Record<Audience, string> = {
   UNISEX: "Unisex",
 };
 
+/** Públicos que se ofrecen en el filtro del catálogo (el resto sigue existiendo en la base, sin productos). */
+export const CATALOG_AUDIENCES: Audience[] = ["HOMBRE", "MUJER"];
+
 export const CART_REQUEST_STATUS_LABELS: Record<CartRequestStatus, string> = {
   NUEVO: "Nuevo",
   CONTACTADO: "Contactado",

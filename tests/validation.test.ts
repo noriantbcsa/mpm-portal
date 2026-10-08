@@ -181,6 +181,14 @@ describe("catalog search params", () => {
     expect(hasCatalogFilters(parsed)).toBe(true);
   });
 
+  it("solo acepta Hombre y Mujer como público del catálogo (UNISEX/NINO/NINA se descartan)", async () => {
+    const { parseCatalogParams } = await import("@/lib/catalog-params");
+    expect(parseCatalogParams({ publico: "HOMBRE" }).publico).toBe("HOMBRE");
+    for (const retired of ["UNISEX", "NINO", "NINA"]) {
+      expect(parseCatalogParams({ publico: retired }).publico).toBeUndefined();
+    }
+  });
+
   it("keeps valid values and caps the search length", async () => {
     const { parseCatalogParams } = await import("@/lib/catalog-params");
     const parsed = parseCatalogParams({ publico: "MUJER", orden: "nombre-asc", q: "a".repeat(500) });

@@ -1,6 +1,6 @@
 import type { Audience, ProductTagType } from "@prisma/client";
 
-import { AUDIENCE_LABELS, PRODUCT_TAG_LABELS } from "@/lib/constants";
+import { CATALOG_AUDIENCES, PRODUCT_TAG_LABELS } from "@/lib/constants";
 import { formatCatalogColor } from "@/lib/catalog-colors";
 import { toArray, toPositiveInt, toSingle, type RawSearchParams } from "@/lib/search-params";
 
@@ -21,7 +21,7 @@ export type CatalogParams = {
 };
 
 function isAudience(value: string): value is Audience {
-  return Object.hasOwn(AUDIENCE_LABELS, value);
+  return (CATALOG_AUDIENCES as string[]).includes(value);
 }
 
 function isProductTag(value: string): value is ProductTagType {
