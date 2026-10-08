@@ -79,7 +79,11 @@ export default async function CampanasPage({ searchParams }: PageProps) {
                 }
                 return (
                   <tr key={campaign.id}>
-                    <AdminTd className="font-medium text-slate-900">{campaign.name}</AdminTd>
+                    <AdminTd className="font-medium text-slate-900">
+                      <a href={`/admin/campanas/${campaign.id}/editar`} className="hover:text-blue-700 hover:underline">
+                        {campaign.name}
+                      </a>
+                    </AdminTd>
                     <AdminTd>
                       {campaign.startDate ? formatDate(campaign.startDate) : "—"}
                       {campaign.endDate ? ` a ${formatDate(campaign.endDate)}` : ""}

@@ -109,3 +109,15 @@ en vivo antes de actuar**. Uno de los informes se equivocó (afirmó que
   en `public/`, 32 MB de imágenes versionadas*: son del área visual del otro agente.
 - *Orden de expulsión del limitador* (un bucket antiguo y activo se expulsa
   primero): exige ≥10 000 claves distintas; riesgo bajo, documentado.
+
+## Bucle 6 — verificación en móvil (7 de octubre de 2026)
+
+Línea base: `typecheck`, `lint` limpios; 259 pruebas; `npm audit --omit=dev`: 0.
+
+| Prioridad | Problema (cómo se verificó) | Corrección |
+| --- | --- | --- |
+| Media | En móvil (375 px) las 5 tablas del admin miden 640 px y la acción "Editar"/"Ver" queda fuera de pantalla (x=627) sin pista de scroll; el nombre de la fila no era enlace → no se descubría cómo editar un producto, categoría, usuario, campaña o solicitud | La celda principal de cada fila enlaza a la misma página de edición; la columna "Editar" se conserva. Verificado en navegador: el nombre abre "Editar producto" |
+
+Pendiente (no aplicado): enlaces de cabecera del admin ("Panel MPM", "Ver sitio público")
+con 16 px de alto táctil; un servidor `next start` antiguo en el puerto 3000 responde 500
+en `/login` por quedar desfasado respecto de `.next` (el `next dev` del 3001 funciona).

@@ -119,7 +119,9 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
                     {formatDateTime(request.createdAt)}
                   </AdminTd>
                   <AdminTd className="font-medium text-slate-900">
-                    {request.contactName}
+                    <a href={`/admin/solicitudes/${request.id}`} className="hover:text-blue-700 hover:underline">
+                      {request.contactName}
+                    </a>
                     <div className="text-xs font-normal text-slate-500">{request.contactPhone}</div>
                   </AdminTd>
                   <AdminTd>{request.city}</AdminTd>

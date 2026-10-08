@@ -52,7 +52,11 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
               const category = categories.find((c) => c.id === option.id)!;
               return (
                 <tr key={category.id}>
-                  <AdminTd className="font-medium text-slate-900">{option.label}</AdminTd>
+                  <AdminTd className="font-medium text-slate-900">
+                    <a href={`/admin/categorias/${category.id}/editar`} className="hover:text-blue-700 hover:underline">
+                      {option.label}
+                    </a>
+                  </AdminTd>
                   <AdminTd className="text-slate-500">{category.slug}</AdminTd>
                   <AdminTd>{countByCategory.get(category.id) ?? 0}</AdminTd>
                   <AdminTd>

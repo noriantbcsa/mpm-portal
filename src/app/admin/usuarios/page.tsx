@@ -43,7 +43,11 @@ export default async function UsuariosPage({ searchParams }: PageProps) {
             <tbody>
               {users.map((user) => (
                 <tr key={user.id}>
-                  <AdminTd className="font-medium text-slate-900">{user.name}</AdminTd>
+                  <AdminTd className="font-medium text-slate-900">
+                    <a href={`/admin/usuarios/${user.id}`} className="hover:text-blue-700 hover:underline">
+                      {user.name}
+                    </a>
+                  </AdminTd>
                   <AdminTd>{user.email}</AdminTd>
                   <AdminTd>{ROLE_LABELS[user.role]}</AdminTd>
                   <AdminTd>

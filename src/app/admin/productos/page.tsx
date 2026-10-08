@@ -111,7 +111,11 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
                       )}
                     </div>
                   </AdminTd>
-                  <AdminTd className="font-medium text-slate-900">{product.name}</AdminTd>
+                  <AdminTd className="font-medium text-slate-900">
+                    <a href={`/admin/productos/${product.id}/editar`} className="hover:text-blue-700 hover:underline">
+                      {product.name}
+                    </a>
+                  </AdminTd>
                   <AdminTd>{product.sku}</AdminTd>
                   <AdminTd>{product.category.name}</AdminTd>
                   <AdminTd>
