@@ -118,6 +118,6 @@ Línea base: `typecheck`, `lint` limpios; 259 pruebas; `npm audit --omit=dev`: 0
 | --- | --- | --- |
 | Media | En móvil (375 px) las 5 tablas del admin miden 640 px y la acción "Editar"/"Ver" queda fuera de pantalla (x=627) sin pista de scroll; el nombre de la fila no era enlace → no se descubría cómo editar un producto, categoría, usuario, campaña o solicitud | La celda principal de cada fila enlaza a la misma página de edición; la columna "Editar" se conserva. Verificado en navegador: el nombre abre "Editar producto" |
 
-Pendiente (no aplicado): enlaces de cabecera del admin ("Panel MPM", "Ver sitio público")
-con 16 px de alto táctil; un servidor `next start` antiguo en el puerto 3000 responde 500
+Corregido después: enlaces de cabecera del admin ("Panel MPM", "Ver sitio público")
+pasaron de 16 px a 32–40 px de alto táctil. Pendiente: un servidor `next start` antiguo en el puerto 3000 responde 500
 en `/login` por quedar desfasado respecto de `.next` (el `next dev` del 3001 funciona).
