@@ -173,6 +173,18 @@ export async function listProducts(filters: CatalogFilters = {}) {
 // cada visita es desperdicio. Se memoiza 60 s por ámbito: un producto nuevo
 // aparece en los filtros como máximo un minuto después. En pruebas no se
 // memoiza para que cada caso vea sus propios datos.
+/**
+ * Tallas que el filtro siempre ofrece (en este orden), aunque todavía ninguna
+ * referencia las tenga cargadas; las tallas reales extra (p. ej. "38") van después.
+ */
+export const STANDARD_CATALOG_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "Talla única"];
+
+export function withStandardSizes(found: string[]) {
+  const standardKeys = new Set(STANDARD_CATALOG_SIZES.map((size) => size.toLowerCase()));
+  const extras = found.filter((size) => !standardKeys.has(size.toLowerCase()));
+  return [...STANDARD_CATALOG_SIZES, ...extras];
+}
+
 const FILTER_OPTIONS_TTL_MS = 60_000;
 const filterOptionsCache = new Map<string, { expiresAt: number; value: CatalogFilterOptions }>();
 
@@ -194,7 +206,7 @@ export async function getCatalogFilterOptions(categorySlug?: string): Promise<Ca
     );
 
   const value: CatalogFilterOptions = {
-    sizes: uniqueSorted(products.flatMap((product) => product.sizes).filter(isFilterableCatalogSize)),
+    sizes: withStandardSizes(uniqueSorted(products.flatMap((product) => product.sizes).filter(isFilterableCatalogSize))),
     colors: uniqueSorted(
       products
         .flatMap((product) => product.colors)
