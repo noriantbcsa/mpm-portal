@@ -488,7 +488,9 @@ html[data-festivity] .seasonal-footer {
 html[data-festivity] .seasonal-glass,
 html[data-festivity] .catalog-page-header,
 html[data-festivity] .seasonal-band {
-  background: rgb(255 252 246 / 0.54);
+  /* La decoración se conserva alrededor; las zonas de lectura mantienen una
+     base casi opaca para que el texto no dependa del color de la ilustración. */
+  background: rgb(255 252 246 / 0.9);
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
 }
@@ -547,12 +549,10 @@ html[data-festivity] .seasonal-product-card:hover {
   transform: translateY(-2px);
 }
 
-/* Translúcida y esmerilada: la pintura festiva continúa detrás de cada tarjeta
-   (las fotos siguen opacas y completas). */
+/* Las fichas son superficies de lectura: la pintura continúa entre ellas,
+   nunca detrás del nombre, referencia ni etiquetas del producto. */
 html[data-festivity] .seasonal-product-card {
-  background: color-mix(in srgb, var(--paper) 62%, transparent);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  background: rgb(255 253 249 / 0.97);
 }
 
 html[data-festivity] .seasonal-footer {

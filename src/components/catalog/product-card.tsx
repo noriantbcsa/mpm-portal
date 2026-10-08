@@ -51,14 +51,14 @@ export function ProductCard({
         </span>
       </div>
       <div className="flex flex-1 flex-col gap-1 px-3 pb-5 pt-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
           {categoryLabel}
         </p>
-        <h3 className="break-words font-display text-sm font-semibold leading-snug text-ink line-clamp-2 sm:text-base">
+        <h3 className="break-words font-display text-base font-semibold leading-snug text-ink line-clamp-2">
           {product.name}
         </h3>
-        <p className="text-xs text-ink-soft">Ref. {product.sku}</p>
-        {product.tags.length > 0 && <p className="pt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-soft">{product.tags.map((tag) => PRODUCT_TAG_LABELS[tag]).join(" · ")}</p>}
+        <p className="text-sm text-ink-soft">Ref. {product.sku}</p>
+        {product.tags.length > 0 && <p className="pt-1 text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{product.tags.map((tag) => PRODUCT_TAG_LABELS[tag]).join(" · ")}</p>}
         {price && <p className="mt-auto pt-2 text-sm font-semibold text-ink">{price}</p>}
       </div>
     </Link>
