@@ -488,12 +488,12 @@ html[data-festivity] .seasonal-main::after {
 .seasonal-scene-art {
   position: absolute;
   display: block;
-  /* Las ilustraciones son el gesto principal de cada festividad: deben
-     sentirse generosas, como en la composición original, sin cubrir
-     contenido porque permanecen detrás de cada sección. */
-  width: clamp(24rem, 38vw, 46rem);
+  /* Los artes tienen aire intencional a la izquierda. Se escala el lienzo
+     completo para que el motivo visible (velitas, flores, etc.) tenga una
+     presencia grande en vez de quedar reducido a una esquina. */
+  width: clamp(56rem, 82vw, 100rem);
   aspect-ratio: 1672 / 941;
-  opacity: 0.56;
+  opacity: 0.68;
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
@@ -551,8 +551,8 @@ html[data-festivity] .seasonal-main::after {
 
 @media (max-width: 639px) {
   .seasonal-scene-art {
-    width: min(18rem, 78vw);
-    opacity: 0.34;
+    width: min(30rem, 128vw);
+    opacity: 0.42;
   }
 
   .seasonal-scene-art--right-top { top: 1rem; right: -2.5rem; }
