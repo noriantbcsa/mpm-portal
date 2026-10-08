@@ -27,9 +27,9 @@ export async function Header() {
     <header className="public-header relative z-30 border-b border-line bg-paper">
       {activeCampaign && (
         <aside aria-label="Oferta y promoción activa" className="campaign-announcement">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-4 text-center sm:justify-between sm:py-5 sm:text-left">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-1.5 px-4 py-2.5 text-center sm:justify-between sm:gap-y-2 sm:py-5 sm:text-left">
             <span className="campaign-announcement-label px-3! py-1.5! text-xs!">Oferta especial</span>
-            <p className="min-w-0 text-base font-medium leading-snug text-white sm:flex-1 sm:text-xl">
+            <p className="min-w-0 text-[0.95rem] font-medium leading-snug text-white sm:flex-1 sm:text-xl">
               <span className="font-bold">{activeCampaign.name}</span>
               {activeCampaign.description ? ` · ${activeCampaign.description}` : " · conoce la selección"}
             </p>
