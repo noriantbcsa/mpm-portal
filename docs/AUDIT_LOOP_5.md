@@ -133,3 +133,11 @@ retirado: `src/lib/cloudinary.ts` y la dependencia `cloudinary` (la CSP y
 `ui/spinner`, `ui/card`, `catalog/category-chips`, `buildGeneralInquiryMessage`,
 `SUGGESTED_SIZES/COLORS`, `CART_REQUEST_OPEN_STATUSES` y las 5 SVG de plantilla de
 `public/`. `typecheck`, `lint`, 257 pruebas y `db:drift` limpios; audit: 0.
+
+### Bucle 6 (cont.) — marcador del seed en el carrito
+
+| Prioridad | Problema (cómo se verificó) | Corrección |
+| --- | --- | --- |
+| Media | Un producto sembrado sin talla/color (`"Consultar disponibilidad"`) lo preseleccionaba y llegaba al carrito como "Talla Consultar disponibilidad · Consultar disponibilidad" (verificado en el carrito a 375 px) | `getProductBySlug` (vista pública) filtra el marcador con `withoutPlaceholderOptions`; el admin lo sigue viendo. Prueba de integración (258 en total); verificado en el navegador: `size`/`color` = `null` |
+
+Revisado sin hallazgos: catálogo y carrito a 375 px sin desbordamiento, aviso de "agregado" anunciado, envío vacío bloqueado con foco en el primer campo. Pendiente (área del otro agente): enlaces del pie con 16 px de alto táctil.

@@ -3,7 +3,7 @@ import { connectOrSkip } from "./test-db";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { prisma } from "@/lib/prisma";
-import { getCatalogFilterOptions, incrementProductViewCount, listProducts } from "@/lib/products";
+import { getCatalogFilterOptions, getProductBySlug, incrementProductViewCount, listProducts } from "@/lib/products";
 
 // Requiere una base de datos de pruebas real (ver tests/integration/test-db.ts).
 // Si no está disponible (por ejemplo, una máquina sin Docker/Postgres
@@ -198,5 +198,28 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
     expect(options.sizes).not.toContain("Consultar disponibilidad");
     expect(options.colors).toContain("Blanco");
     expect(options.colors).toContain("Verde Cali");
+  });
+  it("el detalle público no ofrece el texto de reserva como talla ni color, pero el admin sí lo ve", async () => {
+    await prisma.product.create({
+      data: {
+        sku: "IT-0099",
+        name: "Sin talla definida",
+        slug: "it-sin-talla",
+        description: "Producto sembrado sin talla ni color conocidos.",
+        categoryId: caballeroId,
+        audience: "HOMBRE",
+        sizes: ["Consultar disponibilidad"],
+        colors: ["Consultar disponibilidad"],
+        status: "DISPONIBLE",
+        tags: [],
+      },
+    });
+
+    const publicView = await getProductBySlug("it-sin-talla");
+    expect(publicView?.sizes).toEqual([]);
+    expect(publicView?.colors).toEqual([]);
+
+    const adminView = await getProductBySlug("it-sin-talla", { includeHidden: true });
+    expect(adminView?.sizes).toEqual(["Consultar disponibilidad"]);
   });
 });

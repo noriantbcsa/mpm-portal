@@ -218,6 +218,19 @@ const productDetailInclude = {
 
 export type ProductDetail = Prisma.ProductGetPayload<{ include: typeof productDetailInclude }>;
 
+/**
+ * El seed guarda "Consultar disponibilidad" cuando aún no se conoce la talla o
+ * el color. Al público no se le ofrece como opción elegible (acababa en el
+ * carrito como "Talla Consultar disponibilidad · Consultar disponibilidad").
+ */
+export function withoutPlaceholderOptions<T extends { sizes: string[]; colors: string[] }>(product: T): T {
+  return {
+    ...product,
+    sizes: product.sizes.filter(isFilterableCatalogSize),
+    colors: product.colors.filter(isFilterableCatalogColor),
+  };
+}
+
 // `generateMetadata` y la página piden el mismo producto en la misma petición:
 // con `cache()` la consulta (con todas sus relaciones) se hace una sola vez.
 // Los argumentos son primitivos para que la memoización por argumentos funcione.
@@ -226,10 +239,11 @@ const getProductBySlugCached = cache(
     if (includeHidden) {
       return prisma.product.findUnique({ where: { slug }, include: productDetailInclude });
     }
-    return prisma.product.findFirst({
+    const product = await prisma.product.findFirst({
       where: { slug, status: { in: PUBLIC_PRODUCT_STATUSES }, category: PUBLIC_CATEGORY_WHERE },
       include: productDetailInclude,
     });
+    return product && withoutPlaceholderOptions(product);
   },
 );
 
