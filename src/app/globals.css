@@ -488,9 +488,12 @@ html[data-festivity] .seasonal-main::after {
 .seasonal-scene-art {
   position: absolute;
   display: block;
-  width: clamp(15rem, 25vw, 28rem);
+  /* Las ilustraciones son el gesto principal de cada festividad: deben
+     sentirse generosas, como en la composición original, sin cubrir
+     contenido porque permanecen detrás de cada sección. */
+  width: clamp(24rem, 38vw, 46rem);
   aspect-ratio: 1672 / 941;
-  opacity: 0.46;
+  opacity: 0.56;
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
@@ -548,8 +551,8 @@ html[data-festivity] .seasonal-main::after {
 
 @media (max-width: 639px) {
   .seasonal-scene-art {
-    width: min(14rem, 66vw);
-    opacity: 0.3;
+    width: min(18rem, 78vw);
+    opacity: 0.34;
   }
 
   .seasonal-scene-art--right-top { top: 1rem; right: -2.5rem; }
