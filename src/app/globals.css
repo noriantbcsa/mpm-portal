@@ -438,6 +438,16 @@ html[data-festivity] .seasonal-main::after {
   mask-image: var(--glow), linear-gradient(to bottom, transparent, #000 30%);
 }
 
+/* El espacio entre el contenido y el pie pertenece al fondo festivo, no a la
+   base blanca de la página, para que la pintura llegue hasta el pie. */
+html[data-festivity] .seasonal-main {
+  padding-bottom: 4rem;
+}
+
+html[data-festivity] .seasonal-footer {
+  margin-top: 0;
+}
+
 /* Las fotos y los controles de cada página nunca compiten con la decoración. */
 .seasonal-main > :not(.seasonal-scene) {
   position: relative;
