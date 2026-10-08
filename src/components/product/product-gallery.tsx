@@ -101,7 +101,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           placeholder="blur"
           blurDataURL={IMAGE_BLUR_DATA_URL}
           decoding="async"
-          className="object-cover"
+          className="object-contain"
         />
         {current.color && (
           <span className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] break-words bg-paper px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm">

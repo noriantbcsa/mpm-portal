@@ -33,7 +33,7 @@ export function ProductCard({
               placeholder="blur"
               blurDataURL={IMAGE_BLUR_DATA_URL}
               decoding="async"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+              className="object-contain transition-transform duration-500 group-hover:scale-[1.025]"
             />
           </>
         ) : (
@@ -50,7 +50,7 @@ export function ProductCard({
           Ver prenda
         </span>
       </div>
-      <div className="flex flex-1 flex-col gap-1 px-0 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-1 px-3 pb-5 pt-3">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
           {categoryLabel}
         </p>

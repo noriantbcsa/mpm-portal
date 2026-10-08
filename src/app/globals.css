@@ -354,119 +354,11 @@ html[data-festivity] .seasonal-main > :not(.seasonal-ambient):not(.seasonal-scen
   z-index: 1;
 }
 
-/* Escenas específicas por celebración. Son formas CSS estáticas, por tanto no
-   interfieren con la carga progresiva de fotos ni ejecutan JavaScript. */
-.seasonal-scene {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.seasonal-scene-banner,
-.seasonal-scene-cluster,
-.seasonal-scene-corner,
-.seasonal-scene-band { position: absolute; }
-
-.seasonal-scene-cluster i,
-.seasonal-scene-corner i,
-.seasonal-scene-band i { position: absolute; display: block; }
-
-/* Las cuatro franjas llenan los tramos largos de catálogo e inicio: hacen que
-   el ambiente se perciba en todo el recorrido, pero se desvanecen hacia el
-   centro para proteger lectura, fotos y filtros. */
-.seasonal-scene-band { inset: 8rem 0 0; }
-.seasonal-scene-band i { left: 0; right: 0; height: 9rem; opacity: 0.42; mask-image: linear-gradient(90deg, transparent, #000 12% 88%, transparent); }
-.seasonal-scene-band i:nth-child(1) { top: 11rem; }.seasonal-scene-band i:nth-child(2) { top: 34rem; }.seasonal-scene-band i:nth-child(3) { top: 61rem; }.seasonal-scene-band i:nth-child(4) { top: 91rem; }
-
-/* Navidad: guirnalda luminosa arriba y regalos discretos en el borde. */
-.seasonal-scene--navidad .seasonal-scene-banner {
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 4.5rem;
-  opacity: 0.75;
-  background:
-    radial-gradient(circle at 5% 1.4rem, #f7d65a 0 4px, transparent 5px),
-    radial-gradient(circle at 13% 2.3rem, #e7534f 0 4px, transparent 5px),
-    radial-gradient(circle at 21% 1.5rem, #74b88b 0 4px, transparent 5px),
-    radial-gradient(circle at 29% 2.25rem, #f7d65a 0 4px, transparent 5px),
-    radial-gradient(circle at 37% 1.35rem, #e7534f 0 4px, transparent 5px),
-    radial-gradient(circle at 45% 2.3rem, #74b88b 0 4px, transparent 5px),
-    radial-gradient(circle at 53% 1.4rem, #f7d65a 0 4px, transparent 5px),
-    radial-gradient(circle at 61% 2.3rem, #e7534f 0 4px, transparent 5px),
-    radial-gradient(circle at 69% 1.4rem, #74b88b 0 4px, transparent 5px),
-    radial-gradient(circle at 77% 2.25rem, #f7d65a 0 4px, transparent 5px),
-    radial-gradient(circle at 85% 1.4rem, #e7534f 0 4px, transparent 5px),
-    radial-gradient(circle at 93% 2.3rem, #74b88b 0 4px, transparent 5px),
-    linear-gradient(175deg, transparent 32%, color-mix(in srgb, #246447 58%, transparent) 33% 36%, transparent 37%);
-}
-
-.seasonal-scene--navidad .seasonal-scene-cluster { bottom: 2rem; left: 3%; width: 14rem; height: 6rem; opacity: 0.54; }
-.seasonal-scene--navidad .seasonal-scene-cluster i { bottom: 0; width: 3.2rem; height: 3.2rem; background: linear-gradient(90deg, transparent 43%, #f7d65a 44% 56%, transparent 57%), linear-gradient(#d94444 43%, #f7d65a 44% 56%, #d94444 57%); box-shadow: 0 3px 0 color-mix(in srgb, #8e2626 45%, transparent); }
-.seasonal-scene--navidad .seasonal-scene-cluster i:nth-child(1) { left: 0; height: 2.7rem; background-color: #d94444; }
-.seasonal-scene--navidad .seasonal-scene-cluster i:nth-child(2) { left: 3.1rem; width: 3.9rem; height: 4.6rem; background-color: #2e8660; }
-.seasonal-scene--navidad .seasonal-scene-cluster i:nth-child(3) { left: 7rem; height: 3.5rem; background-color: #e1a943; }
-.seasonal-scene--navidad .seasonal-scene-cluster i:nth-child(n+4) { display: none; }
-.seasonal-scene--navidad .seasonal-scene-band i { background: repeating-linear-gradient(45deg, color-mix(in srgb, #24734f 12%, transparent) 0 18px, transparent 18px 38px), repeating-linear-gradient(-45deg, color-mix(in srgb, #d94444 11%, transparent) 0 18px, transparent 18px 38px); border-top: 1px solid color-mix(in srgb, #e1b84d 32%, transparent); border-bottom: 1px solid color-mix(in srgb, #24734f 24%, transparent); }
-
-/* Velitas: pequeñas velas cálidas en la parte inferior. */
-.seasonal-scene--velitas .seasonal-scene-banner { left: 7%; right: 7%; top: 0; height: 1px; background: color-mix(in srgb, var(--seasonal-secondary) 55%, transparent); box-shadow: 0 7px 0 color-mix(in srgb, var(--seasonal-primary) 17%, transparent); }
-.seasonal-scene--velitas .seasonal-scene-cluster { right: 6%; bottom: 1rem; width: 12rem; height: 6rem; opacity: 0.52; }
-.seasonal-scene--velitas .seasonal-scene-cluster i { bottom: 0; width: 1.5rem; height: 3.4rem; border-radius: 3px 3px 0 0; background: color-mix(in srgb, var(--seasonal-tertiary) 75%, white); box-shadow: 0 -1.3rem 1.1rem color-mix(in srgb, var(--seasonal-secondary) 50%, transparent); }
-.seasonal-scene--velitas .seasonal-scene-cluster i::before { position: absolute; left: 0.35rem; top: -1.35rem; width: 0.8rem; height: 1.25rem; border-radius: 90% 15% 90% 15%; background: var(--seasonal-secondary); content: ""; transform: rotate(-35deg); }
-.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(1) { left: 0; height: 2.7rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(2) { left: 2.2rem; height: 4.1rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(3) { left: 4.4rem; height: 3.2rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(4) { left: 6.6rem; height: 4.8rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(5) { left: 8.8rem; height: 2.9rem; }.seasonal-scene--velitas .seasonal-scene-cluster i:nth-child(6) { display: none; }
-.seasonal-scene--velitas .seasonal-scene-band i { background: radial-gradient(ellipse at 10% 100%, color-mix(in srgb, var(--seasonal-secondary) 30%, transparent), transparent 12%), radial-gradient(ellipse at 34% 100%, color-mix(in srgb, var(--seasonal-secondary) 25%, transparent), transparent 10%), radial-gradient(ellipse at 65% 100%, color-mix(in srgb, var(--seasonal-secondary) 30%, transparent), transparent 12%), radial-gradient(ellipse at 89% 100%, color-mix(in srgb, var(--seasonal-secondary) 25%, transparent), transparent 10%); border-bottom: 1px solid color-mix(in srgb, var(--seasonal-primary) 25%, transparent); }
-
-/* Amor y Amistad: corazones de fondo, no sobre los controles. */
-.seasonal-scene--amor-y-amistad .seasonal-scene-cluster { left: 4%; top: 18rem; width: 12rem; height: 12rem; opacity: 0.3; }
-.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i { width: 2.5rem; height: 2.5rem; background: var(--seasonal-secondary); border-radius: 50% 50% 0 0; transform: rotate(45deg); }
-.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i::before { position: absolute; left: -1.25rem; width: 2.5rem; height: 2.5rem; border-radius: 50% 50% 0 0; background: inherit; content: ""; }.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i::after { position: absolute; bottom: -1.25rem; left: 0; border: 1.25rem solid transparent; border-top-color: inherit; content: ""; transform: rotate(-45deg); transform-origin: top; }
-.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i:nth-child(1) { left: 1rem; top: 1rem; }.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i:nth-child(2) { right: 0; top: 4.5rem; transform: rotate(45deg) scale(0.65); }.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i:nth-child(3) { left: 4rem; bottom: 0; transform: rotate(45deg) scale(0.45); }.seasonal-scene--amor-y-amistad .seasonal-scene-cluster i:nth-child(n+4) { display: none; }
-.seasonal-scene--amor-y-amistad .seasonal-scene-band i { background: radial-gradient(circle at 9% 45%, color-mix(in srgb, var(--seasonal-secondary) 20%, transparent) 0 7px, transparent 8px), radial-gradient(circle at 31% 65%, color-mix(in srgb, var(--seasonal-primary) 13%, transparent) 0 5px, transparent 6px), radial-gradient(circle at 69% 35%, color-mix(in srgb, var(--seasonal-secondary) 18%, transparent) 0 8px, transparent 9px), radial-gradient(circle at 92% 60%, color-mix(in srgb, var(--seasonal-primary) 13%, transparent) 0 5px, transparent 6px); }
-
-/* Colombia, Carnaval y San Pedro: bandera, confeti y flores abstractas. */
-.seasonal-scene--colombia .seasonal-scene-banner { top: 0; right: 8%; width: 2.6rem; height: 9rem; opacity: 0.46; background: linear-gradient(#fcd116 0 50%, #003893 50% 75%, #ce1126 75%); transform: skewY(-12deg); }
-.seasonal-scene--carnaval .seasonal-scene-corner { right: 4%; top: 12rem; width: 10rem; height: 10rem; opacity: 0.42; background: repeating-conic-gradient(from 15deg, var(--seasonal-secondary) 0 10deg, transparent 10deg 28deg, var(--seasonal-tertiary) 28deg 38deg, transparent 38deg 60deg); border-radius: 999px; }
-.seasonal-scene--san-pedro .seasonal-scene-corner { right: 5%; top: 15rem; width: 9rem; height: 9rem; opacity: 0.34; background: repeating-conic-gradient(var(--seasonal-secondary) 0 17deg, transparent 17deg 43deg); border-radius: 999px; }
-
-.seasonal-scene--colombia .seasonal-scene-band i { height: 4.5rem; background: linear-gradient(#fcd116 0 50%, #003893 50% 75%, #ce1126 75%); opacity: 0.22; box-shadow: 0 3.5rem 0 color-mix(in srgb, #fcd116 10%, transparent); }
-.seasonal-scene--carnaval .seasonal-scene-band i { background: repeating-conic-gradient(from 25deg at 12% 50%, color-mix(in srgb, var(--seasonal-secondary) 30%, transparent) 0 8deg, transparent 8deg 22deg, color-mix(in srgb, var(--seasonal-tertiary) 32%, transparent) 22deg 30deg, transparent 30deg 45deg), repeating-conic-gradient(from -10deg at 88% 50%, color-mix(in srgb, var(--seasonal-primary) 26%, transparent) 0 8deg, transparent 8deg 22deg, color-mix(in srgb, var(--seasonal-secondary) 28%, transparent) 22deg 30deg, transparent 30deg 45deg); background-size: 17rem 17rem, 17rem 17rem; background-position: left center, right center; background-repeat: no-repeat; border-top: 2px dotted color-mix(in srgb, var(--seasonal-secondary) 42%, transparent); }
-.seasonal-scene--san-pedro .seasonal-scene-band i { background: radial-gradient(ellipse at 14% 50%, color-mix(in srgb, var(--seasonal-secondary) 28%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 16% 38%, color-mix(in srgb, var(--seasonal-tertiary) 25%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 16% 62%, color-mix(in srgb, var(--seasonal-tertiary) 25%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 86% 50%, color-mix(in srgb, var(--seasonal-secondary) 28%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 84% 38%, color-mix(in srgb, var(--seasonal-tertiary) 25%, transparent) 0 9px, transparent 10px), radial-gradient(ellipse at 84% 62%, color-mix(in srgb, var(--seasonal-tertiary) 25%, transparent) 0 9px, transparent 10px); border-bottom: 1px solid color-mix(in srgb, var(--seasonal-primary) 22%, transparent); }
-
-.seasonal-scene--negros-y-blancos .seasonal-scene-banner { inset: 1.3rem auto auto 5%; width: 11rem; height: 11rem; opacity: 0.18; background: repeating-radial-gradient(circle, var(--seasonal-primary) 0 4px, transparent 4px 13px); border-radius: 999px; }
-.seasonal-scene--negros-y-blancos .seasonal-scene-band i { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--seasonal-primary) 12%, transparent) 0 2px, transparent 2px 16px), repeating-linear-gradient(45deg, color-mix(in srgb, var(--seasonal-secondary) 11%, transparent) 0 2px, transparent 2px 21px); }
-
-@media (max-width: 639px) {
-  .seasonal-scene { opacity: 0.62; }
-  .seasonal-scene--navidad .seasonal-scene-cluster { left: -1.5rem; transform: scale(0.78); transform-origin: bottom left; }
-  .seasonal-scene--velitas .seasonal-scene-cluster { right: -3.5rem; transform: scale(0.75); transform-origin: bottom right; }
-  .seasonal-scene--amor-y-amistad .seasonal-scene-cluster { left: -3rem; }
-}
-
-/* Cada celebración gana una silueta propia sobre la misma base visual. */
-html[data-festivity="carnaval"] .seasonal-ambient b:nth-of-type(1) { border-radius: 999px 0; transform: rotate(35deg); }
-html[data-festivity="san-pedro"] .seasonal-ambient b:nth-of-type(1) { border-radius: 999px 0 999px 0; }
-html[data-festivity="colombia"] .seasonal-main::before { background: radial-gradient(circle, color-mix(in srgb, #fcd116 48%, transparent) 0 2px, transparent 3px); background-size: 38px 38px; }
-html[data-festivity="amor-y-amistad"] .seasonal-ambient b:nth-of-type(1) { border: 0; background: color-mix(in srgb, var(--seasonal-secondary) 30%, transparent); border-radius: 999px 999px 0; transform: rotate(45deg); }
-html[data-festivity="velitas"] .seasonal-ambient b:nth-of-type(2) { border-radius: 999px 999px 999px 0; box-shadow: 0 0 26px color-mix(in srgb, var(--seasonal-secondary) 42%, transparent); }
-html[data-festivity="navidad"] .seasonal-main::before { background: radial-gradient(circle, color-mix(in srgb, white 62%, transparent) 0 1px, transparent 2px); background-size: 28px 28px; }
-html[data-festivity="negros-y-blancos"] .seasonal-ambient b:nth-of-type(1) { border-color: color-mix(in srgb, var(--seasonal-primary) 36%, transparent); border-radius: 999px; }
-
-/* Fondos de temporada: una escena limpia con pocos símbolos reconocibles.
-   Estas reglas reemplazan los patrones repetitivos anteriores para que las
-   fotos, filtros y texto mantengan el protagonismo. */
+/* Fondo festivo continuo: una base de papel y tres pinturas repartidas a lo
+   largo de la página (ver SeasonalBackdrop). El contenedor es de tamaño
+   contenido para poder medir la página con unidades de contenedor (cqw/cqh). */
 html[data-festivity] .public-site-shell main,
-html[data-festivity] .public-site-shell .seasonal-main,
-html[data-festivity="carnaval"] .public-site-shell .seasonal-main,
-html[data-festivity="navidad"] .public-site-shell .seasonal-main,
-html[data-festivity="velitas"] .public-site-shell .seasonal-main,
-html[data-festivity="amor-y-amistad"] .public-site-shell .seasonal-main,
-html[data-festivity="colombia"] .public-site-shell .seasonal-main,
-html[data-festivity="san-pedro"] .public-site-shell .seasonal-main,
-html[data-festivity="negros-y-blancos"] .public-site-shell .seasonal-main {
-  background-color: color-mix(in srgb, var(--seasonal-wash) 24%, white);
+html[data-festivity] .public-site-shell .seasonal-main {
   background-image: none;
 }
 
@@ -481,83 +373,70 @@ html[data-festivity] .seasonal-main::after {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  container-type: size;
+  background-color: var(--paper);
 }
 
-/* Cada festividad usa tres ilustraciones independientes, no una capa con
-   pseudo-elementos. Así nunca se pisan: derecha, izquierda y derecha. */
-.seasonal-scene-art {
+.seasonal-art {
+  /* Alto: el menor entre (a) el que deja el motivo completo dentro del ancho
+     de pantalla y (b) el que cubre todo el ancho, con un mínimo de 28rem en
+     celulares. Así en escritorio la pintura ocupa todo el ancho y en celular
+     se recorta solo el papel vacío, nunca el motivo. */
+  --h: min(calc(94cqw / (var(--ar) * var(--frac))), max(calc(100cqw / var(--ar)), 28rem));
   position: absolute;
-  display: block;
-  /* Los artes tienen aire intencional a la izquierda. Se escala el lienzo
-     completo para que el motivo visible (velitas, flores, etc.) tenga una
-     presencia grande en vez de quedar reducido a una esquina. */
-  width: clamp(56rem, 82vw, 100rem);
-  aspect-ratio: 1672 / 941;
-  opacity: 0.68;
-  background-position: center;
+  left: 0;
+  right: 0;
+  height: var(--h);
+  background-image: var(--url);
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: auto 100%;
+  background-position: var(--side) top;
 }
 
-.seasonal-scene-art--right-top {
-  top: 2rem;
-  right: -1rem;
-  background-image: var(--seasonal-backdrop);
+/* Arriba: pegada al borde superior, se funde hacia abajo. */
+.seasonal-art--top {
+  top: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
 }
 
-.seasonal-scene-art--left-middle {
-  top: 52rem;
-  left: -1rem;
-  background-image: var(--seasonal-lateral);
+/* En medio: centrada en la página, se funde por ambos lados. */
+.seasonal-art--middle {
+  top: max(calc(var(--h) * 0.6), calc(50cqh - var(--h) / 2));
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22% 78%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 22% 78%, transparent);
 }
 
-.seasonal-scene-art--right-bottom {
-  top: 106rem;
-  right: -1rem;
-  background-image: var(--seasonal-complement);
+/* Abajo: llega hasta el pie de página, se funde hacia arriba. */
+.seasonal-art--bottom {
+  top: max(calc(100cqh - var(--h)), calc(var(--h) * 1.1));
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%);
+  mask-image: linear-gradient(to bottom, transparent, #000 30%);
 }
 
-/* Las fotos y los controles de cada página nunca deben competir con la
-   decoración de festividad. Sin esta capa, una ilustración lateral puede
-   quedar visualmente encima de la ficha de producto. */
+/* Pinturas de fondo oscuro (noche de velitas): la noche aparece solo alrededor
+   del motivo y se funde con el papel como un resplandor, para no oscurecer
+   toda la página ni restar contraste al texto. */
+.seasonal-art--dark {
+  --glow: radial-gradient(ellipse calc(var(--frac) * 125%) 68% at var(--side) 55%, #000 42%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.seasonal-art--dark.seasonal-art--middle {
+  -webkit-mask-image: var(--glow), linear-gradient(to bottom, transparent, #000 22% 78%, transparent);
+  mask-image: var(--glow), linear-gradient(to bottom, transparent, #000 22% 78%, transparent);
+}
+
+.seasonal-art--dark.seasonal-art--bottom {
+  -webkit-mask-image: var(--glow), linear-gradient(to bottom, transparent, #000 30%);
+  mask-image: var(--glow), linear-gradient(to bottom, transparent, #000 30%);
+}
+
+/* Las fotos y los controles de cada página nunca compiten con la decoración. */
 .seasonal-main > :not(.seasonal-scene) {
   position: relative;
   z-index: 1;
-}
-
-.seasonal-scene--negros-y-blancos { --seasonal-backdrop: url("/seasonal/negros-y-blancos.webp"); --seasonal-lateral: url("/seasonal/negros-y-blancos-lateral.webp"); --seasonal-complement: url("/seasonal/negros-y-blancos-complemento.webp"); }
-.seasonal-scene--feria-manizales { --seasonal-backdrop: url("/seasonal/feria-manizales.webp"); --seasonal-lateral: url("/seasonal/feria-manizales-lateral.webp"); --seasonal-complement: url("/seasonal/feria-manizales-complemento.webp"); }
-.seasonal-scene--carnaval { --seasonal-backdrop: url("/seasonal/carnaval.webp"); --seasonal-lateral: url("/seasonal/carnaval-lateral.webp"); --seasonal-complement: url("/seasonal/carnaval-complemento.webp"); }
-.seasonal-scene--dia-mujer { --seasonal-backdrop: url("/seasonal/dia-mujer.webp"); --seasonal-lateral: url("/seasonal/dia-mujer-lateral.webp"); --seasonal-complement: url("/seasonal/dia-mujer-complemento.webp"); }
-.seasonal-scene--dia-hombre { --seasonal-backdrop: url("/seasonal/dia-hombre.webp"); --seasonal-lateral: url("/seasonal/dia-hombre-lateral.webp"); --seasonal-complement: url("/seasonal/dia-hombre-complemento.webp"); }
-.seasonal-scene--dia-madre { --seasonal-backdrop: url("/seasonal/dia-madre.webp"); --seasonal-lateral: url("/seasonal/dia-madre-lateral.webp"); --seasonal-complement: url("/seasonal/dia-madre-complemento.webp"); }
-.seasonal-scene--festival-vallenato { --seasonal-backdrop: url("/seasonal/festival-vallenato.webp"); --seasonal-lateral: url("/seasonal/festival-vallenato-lateral.webp"); --seasonal-complement: url("/seasonal/festival-vallenato-complemento.webp"); }
-.seasonal-scene--san-pedro {
-  --seasonal-backdrop: url("/seasonal/san-pedro.webp");
-  --seasonal-lateral: url("/seasonal/san-pedro-lateral.webp");
-  --seasonal-complement: url("/seasonal/san-pedro-complemento.webp");
-}
-.seasonal-scene--colombia { --seasonal-backdrop: url("/seasonal/colombia.webp"); --seasonal-lateral: url("/seasonal/colombia-lateral.webp"); --seasonal-complement: url("/seasonal/colombia-complemento.webp"); }
-.seasonal-scene--feria-flores { --seasonal-backdrop: url("/seasonal/feria-flores.webp"); --seasonal-lateral: url("/seasonal/feria-flores-lateral.webp"); --seasonal-complement: url("/seasonal/feria-flores-complemento.webp"); }
-.seasonal-scene--amor-y-amistad { --seasonal-backdrop: url("/seasonal/amor-y-amistad.webp"); --seasonal-lateral: url("/seasonal/amor-y-amistad-lateral.webp"); --seasonal-complement: url("/seasonal/amor-y-amistad-complemento.webp"); }
-.seasonal-scene--san-pacho {
-  --seasonal-backdrop: url("/seasonal/san-pacho.webp");
-  --seasonal-lateral: url("/seasonal/san-pacho-lateral.webp");
-  --seasonal-complement: url("/seasonal/san-pacho-complemento.webp");
-}
-.seasonal-scene--velitas { --seasonal-backdrop: url("/seasonal/velitas.webp"); --seasonal-lateral: url("/seasonal/velitas-lateral.webp"); --seasonal-complement: url("/seasonal/velitas-complemento.webp"); }
-.seasonal-scene--navidad { --seasonal-backdrop: url("/seasonal/navidad.webp"); --seasonal-lateral: url("/seasonal/navidad-lateral.webp"); --seasonal-complement: url("/seasonal/navidad-complemento.webp"); }
-.seasonal-scene--feria-cali { --seasonal-backdrop: url("/seasonal/feria-cali.webp"); --seasonal-lateral: url("/seasonal/feria-cali-lateral.webp"); --seasonal-complement: url("/seasonal/feria-cali-complemento.webp"); }
-
-@media (max-width: 639px) {
-  .seasonal-scene-art {
-    width: min(30rem, 128vw);
-    opacity: 0.42;
-  }
-
-  .seasonal-scene-art--right-top { top: 1rem; right: -2.5rem; }
-  .seasonal-scene-art--left-middle { top: 42rem; left: -2.5rem; }
-  .seasonal-scene-art--right-bottom { top: 84rem; right: -2.5rem; }
 }
 
 /* Campañas: lenguaje editorial sobrio (tipo Zara / H&M / Arturo Calle):
@@ -591,21 +470,22 @@ html[data-festivity] .seasonal-main::after {
    fichas: una franja de color y superficies muy suaves, no fondos pesados. */
 html[data-festivity] .catalog-page-header {
   position: relative;
-  overflow: hidden;
-  border-bottom: 4px solid var(--seasonal-secondary);
-  background: linear-gradient(115deg, color-mix(in srgb, var(--seasonal-wash) 92%, white), white 66%);
+  border-bottom: 1px solid color-mix(in srgb, var(--seasonal-primary) 22%, transparent);
+  /* Sin fondo propio: deja ver la pintura festiva de la página. */
+  background: none;
 }
 
-html[data-festivity] .catalog-page-header::after {
-  position: absolute;
-  right: clamp(1rem, 8vw, 8rem);
-  top: -3rem;
-  width: 9rem;
-  height: 9rem;
-  border: 18px solid color-mix(in srgb, var(--seasonal-secondary) 23%, transparent);
-  border-radius: 999px;
-  content: "";
-  pointer-events: none;
+/* Texto que queda sobre la pintura: un halo de papel lo mantiene legible sin
+   usar cajas que tapen el fondo. */
+html[data-festivity] .catalog-page-header,
+html[data-festivity] .seasonal-band {
+  text-shadow: 0 0 0.5rem rgb(255 252 246 / 0.95), 0 0 1.1rem rgb(255 252 246 / 0.9);
+}
+
+/* Bandas que antes tapaban el fondo: translúcidas para que se vea la pintura
+   sin perder lectura. */
+html[data-festivity] .seasonal-band {
+  background: color-mix(in srgb, white 52%, transparent);
 }
 
 html[data-festivity] .catalog-filters {
@@ -623,28 +503,6 @@ html[data-festivity] .seasonal-soft-surface {
     linear-gradient(115deg, color-mix(in srgb, var(--seasonal-wash) 88%, white), white 72%);
   border: 2px solid color-mix(in srgb, var(--seasonal-primary) 45%, var(--line));
   box-shadow: 12px 12px 0 color-mix(in srgb, var(--seasonal-secondary) 22%, transparent);
-}
-
-html[data-festivity] .seasonal-hero {
-  border-bottom: 8px solid var(--seasonal-secondary);
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--seasonal-primary) 70%, transparent),
-    0 22px 50px color-mix(in srgb, var(--seasonal-primary) 18%, transparent);
-}
-
-html[data-festivity] .seasonal-hero::after {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 12;
-  height: 10px;
-  content: "";
-  background: linear-gradient(
-    90deg,
-    var(--seasonal-primary) 0 25%,
-    var(--seasonal-secondary) 25% 50%,
-    var(--seasonal-tertiary) 50% 75%,
-    var(--seasonal-primary) 75%
-  );
 }
 
 html[data-festivity] .seasonal-section-heading {
@@ -671,8 +529,12 @@ html[data-festivity] .seasonal-product-card:hover {
   transform: translateY(-2px);
 }
 
+/* Translúcida y esmerilada: la pintura festiva continúa detrás de cada tarjeta
+   (las fotos siguen opacas y completas). */
 html[data-festivity] .seasonal-product-card {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--seasonal-wash) 18%, var(--paper)), var(--paper) 36%);
+  background: color-mix(in srgb, var(--paper) 62%, transparent);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 }
 
 html[data-festivity] .seasonal-footer {

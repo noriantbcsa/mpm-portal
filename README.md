@@ -123,6 +123,7 @@ todos.
 | `npm run db:test:migrate` | Aplica las migraciones a la base de pruebas `mpm_portal_test` |
 | `npm run db:remove-demo-content` | Borra contenido sintético de versiones antiguas (una sola vez, a mano; nunca en el build) |
 | `npm run catalog:images:webp` / `catalog:images:audit` | Convierte fotos del catálogo a WebP / audita los archivos entregados |
+| `npm run seasonal:manifest` | Analiza las pinturas de `public/seasonal` (lado del motivo, proporción, color del papel) y regenera `src/lib/seasonal-art-manifest.json`; ejecutarlo al agregar o cambiar imágenes festivas |
 | `npm run db:drift` | Comprueba que las migraciones producen exactamente `schema.prisma` (requiere `SHADOW_DATABASE_URL`, una base desechable; lo corre el CI) |
 | `npm run db:studio` | Abre Prisma Studio para inspeccionar la base de datos |
 | `npm run db:reset` | ⚠️ Borra y recrea la base de datos local desde cero |

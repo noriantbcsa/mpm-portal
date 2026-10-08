@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, MessageCircle, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 import { getSiteSettings } from "@/lib/site-config";
 import { getSiteUrl } from "@/lib/site-url";
@@ -9,10 +8,9 @@ import { getActiveCampaign } from "@/lib/campaigns";
 import { getCategoryTree } from "@/lib/categories";
 import { listProducts } from "@/lib/products";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
-import { LinkButton } from "@/components/ui/button";
+import { HeroCarousel, type HeroSlide } from "@/components/home/hero-carousel";
 import { CategoryCard } from "@/components/catalog/category-card";
 import { ProductShelf } from "@/components/catalog/product-shelf";
-import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 import { JsonLd } from "@/components/seo/json-ld";
 
 // La portada consulta datos actuales: imágenes, colecciones y campaña se
@@ -40,8 +38,25 @@ export default async function HomePage() {
   ]);
 
   const latestProducts = latestResult.items;
-  const heroImage = settings.heroImageUrl ?? latestProducts[0]?.images[0]?.url ?? null;
+  const photosOf = (items: typeof latestProducts, from = 0) =>
+    items
+      .filter((product) => product.images[0])
+      .slice(from, from + 3)
+      .map((product) => ({ url: product.images[0].url, alt: product.name, href: `/producto/${product.slug}` }));
   const whatsappHref = buildWhatsAppLink(settings.whatsappNumber, settings.whatsappDefaultMessage);
+  const featured = photosOf(latestProducts);
+  if (settings.heroImageUrl) featured.unshift({ url: settings.heroImageUrl, alt: settings.heroTitle, href: settings.heroCtaHref });
+
+  const slides: HeroSlide[] = [
+    { id: "portada", kicker: "Nueva colección · MPM", title: settings.heroTitle, text: settings.heroSubtitle, ctaLabel: settings.heroCtaLabel, ctaHref: settings.heroCtaHref, photos: featured },
+    ...(womenResult.items.length > 0
+      ? [{ id: "damas", kicker: "Damas", title: "Para ella", text: "Blusas, camisas y referencias de la colección femenina, en variedad de tallas y colores.", ctaLabel: "Ver damas", ctaHref: "/catalogo/damas", photos: photosOf(womenResult.items) }]
+      : []),
+    ...(menResult.items.length > 0
+      ? [{ id: "caballero", kicker: "Caballero", title: "Para él", text: "Camisas y prendas de la colección masculina, hechas para el día a día.", ctaLabel: "Ver caballero", ctaHref: "/catalogo/caballero", photos: photosOf(menResult.items) }]
+      : []),
+    { id: "nosotros", kicker: "Nosotros · desde 2017", title: "Moda hecha con oficio y cercanía", text: `${settings.siteName} nació en Bogotá para construir una marca propia, creciendo con cada prenda y cada pedido.`, ctaLabel: "Conócenos", ctaHref: "/nosotros", photos: photosOf(latestProducts, 3).length >= 2 ? photosOf(latestProducts, 3) : featured },
+  ].filter((slide) => slide.photos.length > 0);
   const siteUrl = getSiteUrl();
   const spotlightCategories = [women, men].filter((category): category is NonNullable<typeof category> => Boolean(category));
   return (
@@ -64,39 +79,7 @@ export default async function HomePage() {
         MPM · prendas para todos los días · atención personalizada por WhatsApp
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-0 sm:px-6 sm:pt-6">
-        <div className="seasonal-hero relative isolate min-h-[590px] overflow-hidden bg-[#242824] sm:min-h-[680px]">
-          {heroImage && (
-            <Image
-              src={heroImage}
-              alt=""
-              fill
-              priority
-              sizes="(min-width: 1280px) 1440px, 100vw"
-              placeholder="blur"
-              blurDataURL={IMAGE_BLUR_DATA_URL}
-              decoding="async"
-              className="object-cover object-top"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/5" />
-          <div className="relative z-10 flex min-h-[590px] max-w-xl flex-col justify-end px-6 py-10 text-white sm:min-h-[680px] sm:px-12 sm:py-14 lg:px-16">
-            <p className="seasonal-highlight text-[10px] font-bold uppercase tracking-[0.18em] text-brand-secondary">Nueva colección · MPM</p>
-            <h1 className="mt-4 font-display text-4xl font-semibold leading-[0.92] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
-              {settings.heroTitle}
-            </h1>
-            <p className="mt-5 max-w-md text-sm leading-6 text-white/85 sm:text-base">{settings.heroSubtitle}</p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <LinkButton href={settings.heroCtaHref} variant="secondary" size="lg">
-                {settings.heroCtaLabel} <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-              </LinkButton>
-              <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 border border-white/70 px-5 py-3 text-xs font-bold uppercase tracking-[0.1em] hover:bg-white hover:text-ink">
-                <MessageCircle className="h-4 w-4" aria-hidden="true" /> Asesoría
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroCarousel slides={slides} />
 
       {spotlightCategories.length > 0 && (
         <section className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 sm:py-16">

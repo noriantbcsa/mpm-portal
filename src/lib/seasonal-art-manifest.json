@@ -1,0 +1,437 @@
+{
+  "amor-y-amistad": {
+    "paper": "#f7efe2",
+    "arts": [
+      {
+        "file": "/seasonal/amor-y-amistad.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.46,
+        "paper": "#f7efe2",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/amor-y-amistad-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.57,
+        "paper": "#f9f4e8",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/amor-y-amistad-complemento.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.45,
+        "paper": "#f9f6ee",
+        "dark": false
+      }
+    ]
+  },
+  "carnaval": {
+    "paper": "#f4eadd",
+    "arts": [
+      {
+        "file": "/seasonal/carnaval.webp",
+        "ar": 2,
+        "side": "right",
+        "frac": 0.47,
+        "paper": "#f4eadd",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/carnaval-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.34,
+        "paper": "#faf6ed",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/carnaval-complemento.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.42,
+        "paper": "#f8f1e4",
+        "dark": false
+      }
+    ]
+  },
+  "colombia": {
+    "paper": "#f8efde",
+    "arts": [
+      {
+        "file": "/seasonal/colombia.webp",
+        "ar": 2.4981,
+        "side": "right",
+        "frac": 0.5,
+        "paper": "#f8efde",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/colombia-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.43,
+        "paper": "#f9f3e8",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/colombia-complemento.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.5,
+        "paper": "#faf6ec",
+        "dark": false
+      }
+    ]
+  },
+  "dia-hombre": {
+    "paper": "#f7f0e3",
+    "arts": [
+      {
+        "file": "/seasonal/dia-hombre.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.38,
+        "paper": "#f7f0e3",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/dia-hombre-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.52,
+        "paper": "#faf7ef",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/dia-hombre-complemento.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.51,
+        "paper": "#f8f1e5",
+        "dark": false
+      }
+    ]
+  },
+  "dia-madre": {
+    "paper": "#fbf2e2",
+    "arts": [
+      {
+        "file": "/seasonal/dia-madre.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.44,
+        "paper": "#fbf2e2",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/dia-madre-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.56,
+        "paper": "#faf6ed",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/dia-madre-complemento.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.46,
+        "paper": "#fbf8f0",
+        "dark": false
+      }
+    ]
+  },
+  "dia-mujer": {
+    "paper": "#f6f0e7",
+    "arts": [
+      {
+        "file": "/seasonal/dia-mujer.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.38,
+        "paper": "#f6f0e7",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/dia-mujer-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.59,
+        "paper": "#f5f1ea",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/dia-mujer-complemento.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.51,
+        "paper": "#faf7ef",
+        "dark": false
+      }
+    ]
+  },
+  "feria-cali": {
+    "paper": "#f6ead8",
+    "arts": [
+      {
+        "file": "/seasonal/feria-cali.webp",
+        "ar": 2.4005,
+        "side": "right",
+        "frac": 0.36,
+        "paper": "#f6ead8",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/feria-cali-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.48,
+        "paper": "#f8f2e6",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/feria-cali-complemento.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.48,
+        "paper": "#f9f4ea",
+        "dark": false
+      }
+    ]
+  },
+  "feria-flores": {
+    "paper": "#f6eee1",
+    "arts": [
+      {
+        "file": "/seasonal/feria-flores.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.35,
+        "paper": "#f6eee1",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/feria-flores-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.56,
+        "paper": "#f9f3e8",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/feria-flores-complemento.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.43,
+        "paper": "#f9f5ec",
+        "dark": false
+      }
+    ]
+  },
+  "feria-manizales": {
+    "paper": "#f8edd7",
+    "arts": [
+      {
+        "file": "/seasonal/feria-manizales.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.4,
+        "paper": "#f8edd7",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/feria-manizales-lateral.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.53,
+        "paper": "#fdfcf3",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/feria-manizales-complemento.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.47,
+        "paper": "#f9f5ec",
+        "dark": false
+      }
+    ]
+  },
+  "festival-vallenato": {
+    "paper": "#f5e4c8",
+    "arts": [
+      {
+        "file": "/seasonal/festival-vallenato.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.42,
+        "paper": "#f5e4c8",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/festival-vallenato-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.58,
+        "paper": "#f9f5ec",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/festival-vallenato-complemento.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.44,
+        "paper": "#fbf7ed",
+        "dark": false
+      }
+    ]
+  },
+  "navidad": {
+    "paper": "#f5eee2",
+    "arts": [
+      {
+        "file": "/seasonal/navidad.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.4,
+        "paper": "#f5eee2",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/navidad-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.49,
+        "paper": "#f9f0e1",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/navidad-complemento.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.44,
+        "paper": "#f8eedb",
+        "dark": false
+      }
+    ]
+  },
+  "negros-y-blancos": {
+    "paper": "#f0e7d6",
+    "arts": [
+      {
+        "file": "/seasonal/negros-y-blancos.webp",
+        "ar": 2.4005,
+        "side": "right",
+        "frac": 0.45,
+        "paper": "#f0e7d6",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/negros-y-blancos-lateral.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.5,
+        "paper": "#fbf4e7",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/negros-y-blancos-complemento.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.52,
+        "paper": "#f7f0e5",
+        "dark": false
+      }
+    ]
+  },
+  "san-pacho": {
+    "paper": "#f6eee0",
+    "arts": [
+      {
+        "file": "/seasonal/san-pacho.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.38,
+        "paper": "#f6eee0",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/san-pacho-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.37,
+        "paper": "#f8f1e5",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/san-pacho-complemento.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.63,
+        "paper": "#fbf2e0",
+        "dark": false
+      }
+    ]
+  },
+  "san-pedro": {
+    "paper": "#f5ebda",
+    "arts": [
+      {
+        "file": "/seasonal/san-pedro.webp",
+        "ar": 2.5006,
+        "side": "right",
+        "frac": 0.44,
+        "paper": "#f5ebda",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/san-pedro-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.59,
+        "paper": "#faf6ec",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/san-pedro-complemento.webp",
+        "ar": 1.7768,
+        "side": "right",
+        "frac": 0.53,
+        "paper": "#fcf6ea",
+        "dark": false
+      }
+    ]
+  },
+  "velitas": {
+    "paper": "#f3e6d2",
+    "arts": [
+      {
+        "file": "/seasonal/velitas.webp",
+        "ar": 2,
+        "side": "right",
+        "frac": 0.5,
+        "paper": "#f3e6d2",
+        "dark": false
+      },
+      {
+        "file": "/seasonal/velitas-lateral.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.44,
+        "paper": "#051733",
+        "dark": true
+      },
+      {
+        "file": "/seasonal/velitas-complemento.webp",
+        "ar": 1.7768,
+        "side": "left",
+        "frac": 0.55,
+        "paper": "#081628",
+        "dark": true
+      }
+    ]
+  }
+}

@@ -17,6 +17,7 @@
     "test:integration": "vitest run tests/integration",
     "catalog:images:webp": "node scripts/convert-catalog-to-webp.mjs",
     "catalog:images:audit": "node scripts/audit-catalog-assets.mjs",
+    "seasonal:manifest": "node scripts/generate-seasonal-art-manifest.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
