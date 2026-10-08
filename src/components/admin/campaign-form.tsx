@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { saveCampaignAction, type CampaignFormState } from "@/app/admin/campanas/actions";
 import {
@@ -10,6 +10,7 @@ import {
   AdminTextField,
 } from "@/components/admin/ui/controls";
 import { AdminCard, AdminCardBody } from "@/components/admin/ui/display";
+import { CAMPAIGN_BANNER_TEXT_HINT } from "@/lib/campaign-defaults";
 import { toColombiaDateKey } from "@/lib/validation/campaign";
 
 const initialState: CampaignFormState = { status: "idle" };
@@ -37,12 +38,17 @@ export function CampaignForm({
   categoryOptions,
   productOptions,
   initial,
+  defaults,
 }: {
   categoryOptions: { id: string; label: string }[];
   productOptions: { id: string; sku: string; name: string; campaign: { id: string; name: string } | null }[];
   initial?: CampaignFormInitial;
+  /** Valores con los que arranca una campaña nueva (se ignoran al editar). */
+  defaults?: { description: string; startDate: string; endDate: string };
 }) {
   const [state, formAction, pending] = useActionState(saveCampaignAction, initialState);
+  const [name, setName] = useState(initial?.name ?? "");
+  const [description, setDescription] = useState(initial?.description ?? defaults?.description ?? "");
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
@@ -50,13 +56,33 @@ export function CampaignForm({
 
       <AdminCard>
         <AdminCardBody className="grid gap-4 sm:grid-cols-2">
-          <AdminTextField label="Nombre" name="name" defaultValue={initial?.name} required className="sm:col-span-2" />
+          <AdminTextField
+            label="Nombre"
+            name="name"
+            defaultValue={initial?.name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Ej.: Día del Padre"
+            required
+            className="sm:col-span-2"
+          />
           <AdminTextAreaField
             label="Descripción"
             name="description"
-            defaultValue={initial?.description ?? ""}
+            defaultValue={initial?.description ?? defaults?.description ?? ""}
+            onChange={(event) => setDescription(event.target.value)}
+            hint={`Se muestra en el aviso superior del sitio. Mejor corta (hasta ${CAMPAIGN_BANNER_TEXT_HINT} caracteres).`}
             className="sm:col-span-2"
           />
+          <div className="sm:col-span-2">
+            <p className="mb-1 text-xs font-medium text-slate-600">Así se verá el aviso en el sitio</p>
+            <div className="rounded-md bg-slate-900 px-4 py-4 text-center text-base font-medium leading-snug text-white sm:text-left sm:text-lg">
+              <span className="font-bold">{name.trim() || "Nombre de la campaña"}</span>
+              {description.trim() ? ` · ${description.trim()}` : " · conoce la selección"}
+            </div>
+            {description.trim().length > CAMPAIGN_BANNER_TEXT_HINT && (
+              <p className="mt-1 text-xs text-amber-700">El texto es largo: en celulares el aviso ocupará varias líneas.</p>
+            )}
+          </div>
           <AdminTextField
             label="Imagen de banner (URL)"
             name="bannerImageUrl"
@@ -66,8 +92,8 @@ export function CampaignForm({
           <p className="sm:col-span-2 text-xs leading-5 text-slate-500">
             La plantilla visual de campaña es fija. Aquí solo se actualizan el texto, la imagen, las fechas y las referencias seleccionadas.
           </p>
-          <AdminTextField label="Fecha de inicio" name="startDate" type="date" defaultValue={toDateInputValue(initial?.startDate ?? null)} />
-          <AdminTextField label="Fecha de fin" name="endDate" type="date" defaultValue={toDateInputValue(initial?.endDate ?? null)} />
+          <AdminTextField label="Fecha de inicio" name="startDate" type="date" defaultValue={initial ? toDateInputValue(initial.startDate) : defaults?.startDate} />
+          <AdminTextField label="Fecha de fin" name="endDate" type="date" defaultValue={initial ? toDateInputValue(initial.endDate) : defaults?.endDate} />
           <AdminCheckbox
             label="Campaña activa (reemplaza cualquier otra campaña activa)"
             name="isActive"

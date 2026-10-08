@@ -51,6 +51,11 @@ describe("getCatalogColorSwatch", () => {
     expect(getCatalogColorSwatch("Celeste")).toEqual({ background: "#8cc9e8", foreground: "#101417" });
   });
 
+  it("todos los colores del catálogo entregado tienen una muestra (ninguno cae en el estilo por defecto)", () => {
+    const catalogColors: string[] = ["AGUA", "AMARILLO", "ARENA", "BEIGE", "BLANCO", "BOTELLA", "CACAO", "CAFE", "CAMEL", "CELESTE", "CELESTE 4", "CELESTE 4 1", "CEREZA", "CEREZA 1", "CEREZA 1 1", "CHOCOLATE", "ESMERALDA", "FUCSIA", "GUAYABA", "HOJA SECA", "HOJASECA", "JADE", "LILA", "LIMON", "MAGENTA", "MEGENTA", "MENTA", "MORADO", "MOSTAZA", "NARANJA", "NEGRO", "OLIVA", "PALO", "PALOROSA", "PASTEL", "PETROLEO", "PINO", "REY", "ROJO", "ROSADO", "SALMON", "TERRACOTA", "TURQUESA", "TURQUI", "V BOTELLA", "V CALI", "V ESMERALDA", "V LIMON", "V PASTEL", "V PINO", "VERDE", "VINO", "VINOTINTO"];
+    expect(catalogColors.filter((color) => !getCatalogColorSwatch(color))).toEqual([]);
+  });
+
   it("usa la normalización del catálogo para los alias de color", () => {
     expect(getCatalogColorSwatch("V. Cali")).toEqual({ background: "#3c9b69", foreground: "#101417" });
     expect(getCatalogColorSwatch("Azul Celeste")).toEqual({ background: "#8cc9e8", foreground: "#101417" });

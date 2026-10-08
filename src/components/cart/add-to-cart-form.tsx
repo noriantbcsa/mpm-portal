@@ -168,7 +168,9 @@ function ColorOption({ color, selected, onSelect }: { color: string; selected: b
   const swatch = getCatalogColorSwatch(color);
   return (
     <label
-      className="focus-ring-within flex min-h-10 max-w-full cursor-pointer items-center break-words border border-line px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.06em] text-ink-soft transition-[background-color,color,border-color]"
+      className={`focus-ring-within flex min-h-10 max-w-full cursor-pointer items-center break-words border px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.06em] transition-[background-color,color,border-color] ${
+        selected && !swatch ? "border-ink text-ink ring-1 ring-ink" : "border-line text-ink-soft"
+      }`}
       style={selected && swatch ? { backgroundColor: swatch.background, borderColor: swatch.foreground, color: swatch.foreground } : undefined}
     >
       <input type="radio" name="color" value={color} checked={selected} onChange={() => onSelect(color)} className="sr-only" />

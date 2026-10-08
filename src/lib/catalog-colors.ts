@@ -14,6 +14,7 @@
 const COLOR_ALIASES: Record<string, string> = {
   "CAFE": "CAFE",
   "HOJASECA": "HOJA SECA",
+  "MEGENTA": "MAGENTA",
   "PALO ROSA": "PALO ROSA",
   "PALOROSA": "PALO ROSA",
   "TURQUI": "TURQUESA",

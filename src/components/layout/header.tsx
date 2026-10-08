@@ -27,13 +27,13 @@ export async function Header() {
     <header className="public-header relative z-30 border-b border-line bg-paper">
       {activeCampaign && (
         <aside aria-label="Oferta y promoción activa" className="campaign-announcement">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center sm:justify-between sm:text-left">
-            <span className="campaign-announcement-label">Oferta especial</span>
-            <p className="min-w-0 text-xs font-medium text-white sm:flex-1 sm:text-sm">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-4 text-center sm:justify-between sm:py-5 sm:text-left">
+            <span className="campaign-announcement-label px-3! py-1.5! text-xs!">Oferta especial</span>
+            <p className="min-w-0 text-base font-medium leading-snug text-white sm:flex-1 sm:text-xl">
               <span className="font-bold">{activeCampaign.name}</span>
               {activeCampaign.description ? ` · ${activeCampaign.description}` : " · conoce la selección"}
             </p>
-            <Link href={`/campanas/${activeCampaign.slug}`} className="focus-ring shrink-0 text-xs font-bold uppercase tracking-[0.1em] text-white underline decoration-brand-secondary decoration-2 underline-offset-4">
+            <Link href={`/campanas/${activeCampaign.slug}`} className="focus-ring shrink-0 py-1 text-sm font-bold uppercase tracking-[0.1em] text-white underline decoration-brand-secondary decoration-2 underline-offset-4">
               Ver promoción →
             </Link>
           </div>

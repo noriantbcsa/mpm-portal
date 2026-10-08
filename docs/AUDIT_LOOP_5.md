@@ -141,3 +141,9 @@ retirado: `src/lib/cloudinary.ts` y la dependencia `cloudinary` (la CSP y
 | Media | Un producto sembrado sin talla/color (`"Consultar disponibilidad"`) lo preseleccionaba y llegaba al carrito como "Talla Consultar disponibilidad · Consultar disponibilidad" (verificado en el carrito a 375 px) | `getProductBySlug` (vista pública) filtra el marcador con `withoutPlaceholderOptions`; el admin lo sigue viendo. Prueba de integración (258 en total); verificado en el navegador: `size`/`color` = `null` |
 
 Revisado sin hallazgos: catálogo y carrito a 375 px sin desbordamiento, aviso de "agregado" anunciado, envío vacío bloqueado con foco en el primer campo. Pendiente (área del otro agente): enlaces del pie con 16 px de alto táctil.
+
+### Bucle 6 (cont.) — colores, banner de campaña y campaña nueva
+
+- **Colores**: el color elegido se pinta con su tono (muestra); `MEGENTA` (error de tipeo en los nombres de foto) no tenía muestra → alias a `MAGENTA`; un color sin muestra ahora muestra un estado seleccionado visible (antes no cambiaba nada). Prueba que fija los 52 colores reales del catálogo. Verificado en vivo (Cacao, Café, Chocolate, Rosado, Amarillo, V. Cali, Hoja Seca, Magenta, Negro, Blanco).
+- **Banner de campaña**: aviso superior más grande (texto 20 px en escritorio, etiqueta y enlace mayores), sin tocar `globals.css`.
+- **Campaña nueva**: formulario precargado (descripción, inicio hoy en hora de Colombia, fin a 14 días, inactiva) con vista previa en vivo del aviso y recomendación de longitud (`src/lib/campaign-defaults.ts`, 2 pruebas).
