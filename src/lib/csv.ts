@@ -148,10 +148,10 @@ export function buildProductCsvTemplate(): string {
   const example = [
     "MPM-0001",
     "Camiseta básica algodón",
-    "Camiseta unisex de algodón peinado, ideal para uso diario o dotaciones.",
+    "Camiseta de algodón peinado, ideal para uso diario o dotaciones.",
     "Camisetas",
     "Manga corta",
-    "unisex",
+    "mujer",
     "S;M;L;XL",
     "Blanco;Negro;Azul oscuro",
     "Algodón 100%",

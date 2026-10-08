@@ -70,15 +70,31 @@ describe("bulkImportProductsAction", () => {
     expect(await run(null)).toMatchObject({ status: "error", message: expect.stringContaining("Selecciona") });
   });
 
-  it("crea una referencia nueva con valores por defecto (UNISEX / DISPONIBLE) y slug único", async () => {
-    const result = (await run(csvFile("NUEVO-1,Camiseta,Una camiseta cómoda,Damas,,,S;M,Negro;Blanco,Algodón,,,,,39.900"))) as Success;
+  it("rechaza crear una referencia sin público, pero permite actualizar una existente sin él", async () => {
+    const created = (await run(csvFile("NUEVO-2,Camiseta,Una camiseta cómoda,Damas,,,S,Negro,Algodón,,,,,"))) as Success;
+    expect(created).toMatchObject({ created: 0, skipped: 1 });
+    expect(created.errors[0]).toContain("falta el público");
+    expect(productCreate).not.toHaveBeenCalled();
+
+    const updated = (await run(csvFile("EXISTE-1,Camiseta,Una camiseta cómoda,Damas,,,S,Negro,Algodón,,,,,"))) as Success;
+    expect(updated).toMatchObject({ updated: 1, skipped: 0 });
+  });
+
+  it("no acepta unisex, nino ni nina como público", async () => {
+    const result = (await run(csvFile("NUEVO-3,Camiseta,Una camiseta cómoda,Damas,,unisex,S,Negro,Algodón,,,,,"))) as Success;
+    expect(result).toMatchObject({ created: 0, skipped: 1 });
+    expect(result.errors[0]).toContain("no reconocido");
+  });
+
+  it("crea una referencia nueva con valores por defecto (estado DISPONIBLE) y slug único", async () => {
+    const result = (await run(csvFile("NUEVO-1,Camiseta,Una camiseta cómoda,Damas,,mujer,S;M,Negro;Blanco,Algodón,,,,,39.900"))) as Success;
 
     expect(result).toMatchObject({ status: "success", created: 1, updated: 0, skipped: 0, errors: [] });
     const data = productCreate.mock.calls[0][0].data;
     expect(data).toMatchObject({
       sku: "NUEVO-1",
       categoryId: "cat-damas",
-      audience: "UNISEX",
+      audience: "MUJER",
       status: "DISPONIBLE",
       sizes: ["S", "M"],
       colors: ["Negro", "Blanco"],
@@ -115,7 +131,7 @@ describe("bulkImportProductsAction", () => {
 
   it("una fila con categoría inexistente se reporta y no se crea a medias; las demás sí entran", async () => {
     const result = (await run(
-      csvFile("MALA-1,Camiseta,Una camiseta,Zapatos,,,,,,,,,,", "BUENA-1,Pantalón,Un pantalón largo,Damas,,,,,,,,,,"),
+      csvFile("MALA-1,Camiseta,Una camiseta,Zapatos,,,,,,,,,,", "BUENA-1,Pantalón,Un pantalón largo,Damas,,mujer,,,,,,,,"),
     )) as Success;
 
     expect(result).toMatchObject({ created: 1, skipped: 1 });
@@ -140,7 +156,7 @@ describe("bulkImportProductsAction", () => {
 
   it("fotos: acepta http(s) y rutas del sitio; descarta las inválidas SIN abortar la importación", async () => {
     const fotos = '"https://res.cloudinary.com/x/a.webp;/catalogo/DAMAS/b.webp;no-es-url;//evil.com/c.webp;javascript:alert(1)"';
-    const result = (await run(csvFile(`F-1,Camiseta,Una camiseta,Damas,,,,,,${fotos},,,,`))) as Success;
+    const result = (await run(csvFile(`F-1,Camiseta,Una camiseta,Damas,,mujer,,,,${fotos},,,,`))) as Success;
 
     expect(result).toMatchObject({ created: 1, skipped: 0 });
     const images = productCreate.mock.calls[0][0].data.images.create as { url: string; order: number }[];
@@ -151,7 +167,7 @@ describe("bulkImportProductsAction", () => {
 
   it("un SKU repetido en el mismo archivo: la primera crea y la segunda actualiza", async () => {
     const result = (await run(
-      csvFile("DUP-1,Camiseta,Una camiseta,Damas,,,,,,,,,,", "DUP-1,Camiseta v2,Otra descripción,Damas,,,,,,,,,,"),
+      csvFile("DUP-1,Camiseta,Una camiseta,Damas,,mujer,,,,,,,,", "DUP-1,Camiseta v2,Otra descripción,Damas,,mujer,,,,,,,,"),
     )) as Success;
     expect(result).toMatchObject({ created: 1, updated: 1 });
   });
@@ -159,7 +175,7 @@ describe("bulkImportProductsAction", () => {
   it("si Prisma falla en una fila, esa fila se reporta (y se registra el tipo de error) y las demás continúan", async () => {
     productCreate.mockRejectedValueOnce(Object.assign(new Error("FK violada con datos"), { code: "P2003" }));
     const result = (await run(
-      csvFile("ROTA-1,Camiseta,Una camiseta,Damas,,,,,,,,,,", "SANA-1,Pantalón,Un pantalón largo,Damas,,,,,,,,,,"),
+      csvFile("ROTA-1,Camiseta,Una camiseta,Damas,,mujer,,,,,,,,", "SANA-1,Pantalón,Un pantalón largo,Damas,,mujer,,,,,,,,"),
     )) as Success;
 
     expect(result).toMatchObject({ created: 1, skipped: 1 });

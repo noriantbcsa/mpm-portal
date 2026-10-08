@@ -154,4 +154,4 @@ Migración `20261007140000_remove_availability_placeholder`: las referencias con
 
 ### Público y tallas (7 de octubre de 2026)
 
-Filtro del catálogo: Todos/Hombre/Mujer (`CATALOG_AUDIENCES`) y tallas XS–XXL sin "Talla única". Formulario de producto: el público solo ofrece Hombre/Mujer y es obligatorio en productos nuevos (antes UNISEX por defecto); un producto antiguo con otro valor lo conserva. La **carga masiva CSV** sigue creando UNISEX si falta la columna `publico` (aparece en "Todos" pero no bajo Hombre/Mujer): pendiente de decidir el valor por defecto.
+Filtro del catálogo: Todos/Hombre/Mujer (`CATALOG_AUDIENCES`) y tallas XS–XXL sin "Talla única". Formulario de producto: el público solo ofrece Hombre/Mujer y es obligatorio en productos nuevos (antes UNISEX por defecto); un producto antiguo con otro valor lo conserva. **Carga masiva CSV**: `publico` solo acepta hombre/mujer y es obligatorio al crear una referencia (al actualizar una existente, vacío conserva el valor); la plantilla de ejemplo usa "mujer". 2 pruebas nuevas.

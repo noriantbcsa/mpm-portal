@@ -96,7 +96,7 @@ hoy. Si en el futuro las etiquetas necesitan ser gestionables por el admin
 | `Role` | `ADMIN`, `SALES` | Permisos del panel |
 | `ProductStatus` | `DISPONIBLE`, `BAJO_PEDIDO`, `AGOTADO`, `OCULTO` | Catálogo. `OCULTO` nunca se muestra al público; los otros tres sí (con badge) |
 | `ProductTagType` | `OFERTA`, `TENDENCIA`, `NUEVO`, `RECOMENDADO` | Vitrinas de inicio y filtros |
-| `Audience` | `HOMBRE`, `MUJER`, `NINO`, `NINA`, `UNISEX` | Filtro "Público" |
+| `Audience` | `HOMBRE`, `MUJER`, `NINO`, `NINA`, `UNISEX` | Filtro "Público". Solo `HOMBRE`/`MUJER` se ofrecen en el filtro, el formulario y la carga masiva; los demás valores siguen en el enum sin productos |
 | `CartRequestStatus` | `NUEVO` → `CONTACTADO` → `EN_NEGOCIACION` → `VENDIDO` / `CERRADO` / `CANCELADO` | Seguimiento comercial |
 | `CartRequestEventType` | `CREATED`, `NOTE`, `STATUS_CHANGE`, `ASSIGNMENT` | Timeline de una solicitud |
 | `SeasonalThemeMode` | `AUTOMATIC`, `MANUAL`, `OFF` | Diseño festivo (`SiteSettings.seasonalThemeMode`) |

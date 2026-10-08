@@ -195,9 +195,9 @@ export async function bulkImportProductsAction(
     }
 
     const audience = data.publico.trim().toUpperCase().replace("Ñ", "N");
-    const audienceValue = (["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const).find((a) => a === audience);
+    const audienceValue = (["HOMBRE", "MUJER"] as const).find((a) => a === audience);
     if (data.publico.trim() && !audienceValue) {
-      rowErrors.push(`Fila ${row}: público "${data.publico}" no reconocido (usa hombre, mujer, nino, nina o unisex).`);
+      rowErrors.push(`Fila ${row}: público "${data.publico}" no reconocido (usa hombre o mujer).`);
       skipped += 1;
       continue;
     }
@@ -256,6 +256,13 @@ export async function bulkImportProductsAction(
 
     const existing = existingSkus.has(data.referencia);
 
+    // Al crear no se adivina el público (antes caía en UNISEX, que el filtro ya no ofrece).
+    if (!existing && !audienceValue) {
+      rowErrors.push(`Fila ${row}: falta el público de la referencia nueva "${data.referencia}" (usa hombre o mujer).`);
+      skipped += 1;
+      continue;
+    }
+
     try {
       if (existing) {
         // Una celda opcional vacía conserva el valor actual: reimportar una
@@ -289,7 +296,7 @@ export async function bulkImportProductsAction(
             slug,
             description: data.descripcion,
             categoryId: category.id,
-            audience: audienceValue ?? "UNISEX",
+            audience: audienceValue!,
             sizes: splitMultiValue(data.tallas),
             colors: splitMultiValue(data.colores),
             material: data.material || null,
