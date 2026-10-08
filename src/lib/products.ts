@@ -181,7 +181,8 @@ export const STANDARD_CATALOG_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export function withStandardSizes(found: string[]) {
   const standardKeys = new Set(STANDARD_CATALOG_SIZES.map((size) => size.toLowerCase()));
-  const extras = found.filter((size) => !standardKeys.has(size.toLowerCase()));
+  // "Talla única" no se ofrece como filtro: la escala del catálogo es XS–XXL.
+  const extras = found.filter((size) => !standardKeys.has(size.toLowerCase()) && !/^talla [uú]nica$/i.test(size));
   return [...STANDARD_CATALOG_SIZES, ...extras];
 }
 

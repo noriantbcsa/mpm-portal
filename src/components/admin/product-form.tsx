@@ -5,6 +5,7 @@ import { Trash2, Plus } from "lucide-react";
 
 import {
   AUDIENCE_LABELS,
+  CATALOG_AUDIENCES,
   PRODUCT_STATUS_LABELS,
   PRODUCT_TAG_LABELS,
 } from "@/lib/constants";
@@ -49,6 +50,8 @@ export function ProductForm({
   initial?: ProductFormInitial;
 }) {
   const [state, formAction, pending] = useActionState(saveProductAction, initialState);
+  // Solo Hombre/Mujer; si un producto antiguo trae otro valor, se conserva para no cambiarlo sin querer.
+  const audienceOptions = initial && !CATALOG_AUDIENCES.includes(initial.audience as never) ? [...CATALOG_AUDIENCES, initial.audience] : CATALOG_AUDIENCES;
   const [images, setImages] = useState<ImageRow[]>(initial?.images ?? []);
 
   function addImage() {
@@ -85,10 +88,15 @@ export function ProductForm({
               </option>
             ))}
           </AdminSelectField>
-          <AdminSelectField label="Público" name="audience" defaultValue={initial?.audience ?? "UNISEX"}>
-            {Object.entries(AUDIENCE_LABELS).map(([value, label]) => (
+          <AdminSelectField label="Público" name="audience" defaultValue={initial?.audience ?? ""} required>
+            {!initial && (
+              <option value="" disabled>
+                Selecciona…
+              </option>
+            )}
+            {audienceOptions.map((value) => (
               <option key={value} value={value}>
-                {label}
+                {AUDIENCE_LABELS[value]}
               </option>
             ))}
           </AdminSelectField>

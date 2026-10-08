@@ -151,3 +151,7 @@ Revisado sin hallazgos: catálogo y carrito a 375 px sin desbordamiento, aviso d
 ### Retiro de "Consultar disponibilidad" y escala XS–XXL (7 de octubre de 2026)
 
 Migración `20261007140000_remove_availability_placeholder`: las referencias con el marcador pasan a tallas XS–XXL, se quita el marcador de colores y la frase de relleno "Consulta disponibilidad de talla y color con un asesor MPM." de las descripciones sembradas. El seed ya no lo genera. El filtro de tallas ofrece siempre XS–XXL (más las reales extra, p. ej. "Talla única"). En la ficha la talla ya **no se preselecciona** y es obligatoria. Las funciones que filtran el marcador (`isFilterableCatalogSize/Color`, `withoutPlaceholderOptions`) se conservan como defensa. Verificado: filtro M → 14 referencias; ficha inválida hasta elegir talla.
+
+### Público y tallas (7 de octubre de 2026)
+
+Filtro del catálogo: Todos/Hombre/Mujer (`CATALOG_AUDIENCES`) y tallas XS–XXL sin "Talla única". Formulario de producto: el público solo ofrece Hombre/Mujer y es obligatorio en productos nuevos (antes UNISEX por defecto); un producto antiguo con otro valor lo conserva. La **carga masiva CSV** sigue creando UNISEX si falta la columna `publico` (aparece en "Todos" pero no bajo Hombre/Mujer): pendiente de decidir el valor por defecto.

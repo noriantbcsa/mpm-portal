@@ -198,6 +198,7 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
     expect(options.sizes).not.toContain("Consultar disponibilidad");
     expect(options.sizes.slice(0, 6)).toEqual(["XS", "S", "M", "L", "XL", "XXL"]);
     expect(options.sizes.indexOf("38")).toBeGreaterThan(5);
+    expect(options.sizes).not.toContain("Talla única");
     expect(options.colors).toContain("Blanco");
     expect(options.colors).toContain("Verde Cali");
   });
