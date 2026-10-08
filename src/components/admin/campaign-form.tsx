@@ -84,13 +84,14 @@ export function CampaignForm({
             )}
           </div>
           <AdminTextField
-            label="Imagen de banner (URL)"
+            label="Imagen de portada (URL)"
+            hint="Foto horizontal, ideal 1600×900 o más. Se muestra a todo ancho en la página de la campaña y junto al texto en el inicio. Sin imagen se usa un bloque liso."
             name="bannerImageUrl"
             defaultValue={initial?.bannerImageUrl ?? ""}
             className="sm:col-span-2"
           />
           <p className="sm:col-span-2 text-xs leading-5 text-slate-500">
-            La plantilla visual de campaña es fija. Aquí solo se actualizan el texto, la imagen, las fechas y las referencias seleccionadas.
+            El diseño de la campaña es fijo (sobrio, con la imagen como protagonista). Aquí solo se editan el texto, la imagen, las fechas y las referencias.
           </p>
           <AdminTextField label="Fecha de inicio" name="startDate" type="date" defaultValue={initial ? toDateInputValue(initial.startDate) : defaults?.startDate} />
           <AdminTextField label="Fecha de fin" name="endDate" type="date" defaultValue={initial ? toDateInputValue(initial.endDate) : defaults?.endDate} />

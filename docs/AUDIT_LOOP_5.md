@@ -155,3 +155,7 @@ Migración `20261007140000_remove_availability_placeholder`: las referencias con
 ### Público y tallas (7 de octubre de 2026)
 
 Filtro del catálogo: Todos/Hombre/Mujer (`CATALOG_AUDIENCES`) y tallas XS–XXL sin "Talla única". Formulario de producto: el público solo ofrece Hombre/Mujer y es obligatorio en productos nuevos (antes UNISEX por defecto); un producto antiguo con otro valor lo conserva. **Carga masiva CSV**: `publico` solo acepta hombre/mujer y es obligatorio al crear una referencia (al actualizar una existente, vacío conserva el valor); la plantilla de ejemplo usa "mujer". 2 pruebas nuevas.
+
+### Rediseño de campañas (8 de octubre de 2026)
+
+Por pedido del dueño, referencia de estilo: Koaj, H&M, Seven Seven, Zara, Arturo Calle (editorial, sobrio, la imagen como protagonista). Se retiró la decoración (círculos y rayas verde neón, contador "01 / 01", marco y sello "Selección MPM", etiqueta "Oferta especial"). **Aviso superior**: barra lisa negra, nombre en mayúsculas + texto + "Ver más". **Inicio**: bloque claro con título grande en mayúsculas, texto y "Ver colección", con la imagen al lado si existe. **Página de la campaña**: portada a todo ancho con la imagen de fondo (o bloque liso sin imagen), vigencia discreta y encabezado "Colección" con el conteo. Formulario admin: ayuda sobre la imagen de portada. Verificado en navegador en escritorio y móvil, con y sin imagen.

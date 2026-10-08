@@ -122,14 +122,17 @@ export default async function HomePage() {
 
       {activeCampaign && (
         <section className="mx-auto max-w-[1440px] px-4 pb-8 sm:px-6 sm:pb-12">
-          <Link href={`/campanas/${activeCampaign.slug}`} className="campaign-showcase focus-ring group grid min-h-[25rem] overflow-hidden sm:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
-            <div className="flex min-h-64 flex-col justify-end p-7 sm:p-12">
-              <div className="flex items-center justify-between gap-4"><p className="campaign-kicker">Oferta · promoción activa</p><span className="text-xs font-bold tracking-[0.18em] text-white/70">01 / 01</span></div>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-white">{activeCampaign.name}</h2>
-              {activeCampaign.description && <p className="mt-3 max-w-lg text-sm leading-6 text-white/80">{activeCampaign.description}</p>}
-              <span className="mt-6 text-xs font-bold uppercase tracking-[0.1em] text-white group-hover:underline">Explorar selección →</span>
+          <Link
+            href={`/campanas/${activeCampaign.slug}`}
+            className={`campaign-showcase focus-ring group grid overflow-hidden ${activeCampaign.bannerImageUrl ? "min-h-[26rem] sm:grid-cols-2" : "min-h-[16rem]"}`}
+          >
+            <div className="flex flex-col justify-center gap-4 p-8 sm:p-14">
+              <p className="campaign-kicker">Campaña</p>
+              <h2 className="font-display text-3xl font-semibold uppercase leading-tight tracking-[0.04em] sm:text-5xl">{activeCampaign.name}</h2>
+              {activeCampaign.description && <p className="max-w-md text-base leading-7 text-ink-soft">{activeCampaign.description}</p>}
+              <span className="mt-2 w-fit border-b border-current pb-1 text-sm font-semibold uppercase tracking-[0.14em] group-hover:opacity-70">Ver colección</span>
             </div>
-            {activeCampaign.bannerImageUrl && <div className="campaign-visual relative min-h-72 sm:min-h-full"><Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="(min-width: 640px) 45vw, 100vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover object-center" /></div>}
+            {activeCampaign.bannerImageUrl && <div className="campaign-visual relative min-h-72 sm:min-h-full"><Image src={activeCampaign.bannerImageUrl} alt="" fill sizes="(min-width: 640px) 50vw, 100vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.02]" /></div>}
           </Link>
         </section>
       )}

@@ -27,14 +27,13 @@ export async function Header() {
     <header className="public-header relative z-30 border-b border-line bg-paper">
       {activeCampaign && (
         <aside aria-label="Oferta y promoción activa" className="campaign-announcement">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-1.5 px-4 py-2.5 text-center sm:justify-between sm:gap-y-2 sm:py-5 sm:text-left">
-            <span className="campaign-announcement-label px-3! py-1.5! text-xs!">Oferta especial</span>
-            <p className="min-w-0 text-[0.95rem] font-medium leading-snug text-white sm:flex-1 sm:text-xl">
-              <span className="font-bold">{activeCampaign.name}</span>
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-5 gap-y-1 px-4 py-3 text-center sm:py-4">
+            <p className="min-w-0 text-[0.95rem] leading-snug text-white sm:text-lg">
+              <span className="font-bold uppercase tracking-[0.1em]">{activeCampaign.name}</span>
               {activeCampaign.description ? ` · ${activeCampaign.description}` : " · conoce la selección"}
             </p>
-            <Link href={`/campanas/${activeCampaign.slug}`} className="focus-ring shrink-0 py-1 text-sm font-bold uppercase tracking-[0.1em] text-white underline decoration-brand-secondary decoration-2 underline-offset-4">
-              Ver promoción →
+            <Link href={`/campanas/${activeCampaign.slug}`} className="focus-ring shrink-0 py-1 text-sm font-semibold text-white underline decoration-1 underline-offset-4">
+              Ver más
             </Link>
           </div>
         </aside>

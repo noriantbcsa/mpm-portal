@@ -35,27 +35,19 @@ export default async function CampanaPage({ params }: PageProps) {
   const { items, total } = await listProducts({ campaignSlug: slug, pageSize: 60 });
   return (
     <div className="campaign-page">
-      <section className="campaign-showcase relative overflow-hidden">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-14 lg:grid-cols-2">
-          <div className="relative z-10 text-white">
-            <p className="campaign-kicker">Campaña especial</p>
-            <h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">{campaign.name}</h1>
-            {campaign.description && <p className="mt-4 max-w-md text-white/85">{campaign.description}</p>}
-            {(campaign.startDate || campaign.endDate) && (
-              <p className="mt-3 text-sm text-white/70">
-                Vigencia:{" "}
-                {campaign.startDate ? formatDate(campaign.startDate) : "—"}
-                {campaign.endDate ? ` al ${formatDate(campaign.endDate)}` : ""}
-              </p>
-            )}
-            <p className="mt-6 inline-flex w-fit border border-white/30 bg-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-white">
-              {total} {total === 1 ? "referencia seleccionada" : "referencias seleccionadas"}
+      <section className={`campaign-hero ${campaign.bannerImageUrl ? "campaign-hero--image" : ""}`}>
+        {campaign.bannerImageUrl && (
+          <Image src={campaign.bannerImageUrl} alt="" fill priority sizes="100vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="-z-10 object-cover object-center" />
+        )}
+        <div className={`mx-auto flex max-w-6xl flex-col justify-end gap-4 px-4 py-14 sm:py-20 ${campaign.bannerImageUrl ? "min-h-[26rem] sm:min-h-[32rem]" : "min-h-[16rem]"}`}>
+          <p className="campaign-kicker">Campaña</p>
+          <h1 className="max-w-3xl font-display text-4xl font-semibold uppercase leading-tight tracking-[0.04em] sm:text-6xl">{campaign.name}</h1>
+          {campaign.description && <p className="max-w-xl text-base leading-7 opacity-90 sm:text-lg">{campaign.description}</p>}
+          {(campaign.startDate || campaign.endDate) && (
+            <p className="text-sm uppercase tracking-[0.12em] opacity-75">
+              {campaign.startDate ? formatDate(campaign.startDate) : "—"}
+              {campaign.endDate ? ` — ${formatDate(campaign.endDate)}` : ""}
             </p>
-          </div>
-          {campaign.bannerImageUrl && (
-            <div className="campaign-visual relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
-              <Image src={campaign.bannerImageUrl} alt="" fill sizes="(min-width: 1024px) 40vw, 90vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
-            </div>
           )}
         </div>
       </section>
@@ -77,7 +69,10 @@ export default async function CampanaPage({ params }: PageProps) {
       )}
 
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <h2 className="mb-4 font-display text-xl font-semibold text-ink">Prendas seleccionadas para esta campaña</h2>
+        <div className="mb-6 flex items-baseline justify-between gap-4 border-b border-line pb-3">
+          <h2 className="font-display text-lg font-semibold uppercase tracking-[0.1em] text-ink">Colección</h2>
+          <p className="text-sm text-ink-soft">{total} {total === 1 ? "referencia" : "referencias"}</p>
+        </div>
         <ProductGrid products={items} showPrices={settings.showPrices} />
       </div>
     </div>
