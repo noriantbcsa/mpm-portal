@@ -483,38 +483,18 @@ html[data-festivity] .seasonal-main::after {
   pointer-events: none;
 }
 
-/* Cada festividad usa tres ilustraciones independientes, no una capa con
-   pseudo-elementos. Así nunca se pisan: derecha, izquierda y derecha. */
+/* Una sola composición grande acompaña todo el recorrido de la página.
+   La imagen se fija al viewport y el lavado estacional del fondo la conecta
+   con el resto del contenido, sin mosaicos ni cortes entre ilustraciones. */
 .seasonal-scene-art {
   position: absolute;
-  display: block;
-  /* Los artes tienen aire intencional a la izquierda. Se escala el lienzo
-     completo para que el motivo visible (velitas, flores, etc.) tenga una
-     presencia grande en vez de quedar reducido a una esquina. */
-  width: clamp(56rem, 82vw, 100rem);
-  aspect-ratio: 1672 / 941;
-  opacity: 0.68;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-}
-
-.seasonal-scene-art--right-top {
-  top: 2rem;
-  right: -1rem;
+  inset: 0;
+  opacity: 0.4;
   background-image: var(--seasonal-backdrop);
-}
-
-.seasonal-scene-art--left-middle {
-  top: 52rem;
-  left: -1rem;
-  background-image: var(--seasonal-lateral);
-}
-
-.seasonal-scene-art--right-bottom {
-  top: 106rem;
-  right: -1rem;
-  background-image: var(--seasonal-complement);
+  background-position: right 0 top 1.5rem;
+  background-repeat: no-repeat;
+  background-size: min(100rem, 100vw) auto;
+  background-attachment: fixed;
 }
 
 /* Las fotos y los controles de cada página nunca deben competir con la
@@ -551,13 +531,11 @@ html[data-festivity] .seasonal-main::after {
 
 @media (max-width: 639px) {
   .seasonal-scene-art {
-    width: min(30rem, 128vw);
-    opacity: 0.42;
+    opacity: 0.26;
+    background-position: right -9rem top 1rem;
+    background-size: 145vw auto;
+    background-attachment: scroll;
   }
-
-  .seasonal-scene-art--right-top { top: 1rem; right: -2.5rem; }
-  .seasonal-scene-art--left-middle { top: 42rem; left: -2.5rem; }
-  .seasonal-scene-art--right-bottom { top: 84rem; right: -2.5rem; }
 }
 
 .campaign-showcase {
