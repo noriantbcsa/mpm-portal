@@ -85,7 +85,7 @@ export function CampaignForm({
           </div>
           <AdminTextField
             label="Imagen de portada (URL)"
-            hint="Foto horizontal, ideal 1600×900 o más. Se muestra a todo ancho en la página de la campaña y junto al texto en el inicio. Si la dejas vacía se usa automáticamente la foto de una de las prendas de la campaña."
+            hint="Foto horizontal, ideal 1600×900 o más. Se muestra a todo ancho en la página de la campaña y junto al texto en el inicio. Sin imagen se usa un bloque liso."
             name="bannerImageUrl"
             defaultValue={initial?.bannerImageUrl ?? ""}
             className="sm:col-span-2"
