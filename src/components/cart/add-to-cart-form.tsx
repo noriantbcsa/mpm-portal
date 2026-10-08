@@ -34,7 +34,8 @@ export function AddToCartForm({
   canOrder: boolean;
 }) {
   const addItem = useCartStore((s) => s.addItem);
-  const [size, setSize] = useState(sizes[0] ?? "");
+  // Sin talla preseleccionada: con la escala XS–XXL, elegir por el cliente es obligatorio.
+  const [size, setSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [confirmation, setConfirmation] = useState<string | null>(null);
   const [limitError, setLimitError] = useState<string | null>(null);
@@ -87,6 +88,7 @@ export function AddToCartForm({
                   type="radio"
                   name="size"
                   value={s}
+                  required
                   checked={size === s}
                   onChange={() => setSize(s)}
                   className="sr-only"

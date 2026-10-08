@@ -177,7 +177,7 @@ export async function listProducts(filters: CatalogFilters = {}) {
  * Tallas que el filtro siempre ofrece (en este orden), aunque todavía ninguna
  * referencia las tenga cargadas; las tallas reales extra (p. ej. "38") van después.
  */
-export const STANDARD_CATALOG_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "Talla única"];
+export const STANDARD_CATALOG_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export function withStandardSizes(found: string[]) {
   const standardKeys = new Set(STANDARD_CATALOG_SIZES.map((size) => size.toLowerCase()));

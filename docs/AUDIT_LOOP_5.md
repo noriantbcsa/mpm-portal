@@ -147,3 +147,7 @@ Revisado sin hallazgos: catálogo y carrito a 375 px sin desbordamiento, aviso d
 - **Colores**: el color elegido se pinta con su tono (muestra); `MEGENTA` (error de tipeo en los nombres de foto) no tenía muestra → alias a `MAGENTA`; un color sin muestra ahora muestra un estado seleccionado visible (antes no cambiaba nada). Prueba que fija los 52 colores reales del catálogo. Verificado en vivo (Cacao, Café, Chocolate, Rosado, Amarillo, V. Cali, Hoja Seca, Magenta, Negro, Blanco).
 - **Banner de campaña**: aviso superior más grande (texto 20 px en escritorio, etiqueta y enlace mayores), sin tocar `globals.css`.
 - **Campaña nueva**: formulario precargado (descripción, inicio hoy en hora de Colombia, fin a 14 días, inactiva) con vista previa en vivo del aviso y recomendación de longitud (`src/lib/campaign-defaults.ts`, 2 pruebas).
+
+### Retiro de "Consultar disponibilidad" y escala XS–XXL (7 de octubre de 2026)
+
+Migración `20261007140000_remove_availability_placeholder`: las referencias con el marcador pasan a tallas XS–XXL, se quita el marcador de colores y la frase de relleno "Consulta disponibilidad de talla y color con un asesor MPM." de las descripciones sembradas. El seed ya no lo genera. El filtro de tallas ofrece siempre XS–XXL (más las reales extra, p. ej. "Talla única"). En la ficha la talla ya **no se preselecciona** y es obligatoria. Las funciones que filtran el marcador (`isFilterableCatalogSize/Color`, `withoutPlaceholderOptions`) se conservan como defensa. Verificado: filtro M → 14 referencias; ficha inválida hasta elegir talla.

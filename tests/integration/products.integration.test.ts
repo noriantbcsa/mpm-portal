@@ -196,8 +196,8 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
     const options = await getCatalogFilterOptions("it-vestidos");
     expect(options.sizes).toContain("38");
     expect(options.sizes).not.toContain("Consultar disponibilidad");
-    expect(options.sizes.slice(0, 7)).toEqual(["XS", "S", "M", "L", "XL", "XXL", "Talla única"]);
-    expect(options.sizes.indexOf("38")).toBeGreaterThan(6);
+    expect(options.sizes.slice(0, 6)).toEqual(["XS", "S", "M", "L", "XL", "XXL"]);
+    expect(options.sizes.indexOf("38")).toBeGreaterThan(5);
     expect(options.colors).toContain("Blanco");
     expect(options.colors).toContain("Verde Cali");
   });

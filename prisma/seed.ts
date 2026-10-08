@@ -71,7 +71,7 @@ function referenceName(folder: string) {
 function sizesFor(folder: string) {
   if (/^(R-UNICA|UNICA)$/i.test(folder)) return ["Talla única"];
   if (/XXL/i.test(folder)) return ["XXL"];
-  return ["Consultar disponibilidad"];
+  return ["XS", "S", "M", "L", "XL", "XXL"];
 }
 
 /** Categorías raíz "Damas" / "Caballero", sitio y las 18 referencias reales fotografiadas. */
@@ -138,14 +138,14 @@ async function importRealCatalog() {
       const sku = `${collection.prefix}-${folder.name.replace(/[^a-z0-9]+/gi, "-").replace(/(^-|-$)/g, "").toUpperCase()}`;
       const slug = `${collection.slug}-${folder.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`;
       const tags = /NUEVO LANZAMIENTO/i.test(folder.name) ? ["NUEVO" as const] : [];
-      const description = [`Referencia ${folder.name}.`, colors.length ? `Colores registrados: ${colors.join(", ")}.` : `Galería con ${files.length} vistas registradas.`, "Consulta disponibilidad de talla y color con un asesor MPM."].join(" ");
+      const description = [`Referencia ${folder.name}.`, colors.length ? `Colores registrados: ${colors.join(", ")}.` : `Galería con ${files.length} vistas registradas.`].join(" ");
       const images = files.map((file, order) => {
         const color = filenameColor(file);
         return { url: asPublicUrl(join(productDir, file)), alt: `${name}${color ? ` · color ${color}` : ` · vista ${order + 1}`}`, color, order };
       });
       await prisma.product.upsert({
         where: { sku },
-        create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors: colors.length ? colors : ["Consultar disponibilidad"], tags, images: { create: images } },
+        create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors, tags, images: { create: images } },
         // Repetir el seed solo refresca las fotos entregadas: nombre,
         // descripción, categoría, tallas, etiquetas, etc. pueden haberse
         // editado desde /admin y no deben pisarse.
