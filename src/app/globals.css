@@ -488,9 +488,12 @@ html[data-festivity] .seasonal-main::after {
 .seasonal-scene-art {
   position: absolute;
   display: block;
-  width: clamp(15rem, 25vw, 28rem);
+  /* Los artes tienen aire intencional a la izquierda. Se escala el lienzo
+     completo para que el motivo visible (velitas, flores, etc.) tenga una
+     presencia grande en vez de quedar reducido a una esquina. */
+  width: clamp(56rem, 82vw, 100rem);
   aspect-ratio: 1672 / 941;
-  opacity: 0.46;
+  opacity: 0.68;
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
@@ -548,8 +551,8 @@ html[data-festivity] .seasonal-main::after {
 
 @media (max-width: 639px) {
   .seasonal-scene-art {
-    width: min(14rem, 66vw);
-    opacity: 0.3;
+    width: min(30rem, 128vw);
+    opacity: 0.42;
   }
 
   .seasonal-scene-art--right-top { top: 1rem; right: -2.5rem; }
