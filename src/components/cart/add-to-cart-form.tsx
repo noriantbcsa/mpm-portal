@@ -168,12 +168,20 @@ export function AddToCartForm({
 
 function ColorOption({ color, selected, onSelect }: { color: string; selected: boolean; onSelect: (color: string) => void }) {
   const swatch = getCatalogColorSwatch(color);
+  const swatchStyle = swatch
+    ? {
+        backgroundColor: swatch.background,
+        borderColor: selected ? "#101417" : swatch.foreground,
+        color: swatch.foreground,
+      }
+    : undefined;
+
   return (
     <label
-      className={`focus-ring-within flex min-h-10 max-w-full cursor-pointer items-center break-words border px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.06em] transition-[background-color,color,border-color] ${
-        selected && !swatch ? "border-ink text-ink ring-1 ring-ink" : "border-line text-ink-soft"
+      className={`focus-ring-within flex min-h-10 max-w-full cursor-pointer items-center break-words border px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.06em] transition-[background-color,color,border-color,box-shadow,filter] hover:brightness-95 ${
+        selected ? "ring-2 ring-ink ring-offset-2" : !swatch ? "border-line text-ink-soft" : ""
       }`}
-      style={selected && swatch ? { backgroundColor: swatch.background, borderColor: swatch.foreground, color: swatch.foreground } : undefined}
+      style={swatchStyle}
     >
       <input type="radio" name="color" value={color} checked={selected} onChange={() => onSelect(color)} className="sr-only" />
       {color}

@@ -58,13 +58,10 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
   return (
     <section
       aria-label={`Galería de ${productName}`}
-      className={cn(
-        "grid w-full min-w-0 gap-3",
-        hasMultipleImages && "sm:grid-cols-[72px_minmax(0,1fr)] sm:items-start",
-      )}
+      className="grid w-full min-w-0 gap-3"
     >
       {hasMultipleImages && (
-        <div className="order-2 flex gap-2 overflow-x-auto pb-1 sm:order-1 sm:max-h-[calc(100vh-9rem)] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden" role="group" aria-label="Vistas del producto">
+        <div className="order-2 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Vistas del producto">
           {images.map((image, index) => (
             <button
               key={image.url}
@@ -73,7 +70,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
               aria-label={`Ver ${viewLabel(image, index)}`}
               onClick={() => setActive(index)}
               className={cn(
-                "focus-ring relative aspect-[3/4] w-14 shrink-0 overflow-hidden border bg-[#f5f5f2] sm:w-[72px]",
+                "focus-ring relative aspect-[3/4] w-16 shrink-0 overflow-hidden border bg-[#f5f5f2] sm:w-[72px]",
                 index === active ? "border-ink" : "border-transparent opacity-60 hover:opacity-100",
               )}
             >
@@ -89,7 +86,6 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
       <div
         className={cn(
           "order-1 relative aspect-[3/4] w-full min-w-0 overflow-hidden bg-[#f5f5f2]",
-          hasMultipleImages && "sm:order-2",
         )}
       >
         <Image
