@@ -148,17 +148,18 @@ function CatalogColorFilterOption({ color, selected, label }: { color: string; s
   const swatch = color ? getCatalogColorSwatch(color) : null;
   const style = swatch
     ? { backgroundColor: swatch.background, borderColor: selected ? "#101417" : swatch.foreground, color: swatch.foreground }
-    : undefined;
+    : { backgroundColor: "#ffffff", borderColor: "#59636a", color: "#101417" };
 
   return (
     <label
-      className={`focus-ring-within flex min-h-11 cursor-pointer items-center border px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.06em] transition-[background-color,color,border-color,box-shadow,filter] hover:brightness-95 ${
-        selected ? "ring-2 ring-ink ring-offset-2" : swatch ? "" : "border-line bg-paper text-ink-soft"
+      title={label}
+      className={`focus-ring-within flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border transition-[border-color,box-shadow,filter] hover:brightness-95 ${
+        selected ? "ring-2 ring-ink ring-offset-2" : ""
       }`}
       style={style}
     >
-      <input type="radio" name="color" value={color} defaultChecked={selected} className="sr-only" />
-      {label}
+      <input type="radio" name="color" value={color} defaultChecked={selected} className="sr-only" aria-label={label} />
+      <span className="sr-only">{label}</span>
     </label>
   );
 }
