@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Check, ShoppingBag } from "lucide-react";
 
 import { useCartStore } from "@/store/cart-store";
@@ -115,11 +116,11 @@ export function AddToCartForm({
         <label htmlFor="quantity" className="text-xs font-bold uppercase tracking-[0.12em] text-ink">
           Cantidad
         </label>
-        <div className="mt-1.5 flex w-fit items-center border border-line">
+        <div className="mt-1.5 flex w-fit items-center border border-line bg-paper text-ink shadow-sm">
           <button
             type="button"
             aria-label="Disminuir cantidad"
-            className="focus-ring flex h-10 w-10 items-center justify-center text-lg"
+            className="focus-ring flex h-10 w-10 items-center justify-center bg-paper text-lg text-ink"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
           >
             −
@@ -131,12 +132,12 @@ export function AddToCartForm({
             max={MAX_CART_ITEM_QUANTITY}
             value={quantity}
             onChange={(e) => setQuantity(Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Math.trunc(Number(e.target.value)) || 1)))}
-            className="focus-ring h-10 w-14 border-x border-line text-center text-sm"
+            className="focus-ring h-10 w-14 border-x border-line bg-paper text-center text-sm font-semibold text-ink"
           />
           <button
             type="button"
             aria-label="Aumentar cantidad"
-            className="focus-ring flex h-10 w-10 items-center justify-center text-lg"
+            className="focus-ring flex h-10 w-10 items-center justify-center bg-paper text-lg text-ink"
             onClick={() => setQuantity((q) => Math.min(MAX_CART_ITEM_QUANTITY, q + 1))}
           >
             +
@@ -155,13 +156,22 @@ export function AddToCartForm({
         </p>
       )}
 
-      <p role="status" aria-live="polite" className="flex items-center gap-1.5 text-sm text-success">
-        {confirmation && (
-          <>
-            <Check className="h-4 w-4" aria-hidden="true" /> {confirmation}
-          </>
-        )}
-      </p>
+      {confirmation && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex flex-wrap items-center gap-3 border border-success bg-paper px-4 py-3 text-ink shadow-sm"
+        >
+          <Check className="h-5 w-5 shrink-0 text-success" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">Agregado al carrito</p>
+            <p className="mt-0.5 text-sm text-ink-soft">{confirmation}</p>
+          </div>
+          <Link href="/carrito" className="focus-ring text-sm font-semibold text-success underline underline-offset-4">
+            Ver carrito
+          </Link>
+        </div>
+      )}
     </form>
   );
 }

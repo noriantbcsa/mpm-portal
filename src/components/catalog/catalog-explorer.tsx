@@ -1,8 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
-import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export type CatalogCategory = {
   id: string;
@@ -18,7 +16,7 @@ function rootForSlug(categories: CatalogCategory[], slug?: string) {
   return categories.find((category) => category.slug === slug || category.children.some((child) => child.slug === slug));
 }
 
-/** Navegación por niveles: categoría → línea/colección → referencia. */
+/** Navegación breve: categoría y, cuando corresponde, colección. */
 export function CatalogExplorer({
   categories,
   activeSlug,
@@ -31,52 +29,47 @@ export function CatalogExplorer({
   if (categories.length === 0) return null;
 
   return (
-    <section aria-label="Explorar catálogo" className="seasonal-band border-b border-line bg-[#f7f7f5]">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
-        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Explora por categoría</p>
-            <h2 className="mt-1 text-base font-semibold tracking-[-0.02em] text-ink">
-              {activeRoot ? `${activeRoot.name} · colecciones` : "1. Categoría · 2. Colección · 3. Referencia"}
-            </h2>
-          </div>
-          <Link href="/catalogo" className="focus-ring text-xs font-bold uppercase tracking-[0.1em] text-ink-soft hover:text-ink">
-            Ver todo el catálogo
-          </Link>
+    <section aria-label="Explorar catálogo" className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="seasonal-glass flex flex-col gap-3 border-y border-line py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-ink">
+            {activeRoot ? `Explorar ${activeRoot.name}` : "Comprar por categoría"}
+          </p>
+          <p className="mt-0.5 text-xs text-ink-soft">
+            {activeRoot ? "Elige una colección para acotar las referencias." : "Elige Damas o Caballero para ver sus referencias."}
+          </p>
         </div>
-
-        <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <ul className="flex flex-wrap gap-2" aria-label="Categorías del catálogo">
           {categories.map((category) => (
             <li key={category.id}>
               <Link
                 href={`/catalogo/${category.slug}`}
                 aria-current={activeRoot?.slug === category.slug ? "page" : undefined}
                 className={cn(
-                  "focus-ring group relative flex min-h-24 overflow-hidden border bg-paper p-3",
-                  activeRoot?.slug === category.slug ? "border-ink ring-1 ring-ink" : "border-line hover:border-ink",
+                  "focus-ring inline-flex min-h-10 items-center border px-4 text-sm font-semibold transition-colors",
+                  activeRoot?.slug === category.slug ? "border-ink bg-ink text-white" : "border-line bg-paper text-ink hover:border-ink",
                 )}
               >
-                {category.imageUrl && (
-                  <Image src={category.imageUrl} alt="" fill sizes="(min-width: 640px) 25vw, 50vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover opacity-45 transition-opacity group-hover:opacity-55" />
-                )}
-                <span className="relative mt-auto bg-paper/85 px-2 py-1.5 backdrop-blur-[1px]">
-                  <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-soft">Categoría</span>
-                  <span className="block text-base font-semibold tracking-[-0.03em] text-ink">{category.name}</span>
-                </span>
+                {category.name}
               </Link>
             </li>
           ))}
         </ul>
+        {activeSlug && (
+          <Link href="/catalogo" className="focus-ring text-sm font-semibold text-ink-soft underline underline-offset-4 hover:text-ink">
+            Ver todo
+          </Link>
+        )}
 
         {activeRoot && activeRoot.children.length > 0 && (
-          <nav aria-label={`Colecciones de ${activeRoot.name}`} className="mt-5 border-t border-line pt-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Elige una colección</p>
+          <nav aria-label={`Colecciones de ${activeRoot.name}`} className="border-t border-line pt-3 sm:basis-full">
+            <p className="text-xs font-medium text-ink-soft">Colecciones</p>
             <ul className="mt-2 flex flex-wrap gap-2">
               <li>
                 <Link
                   href={`/catalogo/${activeRoot.slug}`}
                   className={cn(
-                    "focus-ring inline-flex border px-3 py-2 text-xs font-bold uppercase tracking-[0.08em]",
+                    "focus-ring inline-flex min-h-10 border px-3 text-sm font-semibold",
                     activeSlug === activeRoot.slug ? "border-ink bg-ink text-white" : "border-line bg-paper text-ink hover:border-ink",
                   )}
                 >
@@ -88,7 +81,7 @@ export function CatalogExplorer({
                   <Link
                     href={`/catalogo/${collection.slug}`}
                     className={cn(
-                      "focus-ring inline-flex border px-3 py-2 text-xs font-bold uppercase tracking-[0.08em]",
+                      "focus-ring inline-flex min-h-10 border px-3 text-sm font-semibold",
                       activeSlug === collection.slug ? "border-ink bg-ink text-white" : "border-line bg-paper text-ink hover:border-ink",
                     )}
                   >
