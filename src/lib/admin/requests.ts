@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Prisma, CartRequestStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { CurrentUser } from "@/lib/auth/dal";
 
 export type RequestFilters = {
   status?: CartRequestStatus;
@@ -11,7 +12,20 @@ export type RequestFilters = {
   pageSize?: number;
 };
 
-export async function listCartRequests(filters: RequestFilters = {}) {
+type RequestViewer = Pick<CurrentUser, "id" | "role">;
+
+/**
+ * Los asesores no trabajan con una bandeja compartida: solo reciben las
+ * solicitudes que un administrador les asignó. La restricción vive en la
+ * consulta (no solo en la pantalla), para que una URL manipulada tampoco
+ * revele información de otro cliente.
+ */
+function restrictToViewer(where: Prisma.CartRequestWhereInput, viewer?: RequestViewer) {
+  if (viewer?.role !== "SALES") return where;
+  return { ...where, assignedToId: viewer.id } satisfies Prisma.CartRequestWhereInput;
+}
+
+export async function listCartRequests(filters: RequestFilters = {}, viewer?: RequestViewer) {
   const requestedPage = Math.max(1, filters.page ?? 1);
   const pageSize = filters.pageSize ?? 20;
 
@@ -28,6 +42,7 @@ export async function listCartRequests(filters: RequestFilters = {}) {
     ];
   }
 
+  const scopedWhere = restrictToViewer(where, viewer);
   const include = {
     assignedTo: { select: { id: true, name: true } },
     items: true,
@@ -36,13 +51,13 @@ export async function listCartRequests(filters: RequestFilters = {}) {
 
   const [firstItems, total] = await Promise.all([
     prisma.cartRequest.findMany({
-      where,
+      where: scopedWhere,
       include,
       orderBy,
       skip: (requestedPage - 1) * pageSize,
       take: pageSize,
     }),
-    prisma.cartRequest.count({ where }),
+    prisma.cartRequest.count({ where: scopedWhere }),
   ]);
 
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
@@ -53,7 +68,7 @@ export async function listCartRequests(filters: RequestFilters = {}) {
     page === requestedPage
       ? firstItems
       : await prisma.cartRequest.findMany({
-          where,
+          where: scopedWhere,
           include,
           orderBy,
           skip: (page - 1) * pageSize,
@@ -63,9 +78,9 @@ export async function listCartRequests(filters: RequestFilters = {}) {
   return { items, total, page, pageSize, pageCount };
 }
 
-export async function getCartRequestById(id: string) {
-  return prisma.cartRequest.findUnique({
-    where: { id },
+export async function getCartRequestById(id: string, viewer?: RequestViewer) {
+  return prisma.cartRequest.findFirst({
+    where: restrictToViewer({ id }, viewer),
     include: {
       assignedTo: { select: { id: true, name: true } },
       items: true,

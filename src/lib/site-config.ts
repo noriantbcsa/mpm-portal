@@ -19,7 +19,7 @@ export const DEFAULT_SITE_SETTINGS = {
   primaryColor: "#1F4D3D",
   secondaryColor: "#D9A441",
   accentColor: "#F4EFE7",
-  whatsappNumber: "573000000000",
+  whatsappNumber: "573025449577",
   whatsappDefaultMessage: "Hola MPM, quiero más información sobre sus prendas.",
   contactEmail: null as string | null,
   contactPhone: null as string | null,

@@ -7,6 +7,7 @@ import { requireUser, type CurrentUser } from "@/lib/auth/dal";
 import {
   cartRequestAssignSchema,
   cartRequestNoteSchema,
+  cartSessionAssignSchema,
   cartSessionStatusChangeSchema,
   cartRequestStatusChangeSchema,
 } from "@/lib/validation/cart-request";
@@ -17,9 +18,9 @@ const NOT_YOURS_MESSAGE = "Esta solicitud está asignada a otro asesor. Solo un 
 
 /**
  * Un admin gestiona cualquier solicitud. Un vendedor (SALES) solo gestiona
- * las suyas o las que aún no tienen asesor (para poder tomarlas) — no puede
- * tocar una solicitud ya asignada a un compañero, aunque adivine su id en el
- * formulario.
+ * exclusivamente las suyas. Las solicitudes libres las reparte un
+ * administrador; tampoco puede tocar una solicitud ajena aunque adivine su
+ * id en el formulario.
  */
 async function canManageCartRequest(user: CurrentUser, cartRequestId: string) {
   if (user.role === "ADMIN") return true;
@@ -28,7 +29,7 @@ async function canManageCartRequest(user: CurrentUser, cartRequestId: string) {
     select: { assignedToId: true },
   });
   if (!request) return false;
-  return request.assignedToId === null || request.assignedToId === user.id;
+  return request.assignedToId === user.id;
 }
 
 export async function addNoteAction(
@@ -88,7 +89,7 @@ export async function changeStatusAction(formData: FormData): Promise<void> {
       where: {
         id: parsed.data.cartRequestId,
         status: current.status,
-        ...(user.role === "ADMIN" ? {} : { OR: [{ assignedToId: null }, { assignedToId: user.id }] }),
+        ...(user.role === "ADMIN" ? {} : { assignedToId: user.id }),
       },
       data: { status: parsed.data.status },
     });
@@ -117,14 +118,9 @@ export async function assignRequestAction(formData: FormData): Promise<void> {
   if (!parsed.success) return;
 
   const isAdmin = user.role === "ADMIN";
-  if (!isAdmin) {
-    // Un vendedor solo puede tomar una solicitud libre para sí mismo, o
-    // soltar la que ya es suya — nunca asignarla a otro compañero, ni
-    // quitarle a otro una que ya tiene.
-    const canActOnCurrent = await canManageCartRequest(user, parsed.data.cartRequestId);
-    const newTargetIsSelfOrNobody = parsed.data.assignedToId === null || parsed.data.assignedToId === user.id;
-    if (!canActOnCurrent || !newTargetIsSelfOrNobody) return;
-  }
+  // La asignación es una decisión administrativa. Así un asesor no puede
+  // autoasignarse una solicitud libre con un POST fabricado.
+  if (!isAdmin) return;
 
   if (parsed.data.assignedToId) {
     // Solo se asigna a cuentas activas del equipo; un id inexistente o de
@@ -137,12 +133,8 @@ export async function assignRequestAction(formData: FormData): Promise<void> {
   }
 
   await prisma.$transaction(async (tx) => {
-    // Para un vendedor la escritura es condicional: si dos toman la misma
-    // solicitud libre a la vez, solo el primero se la queda.
     const { count } = await tx.cartRequest.updateMany({
-      where: isAdmin
-        ? { id: parsed.data.cartRequestId }
-        : { id: parsed.data.cartRequestId, OR: [{ assignedToId: null }, { assignedToId: user.id }] },
+      where: { id: parsed.data.cartRequestId },
       data: { assignedToId: parsed.data.assignedToId },
     });
     if (count === 0) return;
@@ -181,20 +173,49 @@ export async function changeCartSessionStatusAction(formData: FormData): Promise
   // tener dos fuentes de verdad del mismo pedido.
   if (!cart || cart.convertedRequest) return;
 
-  // Misma regla que en las solicitudes: un vendedor no le quita a otro un
-  // carrito que ya está gestionando.
+  // Misma regla que en las solicitudes: un vendedor solo cambia carritos que
+  // el administrador le asignó expresamente.
   const isAdmin = user.role === "ADMIN";
-  if (!isAdmin && cart.handledById !== null && cart.handledById !== user.id) return;
+  if (!isAdmin && cart.handledById !== user.id) return;
 
   await prisma.cartSession.updateMany({
-    where: isAdmin
-      ? { id: parsed.data.cartSessionId }
-      : { id: parsed.data.cartSessionId, OR: [{ handledById: null }, { handledById: user.id }] },
+    where: isAdmin ? { id: parsed.data.cartSessionId } : { id: parsed.data.cartSessionId, handledById: user.id },
     data: {
       commercialStatus: parsed.data.status,
       handledById: user.id,
       handledAt: new Date(),
     },
+  });
+
+  revalidatePath("/admin/carritos-abandonados");
+}
+
+/** Solo un administrador reparte carritos anónimos entre el equipo comercial. */
+export async function assignCartSessionAction(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  if (user.role !== "ADMIN") return;
+
+  const parsed = cartSessionAssignSchema.safeParse({
+    cartSessionId: formData.get("cartSessionId"),
+    assignedToId: String(formData.get("assignedToId") ?? "") || null,
+  });
+  if (!parsed.success) return;
+
+  if (parsed.data.assignedToId) {
+    const assignee = await prisma.user.findFirst({
+      where: { id: parsed.data.assignedToId, active: true, role: { in: ["ADMIN", "SALES"] } },
+      select: { id: true },
+    });
+    if (!assignee) return;
+  }
+
+  // Si se devuelve a la bandeja administrativa, se borra su estado comercial
+  // para que el siguiente responsable no herede una gestión que no hizo.
+  await prisma.cartSession.updateMany({
+    where: { id: parsed.data.cartSessionId, convertedRequest: null },
+    data: parsed.data.assignedToId
+      ? { handledById: parsed.data.assignedToId, handledAt: new Date() }
+      : { handledById: null, handledAt: null, commercialStatus: null },
   });
 
   revalidatePath("/admin/carritos-abandonados");

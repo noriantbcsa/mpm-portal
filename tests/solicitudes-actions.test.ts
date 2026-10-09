@@ -45,7 +45,7 @@ beforeEach(() => {
   userFindFirst.mockResolvedValue({ id: "ana" });
 });
 
-describe("solicitudes — un vendedor solo gestiona lo suyo o lo libre", () => {
+describe("solicitudes — un vendedor solo gestiona lo que le asignaron", () => {
   it("no deja a un vendedor cambiar el estado de una solicitud asignada a otro asesor", async () => {
     requireUserMock.mockResolvedValue(ana);
     cartRequestFindUnique.mockResolvedValue({ assignedToId: "beto", status: "NUEVO" });
@@ -63,7 +63,7 @@ describe("solicitudes — un vendedor solo gestiona lo suyo o lo libre", () => {
     await actions.changeStatusAction(form({ cartRequestId: "r1", status: "CONTACTADO" }));
 
     expect(cartRequestUpdateMany).toHaveBeenCalledWith({
-      where: { id: "r1", status: "NUEVO", OR: [{ assignedToId: null }, { assignedToId: "ana" }] },
+      where: { id: "r1", status: "NUEVO", assignedToId: "ana" },
       data: { status: "CONTACTADO" },
     });
     expect(eventCreate).toHaveBeenCalledTimes(1);
@@ -109,16 +109,13 @@ describe("solicitudes — un vendedor solo gestiona lo suyo o lo libre", () => {
     expect(cartRequestUpdateMany).not.toHaveBeenCalled();
   });
 
-  it("un vendedor puede tomar para sí una solicitud libre, y la escritura es condicional", async () => {
+  it("un vendedor no puede autoasignarse una solicitud libre", async () => {
     requireUserMock.mockResolvedValue(ana);
     cartRequestFindUnique.mockResolvedValue({ assignedToId: null });
 
     await actions.assignRequestAction(form({ cartRequestId: "r1", assignedToId: "ana" }));
 
-    expect(cartRequestUpdateMany).toHaveBeenCalledWith({
-      where: { id: "r1", OR: [{ assignedToId: null }, { assignedToId: "ana" }] },
-      data: { assignedToId: "ana" },
-    });
+    expect(cartRequestUpdateMany).not.toHaveBeenCalled();
   });
 
   it("un administrador puede reasignar entre asesores activos", async () => {
@@ -166,17 +163,32 @@ describe("carritos — un vendedor no le quita a otro un carrito que ya gestiona
     expect(sessionUpdateMany).not.toHaveBeenCalled();
   });
 
-  it("permite un carrito libre y lo marca como suyo con escritura condicional", async () => {
+  it("un carrito libre no puede ser tomado por un vendedor", async () => {
     requireUserMock.mockResolvedValue(ana);
     sessionFindUnique.mockResolvedValue({ handledById: null, convertedRequest: null });
 
     await actions.changeCartSessionStatusAction(form({ cartSessionId: "c1", status: "CONTACTADO" }));
 
-    expect(sessionUpdateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: "c1", OR: [{ handledById: null }, { handledById: "ana" }] },
-        data: expect.objectContaining({ commercialStatus: "CONTACTADO", handledById: "ana" }),
-      }),
-    );
+    expect(sessionUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("solo un administrador puede asignar un carrito a otro asesor", async () => {
+    requireUserMock.mockResolvedValue(ana);
+
+    await actions.assignCartSessionAction(form({ cartSessionId: "c1", assignedToId: "beto" }));
+
+    expect(sessionUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("un administrador asigna solo a usuarios activos del equipo", async () => {
+    requireUserMock.mockResolvedValue(admin);
+    userFindFirst.mockResolvedValue({ id: "beto" });
+
+    await actions.assignCartSessionAction(form({ cartSessionId: "c1", assignedToId: "beto" }));
+
+    expect(sessionUpdateMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: "c1", convertedRequest: null },
+      data: expect.objectContaining({ handledById: "beto" }),
+    }));
   });
 });

@@ -22,7 +22,7 @@ const STATUS_TONE: Record<CartRequestStatus, "neutral" | "blue" | "green" | "amb
 type PageProps = { searchParams: Promise<RawSearchParams> };
 
 export default async function SolicitudesPage({ searchParams }: PageProps) {
-  await requireUser();
+  const user = await requireUser();
   const sp = await searchParams;
   // Solo valores conocidos: un `?estado=` inventado llegaba tal cual a Prisma
   // y respondía con un error 500 en vez de ignorarse.
@@ -33,8 +33,8 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
   const pagina = toPositiveInt(sp.pagina, 1);
 
   const [{ items, page, pageCount, total }, team] = await Promise.all([
-    listCartRequests({ status, assignedToId, q, page: pagina }),
-    listSalesTeam(),
+    listCartRequests({ status, assignedToId, q, page: pagina }, user),
+    user.role === "ADMIN" ? listSalesTeam() : Promise.resolve([]),
   ]);
 
   function buildHref(nextPage: number) {
@@ -50,7 +50,9 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
   return (
     <div>
       <h1 className="text-xl font-semibold text-slate-900">Solicitudes comerciales</h1>
-      <p className="mt-1 text-sm text-slate-500">{total} solicitudes registradas.</p>
+      <p className="mt-1 text-sm text-slate-500">
+        {user.role === "ADMIN" ? `${total} solicitudes registradas.` : `${total} solicitudes asignadas a ti.`}
+      </p>
 
       <form method="GET" className="mt-6 flex flex-wrap gap-2">
         <input
@@ -75,20 +77,22 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
             </option>
           ))}
         </select>
-        <select
-          name="asesor"
-          aria-label="Filtrar por asesor"
-          defaultValue={assignedToId ?? ""}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-        >
-          <option value="">Todos los asesores</option>
-          <option value="unassigned">Sin asignar</option>
-          {team.map((member) => (
-            <option key={member.id} value={member.id}>
-              {member.name}
-            </option>
-          ))}
-        </select>
+        {user.role === "ADMIN" && (
+          <select
+            name="asesor"
+            aria-label="Filtrar por asesor"
+            defaultValue={assignedToId ?? ""}
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          >
+            <option value="">Todos los asesores</option>
+            <option value="unassigned">Sin asignar</option>
+            {team.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.name}
+              </option>
+            ))}
+          </select>
+        )}
         <button type="submit" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
           Filtrar
         </button>

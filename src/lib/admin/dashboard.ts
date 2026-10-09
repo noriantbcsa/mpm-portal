@@ -3,8 +3,10 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { getAbandonedCartsCount } from "@/lib/admin/carts";
 import { getActiveCampaign } from "@/lib/campaigns";
+import type { CurrentUser } from "@/lib/auth/dal";
 
-export async function getDashboardStats() {
+export async function getDashboardStats(viewer: Pick<CurrentUser, "id" | "role">) {
+  const requestWhere = viewer.role === "SALES" ? { assignedToId: viewer.id } : {};
   const [
     totalProducts,
     hiddenProducts,
@@ -18,8 +20,8 @@ export async function getDashboardStats() {
     prisma.product.count({ where: { status: "OCULTO" } }),
     prisma.product.aggregate({ _sum: { viewCount: true } }),
     prisma.product.aggregate({ _sum: { addToCartCount: true } }),
-    prisma.cartRequest.groupBy({ by: ["status"], _count: { _all: true } }),
-    getAbandonedCartsCount(),
+    prisma.cartRequest.groupBy({ by: ["status"], where: requestWhere, _count: { _all: true } }),
+    getAbandonedCartsCount(viewer),
     getActiveCampaign(),
   ]);
 

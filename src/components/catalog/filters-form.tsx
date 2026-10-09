@@ -114,15 +114,23 @@ export function FiltersForm({
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend className="text-sm font-semibold text-ink">Color</legend>
-        <div className="mt-2 flex flex-wrap gap-2" aria-label="Elegir color">
-          <CatalogColorFilterOption color="" selected={!active.color[0]} label="Todos" />
-          {options.colors.map((color) => (
-            <CatalogColorFilterOption key={color} color={color} selected={active.color[0] === color} label={color} />
-          ))}
+      <details className="group border border-line bg-paper" open={active.color.length > 0}>
+        <summary className="focus-ring flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-3 text-sm font-semibold text-ink">
+          <span>Color</span>
+          <span className="flex items-center gap-2 text-xs font-medium text-ink-soft">
+            {active.color[0] ?? "Todos los colores"}
+            <span aria-hidden="true" className="text-base leading-none transition-transform group-open:rotate-45">+</span>
+          </span>
+        </summary>
+        <div className="border-t border-line p-3" aria-label="Elegir color">
+          <div className="flex flex-wrap gap-2">
+            <CatalogColorFilterOption color="" selected={!active.color[0]} label="Todos" />
+            {options.colors.map((color) => (
+              <CatalogColorFilterOption key={color} color={color} selected={active.color[0] === color} label={color} />
+            ))}
+          </div>
         </div>
-      </fieldset>
+      </details>
 
       <div className="flex gap-2">
         <Button type="submit" className="flex-1">

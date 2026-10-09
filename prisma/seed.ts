@@ -107,7 +107,7 @@ async function importRealCatalog() {
       secondaryColor: "#c8ff00",
       accentColor: "#eef2e5",
       heroImageUrl: fallbackHeroImage,
-      whatsappNumber: "573000000000",
+      whatsappNumber: "573025449577",
       whatsappDefaultMessage: "Hola MPM, quiero más información sobre sus prendas.",
       contactEmail: "ventas@mpm-ejemplo.com",
       address: "C.C. Visto, Local 3163, piso 3 · Bogotá Centro, Bogotá, Colombia",

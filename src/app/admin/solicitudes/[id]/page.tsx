@@ -25,18 +25,15 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
   const user = await requireUser();
   const { id } = await params;
   const [request, team, settings] = await Promise.all([
-    getCartRequestById(id),
-    listSalesTeam(),
+    getCartRequestById(id, user),
+    user.role === "ADMIN" ? listSalesTeam() : Promise.resolve([]),
     getSiteSettings(),
   ]);
   if (!request) notFound();
 
-  // Un admin gestiona cualquier solicitud. Un vendedor solo la suya o una
-  // libre (para poder tomarla) — ver también assignRequestAction/
-  // changeStatusAction/addNoteAction, que aplican esta misma regla en el
-  // servidor. Aquí solo se refleja en la interfaz para no ofrecer controles
-  // que el servidor igual va a rechazar.
-  const canManage = user.role === "ADMIN" || request.assignedToId === null || request.assignedToId === user.id;
+  // Un asesor solo llega hasta solicitudes que le fueron asignadas. La
+  // consulta y las acciones repiten la misma regla en el servidor.
+  const canManage = user.role === "ADMIN" || request.assignedToId === user.id;
 
   const totalItems = request.items.reduce((sum, i) => sum + i.quantity, 0);
   const whatsappHref = buildAdvisorWhatsAppLink(request.contactPhone, request.contactName, settings.siteName);
@@ -112,22 +109,7 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
                 </AutoSubmitSelect>
               </form>
             ) : canManage ? (
-              // Un vendedor solo puede tomar una solicitud libre o soltar la
-              // suya — nunca pasársela a otro compañero (eso es decisión de
-              // un administrador), así que el único destino posible es él
-              // mismo o "Sin asignar".
-              <form action={assignRequestAction} className="mt-2">
-                <input type="hidden" name="cartRequestId" value={request.id} />
-                <AutoSubmitSelect
-                  key={request.assignedToId ?? "unassigned"}
-                  name="assignedToId"
-                  defaultValue={request.assignedToId ?? ""}
-                  className="w-full"
-                >
-                  <option value="">Sin asignar</option>
-                  <option value={user.id}>Yo ({user.name})</option>
-                </AutoSubmitSelect>
-              </form>
+              <p className="mt-2 text-sm text-slate-700">{user.name}</p>
             ) : (
               <p className="mt-2 text-sm text-slate-700">
                 {request.assignedTo?.name}{" "}

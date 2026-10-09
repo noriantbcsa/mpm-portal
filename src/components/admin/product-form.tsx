@@ -71,8 +71,8 @@ export function ProductForm({
 
       <AdminCard>
         <AdminCardBody className="grid gap-4 sm:grid-cols-2">
-          <AdminTextField label="Referencia (SKU)" name="sku" defaultValue={initial?.sku} required />
-          <AdminTextField label="Nombre" name="name" defaultValue={initial?.name} required />
+          <AdminTextField label="Referencia (código único)" name="sku" defaultValue={initial?.sku} hint="Es el código que identifica esta prenda en catálogo y solicitudes." required />
+          <AdminTextField label="Nombre comercial" name="name" defaultValue={initial?.name} hint="Evita nombres genéricos: escribe el nombre con el que el equipo reconoce la referencia." required />
           <AdminTextAreaField
             label="Descripción"
             name="description"
@@ -80,7 +80,7 @@ export function ProductForm({
             required
             className="sm:col-span-2"
           />
-          <AdminSelectField label="Categoría" name="categoryId" defaultValue={initial?.categoryId} required>
+          <AdminSelectField label="Categoría del catálogo" name="categoryId" defaultValue={initial?.categoryId} required>
             <option value="">Selecciona una categoría</option>
             {categoryOptions.map((c) => (
               <option key={c.id} value={c.id}>

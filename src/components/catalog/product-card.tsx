@@ -21,6 +21,10 @@ export function ProductCard({
     : product.images[0];
   const price = showPrices ? formatPrice(product.priceRef ? Number(product.priceRef) : null) : null;
   const categoryLabel = product.category.parent?.name ?? product.category.name;
+  const variantSummary = [
+    product.colors.length > 0 && `${product.colors.length} ${product.colors.length === 1 ? "color" : "colores"}`,
+    product.sizes.length > 0 && `${product.sizes.length} ${product.sizes.length === 1 ? "talla" : "tallas"}`,
+  ].filter(Boolean).join(" · ");
 
   return (
     <Link
@@ -62,9 +66,15 @@ export function ProductCard({
         <h3 className="break-words font-display text-base font-semibold leading-snug text-ink line-clamp-2">
           {product.name}
         </h3>
-        <p className="min-h-10 line-clamp-2 text-sm leading-5 text-ink-soft">Ref. {product.sku}</p>
+        <p className="text-xs font-medium text-ink-soft">Ref. {product.sku}</p>
+        <p className="min-h-5 text-xs leading-5 text-ink-soft">
+          {variantSummary || "Consulta disponibilidad"}
+        </p>
         {product.tags.length > 0 && <p className="pt-1 text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{product.tags.map((tag) => PRODUCT_TAG_LABELS[tag]).join(" · ")}</p>}
-        {price && <p className="mt-auto pt-2 text-sm font-semibold text-ink">{price}</p>}
+        <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+          {price ? <p className="text-sm font-semibold text-ink">{price}</p> : <span />}
+          <span className="text-xs font-semibold text-ink underline decoration-line underline-offset-4 group-hover:decoration-ink">Ver opciones</span>
+        </div>
       </div>
     </Link>
   );

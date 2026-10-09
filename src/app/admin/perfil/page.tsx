@@ -22,7 +22,9 @@ export default async function PerfilPage() {
       where: { assignedToId: user.id },
       _count: { _all: true },
     }),
-    prisma.cartRequest.count({ where: { assignedToId: null, status: "NUEVO" } }),
+    user.role === "ADMIN"
+      ? prisma.cartRequest.count({ where: { assignedToId: null, status: "NUEVO" } })
+      : Promise.resolve(0),
   ]);
   const countFor = (status: (typeof CART_REQUEST_STATUS_ORDER)[number]) =>
     byStatus.find((row) => row.status === status)?._count._all ?? 0;
@@ -49,10 +51,12 @@ export default async function PerfilPage() {
           <Link href={`/admin/solicitudes?asesor=${user.id}`} className="font-medium text-blue-700 hover:underline">
             Ver mis solicitudes
           </Link>
-          {" · "}
-          <Link href="/admin/solicitudes?asesor=unassigned&estado=NUEVO" className="font-medium text-blue-700 hover:underline">
-            {freeNew} {freeNew === 1 ? "solicitud nueva sin asignar" : "solicitudes nuevas sin asignar"}
-          </Link>
+          {user.role === "ADMIN" && <>
+            {" · "}
+            <Link href="/admin/solicitudes?asesor=unassigned&estado=NUEVO" className="font-medium text-blue-700 hover:underline">
+              {freeNew} {freeNew === 1 ? "solicitud nueva sin asignar" : "solicitudes nuevas sin asignar"}
+            </Link>
+          </>}
         </p>
       </section>
 

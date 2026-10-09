@@ -117,7 +117,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
                     </a>
                   </AdminTd>
                   <AdminTd>{product.sku}</AdminTd>
-                  <AdminTd>{product.category.name}</AdminTd>
+                  <AdminTd>{product.category.parent ? `${product.category.parent.name} · ${product.category.name}` : product.category.name}</AdminTd>
                   <AdminTd>
                     <AdminBadge tone={STATUS_TONE[product.status]}>{PRODUCT_STATUS_LABELS[product.status]}</AdminBadge>
                   </AdminTd>

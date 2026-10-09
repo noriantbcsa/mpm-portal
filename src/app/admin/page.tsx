@@ -9,13 +9,13 @@ export const metadata: Metadata = { title: "Panel", robots: { index: false } };
 
 export default async function AdminDashboardPage() {
   const user = await requireUser();
-  const stats = await getDashboardStats();
+  const stats = await getDashboardStats(user);
 
   return (
     <div>
       <h1 className="text-xl font-semibold text-slate-900">Hola, {user.name.split(" ")[0]}</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Resumen general del portal.
+        {user.role === "ADMIN" ? "Resumen general del portal." : "Resumen de tu actividad comercial."}
         {stats.activeCampaignName && (
           <>
             {" "}Campaña activa: <span className="font-medium text-slate-700">{stats.activeCampaignName}</span>.
@@ -24,10 +24,12 @@ export default async function AdminDashboardPage() {
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        <KpiCard label="Referencias en catálogo" value={stats.totalProducts} hint={`${stats.visibleProducts} visibles`} />
-        <KpiCard label="Vistas de producto" value={stats.totalViews} />
-        <KpiCard label="Agregados al carrito" value={stats.totalAddToCart} />
-        <KpiCard label="Solicitudes nuevas" value={stats.newRequests} hint={`${stats.totalRequests} en total`} />
+        {user.role === "ADMIN" && <>
+          <KpiCard label="Referencias en catálogo" value={stats.totalProducts} hint={`${stats.visibleProducts} visibles`} />
+          <KpiCard label="Vistas de producto" value={stats.totalViews} />
+          <KpiCard label="Agregados al carrito" value={stats.totalAddToCart} />
+        </>}
+        <KpiCard label="Solicitudes nuevas" value={stats.newRequests} hint={`${stats.totalRequests} asignadas`} />
         <KpiCard label="Carritos abandonados" value={stats.abandonedCartsCount} hint="8+ días sin actividad" />
       </div>
 

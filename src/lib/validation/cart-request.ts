@@ -90,3 +90,8 @@ export const cartRequestAssignSchema = z.object({
   cartRequestId: z.string().min(1),
   assignedToId: z.string().nullable(),
 });
+
+export const cartSessionAssignSchema = z.object({
+  cartSessionId: z.string().min(1),
+  assignedToId: z.string().nullable(),
+});

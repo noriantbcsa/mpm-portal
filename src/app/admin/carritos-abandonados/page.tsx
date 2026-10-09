@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 
 import { requireUser, type CurrentUser } from "@/lib/auth/dal";
 import { CART_LIST_LIMIT, listAbandonedCarts, listActiveCartSessions } from "@/lib/admin/carts";
+import { listSalesTeam } from "@/lib/admin/requests";
 import { ABANDONED_CART_DAYS, CART_REQUEST_STATUS_LABELS, CART_REQUEST_STATUS_ORDER } from "@/lib/constants";
 import { formatRelativeDays } from "@/lib/format";
 import { AdminBadge, AdminEmptyState, AdminTable, AdminTd, AdminTh } from "@/components/admin/ui/display";
 import { AutoSubmitSelect } from "@/components/admin/auto-submit-select";
-import { changeCartSessionStatusAction } from "@/app/admin/solicitudes/actions";
+import { assignCartSessionAction, changeCartSessionStatusAction } from "@/app/admin/solicitudes/actions";
 import type { CartRequestStatus } from "@prisma/client";
 
 export const metadata: Metadata = { title: "Carritos abandonados", robots: { index: false } };
@@ -66,16 +67,43 @@ function CommercialStatusControl({
   );
 }
 
+function CartAssigneeControl({
+  cart,
+  team,
+  user,
+}: {
+  cart: { id: string; handledBy: { id: string; name: string } | null };
+  team: { id: string; name: string }[];
+  user: CurrentUser;
+}) {
+  if (user.role !== "ADMIN") return <span className="text-sm text-slate-700">{cart.handledBy?.name ?? "—"}</span>;
+
+  return (
+    <form action={assignCartSessionAction}>
+      <input type="hidden" name="cartSessionId" value={cart.id} />
+      <AutoSubmitSelect name="assignedToId" defaultValue={cart.handledBy?.id ?? ""} aria-label="Asignar carrito a un asesor">
+        <option value="">Sin asignar</option>
+        {team.map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}
+      </AutoSubmitSelect>
+    </form>
+  );
+}
+
 export default async function CarritosAbandonadosPage() {
   const user = await requireUser();
-  const [abandoned, active] = await Promise.all([listAbandonedCarts(), listActiveCartSessions()]);
+  const [abandoned, active, team] = await Promise.all([
+    listAbandonedCarts(user),
+    listActiveCartSessions(user),
+    user.role === "ADMIN" ? listSalesTeam() : Promise.resolve([]),
+  ]);
 
   return (
     <div>
       <h1 className="text-xl font-semibold text-slate-900">Carritos</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Todo el equipo comercial puede revisar y clasificar carritos. Un carrito se marca como
-        abandonado tras {ABANDONED_CART_DAYS} días sin actividad; al gestionarlo queda asignado al vendedor que cambió su estado.
+        {user.role === "ADMIN"
+          ? `Asigna cada carrito al asesor responsable. Un carrito se marca como abandonado tras ${ABANDONED_CART_DAYS} días sin actividad.`
+          : "Solo ves los carritos asignados a ti. El administrador distribuye los nuevos carritos entre el equipo."}
       </p>
 
       <section className="mt-6">
@@ -93,6 +121,7 @@ export default async function CarritosAbandonadosPage() {
                   <AdminTh>Prendas</AdminTh>
                   <AdminTh>Contacto parcial</AdminTh>
                   <AdminTh>Estado comercial</AdminTh>
+                  <AdminTh>Responsable</AdminTh>
                 </tr>
               </thead>
               <tbody>
@@ -111,7 +140,6 @@ export default async function CarritosAbandonadosPage() {
                         ))}
                       </ul>
                     </AdminTd>
-                    <AdminTd><CommercialStatusControl cart={session} automaticLabel="Abandonado" user={user} /></AdminTd>
                     <AdminTd>
                       {session.contactNamePartial || session.contactPhonePartial ? (
                         <>
@@ -121,6 +149,8 @@ export default async function CarritosAbandonadosPage() {
                         <span className="text-slate-400">Sin datos de contacto</span>
                       )}
                     </AdminTd>
+                    <AdminTd><CommercialStatusControl cart={session} automaticLabel="Abandonado" user={user} /></AdminTd>
+                    <AdminTd><CartAssigneeControl cart={session} team={team} user={user} /></AdminTd>
                   </tr>
                 ))}
               </tbody>
@@ -144,6 +174,7 @@ export default async function CarritosAbandonadosPage() {
                   <AdminTh>Última actividad</AdminTh>
                   <AdminTh>Prendas</AdminTh>
                   <AdminTh>Estado comercial</AdminTh>
+                  <AdminTh>Responsable</AdminTh>
                 </tr>
               </thead>
               <tbody>
@@ -154,6 +185,7 @@ export default async function CarritosAbandonadosPage() {
                     </AdminTd>
                     <AdminTd>{session.items.reduce((sum, i) => sum + i.quantity, 0)} prendas</AdminTd>
                     <AdminTd><CommercialStatusControl cart={session} automaticLabel="Activo" user={user} /></AdminTd>
+                    <AdminTd><CartAssigneeControl cart={session} team={team} user={user} /></AdminTd>
                   </tr>
                 ))}
               </tbody>
