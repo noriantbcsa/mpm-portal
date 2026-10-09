@@ -3,21 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-import { cn } from "@/lib/cn";
 import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
 export type GalleryImage = { url: string; alt: string; color?: string | null };
 
-function viewLabel(image: GalleryImage, index: number) {
-  const match = image.alt.match(/·\s*(color .+|vista \d+)/i);
-  return match ? match[1] : `Vista ${index + 1}`;
-}
-
 export function ProductGallery({ images, productName }: { images: GalleryImage[]; productName: string }) {
-  const [active, setActive] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-  const current = images[active];
-  const hasMultipleImages = images.length > 1;
+  const current = images[0];
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -60,33 +52,8 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
       aria-label={`Galería de ${productName}`}
       className="grid w-full min-w-0 gap-3"
     >
-      {hasMultipleImages && (
-        <div className="order-2 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Vistas del producto">
-          {images.map((image, index) => (
-            <button
-              key={image.url}
-              type="button"
-              aria-pressed={index === active}
-              aria-label={`Ver ${viewLabel(image, index)}`}
-              onClick={() => setActive(index)}
-              className={cn(
-                "focus-ring relative aspect-[3/4] w-16 shrink-0 overflow-hidden border bg-[#f5f5f2] sm:w-[72px]",
-                index === active ? "border-ink" : "border-transparent opacity-60 hover:opacity-100",
-              )}
-            >
-              <Image src={image.url} alt="" fill sizes="72px" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover" />
-              <span className="absolute inset-x-0 bottom-0 break-words bg-ink/75 px-1 py-1 text-[8px] font-bold uppercase leading-tight tracking-[0.06em] text-white">
-                {image.color ?? viewLabel(image, index)}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-
       <div
-        className={cn(
-          "order-1 relative aspect-[3/4] w-full min-w-0 overflow-hidden bg-[#f5f5f2]",
-        )}
+        className="relative aspect-[3/4] w-full min-w-0 overflow-hidden bg-[#f5f5f2]"
       >
         <Image
           src={current.url}
