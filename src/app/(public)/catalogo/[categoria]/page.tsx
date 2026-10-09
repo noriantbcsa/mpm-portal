@@ -81,7 +81,7 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
           </ResponsiveFilters>
         </aside>
         <div>
-          <ProductGrid products={items} showPrices={settings.showPrices} emptyActionHref={`/catalogo/${categoria}`} />
+          <ProductGrid products={items} showPrices={settings.showPrices} emptyActionHref={`/catalogo/${categoria}`} selectedColor={color[0]} />
           <Pagination page={page} pageCount={pageCount} buildHref={buildHref} />
         </div>
       </div>

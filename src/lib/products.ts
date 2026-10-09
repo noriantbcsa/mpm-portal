@@ -43,9 +43,10 @@ const productListSelect = {
   priceRef: true,
   categoryId: true,
   category: { select: { id: true, name: true, slug: true, parent: { select: { name: true, slug: true } } } },
-  // En la grilla basta una portada: pedir una segunda foto por tarjeta hacía
-  // que el navegador descargara hasta el doble de imágenes visibles.
-  images: { orderBy: { order: "asc" as const }, take: 1 },
+  // La tarjeta solo pinta una foto, pero conserva las rutas de las variantes
+  // para usar la imagen que corresponde al color filtrado. El navegador no
+  // descarga las demás porque ProductCard renderiza un único <Image>.
+  images: { orderBy: { order: "asc" as const } },
 } satisfies Prisma.ProductSelect;
 
 export type ProductListItem = Prisma.ProductGetPayload<{ select: typeof productListSelect }>;

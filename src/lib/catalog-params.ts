@@ -48,7 +48,9 @@ export function parseCatalogParams(params: RawSearchParams): CatalogParams {
     talla: [...new Set(toArray(params.talla))].slice(0, MAX_MULTI_VALUES),
     color: [...new Set(toArray(params.color).map(formatCatalogColor))].slice(0, MAX_MULTI_VALUES),
     etiqueta: [...new Set(toArray(params.etiqueta).filter(isProductTag))],
-    orden: orden && isCatalogSort(orden) ? orden : undefined,
+    // "Relevancia" es el orden natural del catálogo. No se conserva como
+    // filtro en la URL ni se cuenta como un filtro activo al enviar el form.
+    orden: orden && isCatalogSort(orden) && orden !== "relevancia" ? orden : undefined,
     pagina: toPositiveInt(params.pagina, 1),
   };
 }

@@ -5,15 +5,20 @@ import type { ProductListItem } from "@/lib/products";
 import { PRODUCT_STATUS_LABELS, PRODUCT_TAG_LABELS } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
 import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
+import { catalogColorKey } from "@/lib/catalog-colors";
 
 export function ProductCard({
   product,
   showPrices,
+  selectedColor,
 }: {
   product: ProductListItem;
   showPrices: boolean;
+  selectedColor?: string;
 }) {
-  const image = product.images[0];
+  const image = selectedColor
+    ? product.images.find((candidate) => candidate.color && catalogColorKey(candidate.color) === catalogColorKey(selectedColor)) ?? product.images[0]
+    : product.images[0];
   const price = showPrices ? formatPrice(product.priceRef ? Number(product.priceRef) : null) : null;
   const categoryLabel = product.category.parent?.name ?? product.category.name;
 
