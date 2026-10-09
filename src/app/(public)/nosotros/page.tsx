@@ -41,19 +41,28 @@ export default async function NosotrosPage() {
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-soft">Nuestra historia</p>
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-4xl">Un recorrido que sigue en movimiento</h2>
         </div>
-        <ol className="grid gap-4 md:grid-cols-2">
-          {timeline.map(({ period, title, description, icon: Icon }) => (
-            <li key={title} className="border border-line bg-paper p-6 sm:p-7">
-              <div className="flex items-start gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white"><Icon className="h-5 w-5" aria-hidden="true" /></span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-primary">{period}</p>
-                  <h3 className="mt-1 text-lg font-semibold text-ink">{title}</h3>
+        {/* Línea de tiempo: línea central con hitos alternados en escritorio; a un solo lado en celular. */}
+        <ol className="relative mx-auto max-w-4xl">
+          <span
+            aria-hidden="true"
+            className="absolute bottom-3 top-3 left-[1.375rem] w-0.5 bg-gradient-to-b from-brand-primary/10 via-brand-primary/60 to-brand-primary/10 md:left-1/2 md:-translate-x-1/2"
+          />
+          {timeline.map(({ period, title, description, icon: Icon }, index) => {
+            const left = index % 2 === 0;
+            return (
+              <li key={title} className="relative pb-10 pl-16 last:pb-0 md:grid md:grid-cols-2 md:gap-16 md:pl-0">
+                <span className="absolute left-0 top-0 flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary text-white ring-4 ring-white/80 md:left-1/2 md:-translate-x-1/2">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div className={left ? "md:col-start-1 md:text-right" : "md:col-start-2"}>
+                  <p className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink sm:text-4xl">{period}</p>
+                  <span aria-hidden="true" className={`mt-2 block h-1 w-12 bg-brand-primary ${left ? "md:ml-auto" : ""}`} />
+                  <h3 className="mt-3 text-lg font-semibold text-ink">{title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-soft">{description}</p>
                 </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
       </section>
 
