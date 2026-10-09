@@ -25,10 +25,14 @@ export function FiltersForm({
   options,
 }: {
   active: ActiveFilters;
-  options: { sizes: string[]; colors: string[]; tags: ProductTagType[] };
+  options: { sizes: string[]; colors: string[]; tags: ProductTagType[]; audiences: Audience[] };
 }) {
   // Solo etiquetas que alguna prenda tiene (más las activas, para poder quitarlas).
   const visibleTagOptions = TAG_OPTIONS.filter(([value]) => options.tags.includes(value) || active.etiqueta.includes(value));
+
+  // Si la sección ya es de un solo género (p. ej. Damas), filtrar por público
+  // es redundante. Se conserva solo si hay varios públicos o uno ya activo.
+  const showAudience = options.audiences.length > 1;
 
   return (
     <form
@@ -53,6 +57,7 @@ export function FiltersForm({
         </select>
       </fieldset>
 
+      {showAudience && (
       <fieldset>
         <legend className="text-sm font-semibold text-ink">Público</legend>
         <div className="mt-2 flex flex-col gap-1.5">
@@ -73,6 +78,7 @@ export function FiltersForm({
           ))}
         </div>
       </fieldset>
+      )}
 
       {visibleTagOptions.length > 0 && (
       <fieldset>

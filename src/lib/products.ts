@@ -4,7 +4,7 @@ import { cache } from "react";
 import type { Prisma, Audience, ProductStatus, ProductTagType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCategorySubtreeIds } from "@/lib/categories";
-import { CATALOG_PAGE_SIZE, PUBLIC_CATEGORY_WHERE, PUBLIC_PRODUCT_STATUSES } from "@/lib/constants";
+import { CATALOG_AUDIENCES, CATALOG_PAGE_SIZE, PUBLIC_CATEGORY_WHERE, PUBLIC_PRODUCT_STATUSES } from "@/lib/constants";
 import {
   catalogColorKey,
   formatCatalogColor,
@@ -56,6 +56,8 @@ export type CatalogFilterOptions = {
   colors: string[];
   /** Solo las etiquetas que alguna prenda del ámbito tiene (las demás devolverían 0). */
   tags: ProductTagType[];
+  /** Públicos (hombre/mujer…) con productos en el ámbito: si hay uno solo, el filtro de público sobra. */
+  audiences: Audience[];
 };
 
 async function buildWhere(filters: CatalogFilters): Promise<Prisma.ProductWhereInput> {
@@ -231,7 +233,7 @@ export async function getCatalogFilterOptions(categorySlug?: string): Promise<Ca
   const where = await buildWhere({ categorySlug });
   const products = await prisma.product.findMany({
     where,
-    select: { sizes: true, colors: true, tags: true },
+    select: { sizes: true, colors: true, tags: true, audience: true },
   });
 
   const uniqueSorted = (values: string[]) =>
@@ -240,7 +242,9 @@ export async function getCatalogFilterOptions(categorySlug?: string): Promise<Ca
     );
 
   const presentTags = new Set(products.flatMap((product) => product.tags));
+  const presentAudiences = new Set(products.map((product) => product.audience));
   const value: CatalogFilterOptions = {
+    audiences: CATALOG_AUDIENCES.filter((audience) => presentAudiences.has(audience)),
     tags: PRODUCT_TAG_ORDER.filter((tag) => presentTags.has(tag)),
     sizes: withStandardSizes(uniqueSorted(products.flatMap((product) => product.sizes).filter(isFilterableCatalogSize))),
     colors: uniqueSorted(

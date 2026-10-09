@@ -40,9 +40,15 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
 
   const sp = await searchParams;
   const filters = parseCatalogParams(sp);
-  const { q, publico, talla, color, etiqueta, orden, pagina } = filters;
+  const { q, talla, color, etiqueta, orden, pagina } = filters;
 
-  const [{ items, total, page, pageCount }, settings, filterOptions] = await Promise.all([
+  const filterOptions = await getCatalogFilterOptions(categoria);
+  // En una sección de un solo género (Damas, Caballero) el filtro de público
+  // no se muestra; un ?publico= heredado de un enlace viejo se ignora para no
+  // dejar la lista vacía sin forma de quitarlo.
+  const publico = filterOptions.audiences.length > 1 ? filters.publico : undefined;
+
+  const [{ items, total, page, pageCount }, settings] = await Promise.all([
     listProducts({
       categorySlug: categoria,
       q,
@@ -54,10 +60,9 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
       page: pagina,
     }),
     getSiteSettings(),
-    getCatalogFilterOptions(categoria),
   ]);
 
-  const buildHref = (nextPage: number) => buildCatalogHref(`/catalogo/${categoria}`, filters, nextPage);
+  const buildHref = (nextPage: number) => buildCatalogHref(`/catalogo/${categoria}`, { ...filters, publico }, nextPage);
   const activeFilterCount = [q, publico, talla.length > 0, color.length > 0, etiqueta.length > 0, orden].filter(Boolean).length;
   // Una página más allá de la última se redirige a la página real en vez de
   // servir un duplicado de la última con canónica propia.

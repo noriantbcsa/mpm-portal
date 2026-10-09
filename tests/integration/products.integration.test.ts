@@ -204,6 +204,8 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
     expect(options.tags).not.toContain("RECOMENDADO");
     expect(options.colors).toContain("Blanco");
     expect(options.colors).toContain("Verde Cali");
+    // Un ámbito con un solo género no ofrece el filtro de público.
+    expect(options.audiences.length).toBeLessThanOrEqual(1);
   });
   it("el detalle público no ofrece el texto de reserva como talla ni color, pero el admin sí lo ve", async () => {
     await prisma.product.create({
