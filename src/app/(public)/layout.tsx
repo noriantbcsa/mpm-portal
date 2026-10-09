@@ -8,11 +8,10 @@ import { SeasonalThemeNotice } from "@/components/layout/seasonal-theme-notice";
 import { SeasonalBackdrop } from "@/components/layout/seasonal-backdrop";
 import { getSiteSettings } from "@/lib/site-config";
 import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
-import { getActiveCampaign } from "@/lib/campaigns";
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const [settings, activeCampaign] = await Promise.all([getSiteSettings(), getActiveCampaign()]);
-  const seasonalTheme = activeCampaign ? null : resolveSeasonalTheme(settings);
+  const settings = await getSiteSettings();
+  const seasonalTheme = resolveSeasonalTheme(settings);
 
   return (
     <div className="public-site-shell flex min-h-full flex-1 flex-col">

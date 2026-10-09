@@ -181,3 +181,7 @@ Pedido del dueño: fondos de festividades continuos, no cortados ni separados, c
 **Continuidad hasta el pie**: con festividad, el margen entre el contenido y el pie pasa al fondo festivo (`padding-bottom` en `main`, `margin-top: 0` en el pie) para que no asome la base blanca. Verificado además en Amor y Amistad, Negros y Blancos y Navidad (inicio, catálogo, Nosotros, política, carrito vacío y con prenda).
 
 **Revisión visual de las 15 festividades** (catálogo a 1280 px en cada una; inicio y catálogo en móvil en San Pedro y Vallenato): texto legible en todas. Ajuste: el gris secundario (`--color-ink-soft`) se oscurece (#3b444a) dentro de las zonas de vidrio.
+
+### El diseño festivo y la campaña conviven (9 de octubre de 2026)
+
+Decisión del dueño. Una regla del 8 de octubre apagaba **todo** el diseño festivo mientras hubiera una campaña activa (layout raíz y público), por lo que con campaña activa el sitio se veía sin festividad. Se retiró: el diseño sigue el calendario (o lo elegido en el panel) y la campaña se muestra en su barra y su página. En modo automático el calendario no tiene festividad entre el 6 de octubre y el 30 de noviembre (San Pacho termina el 5/oct; Velitas empieza el 1/dic): en ese hueco solo se ve diseño si se elige uno manual en `/admin/festividades`.
