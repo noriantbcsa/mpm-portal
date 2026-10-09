@@ -3,16 +3,16 @@ import type { ReactNode } from "react";
 import { SkipLink } from "@/components/ui/skip-link";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { WhatsAppFloatButton } from "@/components/layout/whatsapp-float-button";
 import { CartSessionSync } from "@/components/cart/cart-session-sync";
 import { SeasonalThemeNotice } from "@/components/layout/seasonal-theme-notice";
 import { SeasonalBackdrop } from "@/components/layout/seasonal-backdrop";
 import { getSiteSettings } from "@/lib/site-config";
 import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
+import { getActiveCampaign } from "@/lib/campaigns";
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const settings = await getSiteSettings();
-  const seasonalTheme = resolveSeasonalTheme(settings);
+  const [settings, activeCampaign] = await Promise.all([getSiteSettings(), getActiveCampaign()]);
+  const seasonalTheme = activeCampaign ? null : resolveSeasonalTheme(settings);
 
   return (
     <div className="public-site-shell flex min-h-full flex-1 flex-col">
@@ -24,7 +24,6 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         {children}
       </main>
       <Footer />
-      <WhatsAppFloatButton />
       <CartSessionSync />
     </div>
   );

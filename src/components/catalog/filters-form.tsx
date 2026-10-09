@@ -5,6 +5,7 @@ import {
 } from "@/lib/constants";
 import type { Audience, ProductTagType } from "@prisma/client";
 import { Button, LinkButton } from "@/components/ui/button";
+import { getCatalogColorSwatch } from "@/lib/catalog-colors";
 
 export type ActiveFilters = {
   q?: string;
@@ -55,12 +56,12 @@ export function FiltersForm({
       <fieldset>
         <legend className="text-sm font-semibold text-ink">Público</legend>
         <div className="mt-2 flex flex-col gap-1.5">
-          <label className="flex items-center gap-2 text-sm text-ink-soft">
+          <label className="focus-ring-within flex min-h-11 items-center gap-2 text-sm text-ink-soft">
             <input type="radio" name="publico" value="" defaultChecked={!active.publico} />
             Todos
           </label>
           {AUDIENCE_OPTIONS.map(([value, label]) => (
-            <label key={value} className="flex items-center gap-2 text-sm text-ink-soft">
+            <label key={value} className="focus-ring-within flex min-h-11 items-center gap-2 text-sm text-ink-soft">
               <input
                 type="radio"
                 name="publico"
@@ -78,7 +79,7 @@ export function FiltersForm({
         <legend className="text-sm font-semibold text-ink">Etiquetas</legend>
         <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1.5">
           {visibleTagOptions.map(([value, label]) => (
-            <label key={value} className="flex items-center gap-2 text-sm text-ink-soft">
+            <label key={value} className="focus-ring-within flex min-h-11 items-center gap-2 text-sm text-ink-soft">
               <input
                 type="checkbox"
                 name="etiqueta"
@@ -98,7 +99,7 @@ export function FiltersForm({
           {options.sizes.map((size) => (
             <label
               key={size}
-              className="focus-ring-within flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:text-brand-primary"
+              className="focus-ring-within flex min-h-11 items-center gap-1.5 rounded-full border border-line px-3 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:text-brand-primary"
             >
               <input
                 type="checkbox"
@@ -115,15 +116,12 @@ export function FiltersForm({
 
       <fieldset>
         <legend className="text-sm font-semibold text-ink">Color</legend>
-        <select
-          name="color"
-          aria-label="Color"
-          defaultValue={active.color[0] ?? ""}
-          className="focus-ring mt-2 w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink"
-        >
-          <option value="">Todos los colores</option>
-          {options.colors.map((color) => <option key={color} value={color}>{color}</option>)}
-        </select>
+        <div className="mt-2 flex flex-wrap gap-2" aria-label="Elegir color">
+          <CatalogColorFilterOption color="" selected={!active.color[0]} label="Todos" />
+          {options.colors.map((color) => (
+            <CatalogColorFilterOption key={color} color={color} selected={active.color[0] === color} label={color} />
+          ))}
+        </div>
       </fieldset>
 
       <div className="flex gap-2">
@@ -135,5 +133,24 @@ export function FiltersForm({
         </LinkButton>
       </div>
     </form>
+  );
+}
+
+function CatalogColorFilterOption({ color, selected, label }: { color: string; selected: boolean; label: string }) {
+  const swatch = color ? getCatalogColorSwatch(color) : null;
+  const style = swatch
+    ? { backgroundColor: swatch.background, borderColor: selected ? "#101417" : swatch.foreground, color: swatch.foreground }
+    : undefined;
+
+  return (
+    <label
+      className={`focus-ring-within flex min-h-11 cursor-pointer items-center border px-3 py-2 text-center text-xs font-bold uppercase tracking-[0.06em] transition-[background-color,color,border-color,box-shadow,filter] hover:brightness-95 ${
+        selected ? "ring-2 ring-ink ring-offset-2" : swatch ? "" : "border-line bg-paper text-ink-soft"
+      }`}
+      style={style}
+    >
+      <input type="radio" name="color" value={color} defaultChecked={selected} className="sr-only" />
+      {label}
+    </label>
   );
 }

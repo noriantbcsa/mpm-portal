@@ -10,6 +10,7 @@ import { ProductGrid } from "@/components/catalog/product-grid";
 import { FiltersForm } from "@/components/catalog/filters-form";
 import { Pagination } from "@/components/catalog/pagination";
 import { CatalogExplorer } from "@/components/catalog/catalog-explorer";
+import { ResponsiveFilters } from "@/components/catalog/responsive-filters";
 
 type PageProps = {
   params: Promise<{ categoria: string }>;
@@ -57,6 +58,7 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
   ]);
 
   const buildHref = (nextPage: number) => buildCatalogHref(`/catalogo/${categoria}`, filters, nextPage);
+  const activeFilterCount = [q, publico, talla.length > 0, color.length > 0, etiqueta.length > 0, orden].filter(Boolean).length;
   // Una página más allá de la última se redirige a la página real en vez de
   // servir un duplicado de la última con canónica propia.
   if (page !== pagina) redirect(buildHref(page));
@@ -74,10 +76,12 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
       <CatalogExplorer categories={categories} activeSlug={categoria} />
       <div className="mx-auto mt-8 grid max-w-7xl gap-8 px-4 pb-14 sm:px-6 lg:grid-cols-[220px_1fr]">
         <aside aria-label="Filtros">
-          <FiltersForm active={{ q, categoria, publico, talla, color, etiqueta, orden }} options={filterOptions} />
+          <ResponsiveFilters activeCount={activeFilterCount}>
+            <FiltersForm active={{ q, categoria, publico, talla, color, etiqueta, orden }} options={filterOptions} />
+          </ResponsiveFilters>
         </aside>
         <div>
-          <ProductGrid products={items} showPrices={settings.showPrices} />
+          <ProductGrid products={items} showPrices={settings.showPrices} emptyActionHref={`/catalogo/${categoria}`} />
           <Pagination page={page} pageCount={pageCount} buildHref={buildHref} />
         </div>
       </div>

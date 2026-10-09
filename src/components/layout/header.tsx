@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Search } from "lucide-react";
 
 import { getSiteSettings } from "@/lib/site-config";
-import { getActiveCampaign } from "@/lib/campaigns";
+import { displayCampaignName, getActiveCampaign } from "@/lib/campaigns";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { CartIndicator } from "@/components/layout/cart-indicator";
 import { MobileNav, type NavLink } from "@/components/layout/mobile-nav";
@@ -17,19 +17,20 @@ export async function Header() {
 
   const navLinks: NavLink[] = [
     { href: "/catalogo", label: "Catálogo" },
-    ...(activeCampaign ? [{ href: `/campanas/${activeCampaign.slug}`, label: activeCampaign.name }] : []),
+    ...(activeCampaign ? [{ href: `/campanas/${activeCampaign.slug}`, label: displayCampaignName(activeCampaign.name) }] : []),
     { href: "/nosotros", label: "Nosotros" },
   ];
 
   const whatsappHref = buildWhatsAppLink(settings.whatsappNumber, settings.whatsappDefaultMessage);
+  const campaignName = activeCampaign ? displayCampaignName(activeCampaign.name) : null;
 
   return (
     <header className="public-header relative z-30 border-b border-line bg-paper">
       {activeCampaign && (
         <aside aria-label="Oferta y promoción activa" className="campaign-announcement">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-5 gap-y-1 px-4 py-3 text-center sm:py-4">
-            <p className="min-w-0 text-[0.95rem] leading-snug text-white sm:text-lg">
-              <span className="font-bold uppercase tracking-[0.1em]">{activeCampaign.name}</span>
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 py-2.5 text-center sm:py-3">
+            <p className="min-w-0 text-sm leading-snug text-white sm:text-base">
+              <span className="font-bold uppercase tracking-[0.1em]">{campaignName}</span>
               {activeCampaign.description ? ` · ${activeCampaign.description}` : " · conoce la selección"}
             </p>
             <Link href={`/campanas/${activeCampaign.slug}`} className="focus-ring shrink-0 py-1 text-sm font-semibold text-white underline decoration-1 underline-offset-4">
@@ -113,7 +114,7 @@ export async function Header() {
             WhatsApp
           </a>
           <CartIndicator />
-          <MobileNav links={navLinks} />
+          <MobileNav links={navLinks} whatsappHref={whatsappHref} />
         </div>
       </div>
     </header>

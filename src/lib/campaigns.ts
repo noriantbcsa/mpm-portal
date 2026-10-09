@@ -6,6 +6,11 @@ import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
+/** Corrige una errata histórica de la campaña sembrada sin alterar su slug ni datos. */
+export function displayCampaignName(name: string) {
+  return name.trim().replace(/^hallowen$/i, "Halloween");
+}
+
 /** Opciones compactas para que administración elija referencias de una campaña. */
 export async function getCampaignProductOptions() {
   return prisma.product.findMany({

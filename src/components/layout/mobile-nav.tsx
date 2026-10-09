@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, MessageCircle, X } from "lucide-react";
 
 export type NavLink = { href: string; label: string };
 
-export function MobileNav({ links }: { links: NavLink[] }) {
+export function MobileNav({ links, whatsappHref }: { links: NavLink[]; whatsappHref: string }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -79,6 +79,15 @@ export function MobileNav({ links }: { links: NavLink[] }) {
               ))}
             </ul>
           </nav>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="focus-ring mt-4 flex min-h-11 items-center justify-center gap-2 bg-[#25D366] px-4 py-3 text-sm font-semibold text-[#0b3d24] hover:brightness-95"
+          >
+            <MessageCircle className="h-4 w-4" aria-hidden="true" />
+            Hablar por WhatsApp
+          </a>
         </div>
       )}
     </div>

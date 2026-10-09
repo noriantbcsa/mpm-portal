@@ -57,9 +57,9 @@ export function CatalogExplorer({
                 )}
               >
                 {category.imageUrl && (
-                  <Image src={category.imageUrl} alt="" fill sizes="(min-width: 640px) 25vw, 50vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover opacity-25 transition-opacity group-hover:opacity-35" />
+                  <Image src={category.imageUrl} alt="" fill sizes="(min-width: 640px) 25vw, 50vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-cover opacity-45 transition-opacity group-hover:opacity-55" />
                 )}
-                <span className="relative mt-auto">
+                <span className="relative mt-auto bg-paper/85 px-2 py-1.5 backdrop-blur-[1px]">
                   <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-soft">Categoría</span>
                   <span className="block text-base font-semibold tracking-[-0.03em] text-ink">{category.name}</span>
                 </span>

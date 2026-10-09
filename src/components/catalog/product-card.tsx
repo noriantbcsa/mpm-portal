@@ -57,7 +57,7 @@ export function ProductCard({
         <h3 className="break-words font-display text-base font-semibold leading-snug text-ink line-clamp-2">
           {product.name}
         </h3>
-        <p className="text-sm text-ink-soft">Ref. {product.sku}</p>
+        <p className="min-h-10 line-clamp-2 text-sm leading-5 text-ink-soft">Ref. {product.sku}</p>
         {product.tags.length > 0 && <p className="pt-1 text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{product.tags.map((tag) => PRODUCT_TAG_LABELS[tag]).join(" · ")}</p>}
         {price && <p className="mt-auto pt-2 text-sm font-semibold text-ink">{price}</p>}
       </div>

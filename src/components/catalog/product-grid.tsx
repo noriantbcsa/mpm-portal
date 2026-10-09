@@ -1,19 +1,23 @@
 import type { ProductListItem } from "@/lib/products";
 import { ProductCard } from "@/components/catalog/product-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { LinkButton } from "@/components/ui/button";
 
 export function ProductGrid({
   products,
   showPrices,
+  emptyActionHref,
 }: {
   products: ProductListItem[];
   showPrices: boolean;
+  emptyActionHref?: string;
 }) {
   if (products.length === 0) {
     return (
       <EmptyState
         title="No encontramos prendas con esos filtros"
         description="Prueba quitando algún filtro o buscando con otra palabra. También puedes escribirnos por WhatsApp y te ayudamos a encontrar lo que necesitas."
+        action={emptyActionHref ? <LinkButton href={emptyActionHref} variant="outline">Ver catálogo completo</LinkButton> : undefined}
       />
     );
   }

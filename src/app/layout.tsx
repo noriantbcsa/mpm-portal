@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 
 import { getSiteSettings } from "@/lib/site-config";
 import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
+import { getActiveCampaign } from "@/lib/campaigns";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
@@ -25,8 +26,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   // que este layout se renderice por petición, requisito de Next.js para que
   // el nonce pueda aplicarse a los scripts del framework.
   await headers();
-  const settings = await getSiteSettings();
-  const seasonalTheme = resolveSeasonalTheme(settings);
+  const [settings, activeCampaign] = await Promise.all([getSiteSettings(), getActiveCampaign()]);
+  // Una campaña comercial activa manda sobre la decoración de calendario: así
+  // nunca se mezclan, por ejemplo, Navidad y Halloween en la misma pantalla.
+  const seasonalTheme = activeCampaign ? null : resolveSeasonalTheme(settings);
 
   const brandStyle = {
     "--brand-primary": settings.primaryColor,
