@@ -599,8 +599,47 @@ html[data-festivity] .seasonal-main {
   text-shadow: 0 0 0.5rem rgb(255 252 246 / 0.95), 0 0 1.1rem rgb(255 252 246 / 0.9);
 }
 
-html[data-festivity] .seasonal-main :is(.text-white, .text-white *, .bg-ink, .bg-ink *, button, input, select, textarea, [role="status"], [role="alert"], [class*="bg-brand-primary"], [class*="bg-brand-primary"] *) {
+html[data-festivity] .seasonal-main :is(.text-white, .text-white *, .bg-ink, .bg-ink *, button, .admin-primary, .admin-nav-active, input, select, textarea, [role="status"], [role="alert"], [class*="bg-brand-primary"], [class*="bg-brand-primary"] *) {
   text-shadow: none;
+}
+
+/* Banner del panel: versión compacta (etiqueta y nombre) para no quitarle
+   espacio de trabajo. La vista previa de Diseño festivo muestra la completa. */
+.admin-banner .seasonal-ribbon-body {
+  min-height: 4.5rem;
+  padding: 0.6rem 1.25rem 0.7rem;
+}
+
+.admin-banner .seasonal-title {
+  font-size: clamp(1.15rem, 2.4vw, 1.7rem);
+}
+
+.admin-banner .seasonal-title::after,
+.admin-banner .seasonal-message {
+  display: none;
+}
+
+/* Con el fondo pintado, los campos del panel llevan fondo blanco propio (varios
+   eran transparentes) para no mostrar la pintura detrás del texto escrito. */
+html[data-festivity] .admin-surface :is(input, select, textarea):not(:disabled, [type="checkbox"], [type="radio"], [type="hidden"], [type="file"]) {
+  background-color: #fff;
+}
+
+/* Panel de administración: el color de la festividad en el menú activo, los
+   botones principales y el borde de la cabecera (el contraste texto/color se
+   verifica por prueba). Sin festividad, el panel conserva su estilo neutro. */
+html[data-festivity] .admin-nav-active,
+html[data-festivity] .admin-primary:not(:disabled) {
+  background-color: var(--seasonal-primary);
+  color: var(--seasonal-ink);
+}
+
+html[data-festivity] .admin-primary:not(:disabled):hover {
+  filter: brightness(0.92);
+}
+
+html[data-festivity] .admin-header {
+  border-bottom-color: var(--seasonal-primary);
 }
 
 /* Fichas de talla/color sin elegir: sin fondo propio quedaban con el texto

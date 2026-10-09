@@ -54,7 +54,7 @@ export function AdminEmptyState({
 
 export function AdminTable({ className, ...props }: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200">
+    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
       <table className={cx("w-full min-w-[640px] text-left text-sm", className)} {...props} />
     </div>
   );

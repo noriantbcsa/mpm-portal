@@ -6,12 +6,21 @@ import { ROLE_LABELS } from "@/lib/constants";
 import { SidebarNav } from "@/components/admin/sidebar-nav";
 import { logoutAction } from "@/lib/auth/actions";
 import { AdminButton } from "@/components/admin/ui/controls";
+import { SeasonalThemeNotice } from "@/components/layout/seasonal-theme-notice";
+import { SeasonalBackdrop } from "@/components/layout/seasonal-backdrop";
+import { getSiteSettings } from "@/lib/site-config";
+import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await requireUser();
+  // El panel lleva el mismo diseño festivo que el sitio (banner, color y fondo).
+  const seasonalTheme = resolveSeasonalTheme(await getSiteSettings());
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="admin-banner">
+        <SeasonalThemeNotice theme={seasonalTheme} />
+      </div>
       <div className="flex flex-col md:flex-row">
         <aside className="border-b border-slate-200 bg-white md:w-56 md:shrink-0 md:border-b-0 md:border-r">
           <div className="px-4 pt-4">
@@ -23,7 +32,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         </aside>
 
         <div className="flex min-h-screen flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
+          <header className="admin-header flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
             <div>
               <Link href="/admin/perfil" className="inline-block py-1.5 text-sm font-medium text-slate-900 hover:underline">
                 {user.name}
@@ -42,7 +51,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             </div>
           </header>
 
-          <main id="contenido" className="flex-1 px-4 py-6 sm:px-6">
+          <main id="contenido" className="seasonal-main admin-surface relative flex-1 overflow-hidden px-4 py-6 sm:px-6">
+            <SeasonalBackdrop theme={seasonalTheme} />
             {children}
           </main>
         </div>

@@ -32,7 +32,7 @@ export default async function FestividadesPage({ searchParams }: PageProps) {
     <div className="max-w-4xl">
       <h1 className="text-xl font-semibold text-slate-900">Diseño festivo</h1>
       <p className="mt-1 max-w-2xl text-sm text-slate-500">
-        Transforma visualmente el portal según celebraciones colombianas con colores, patrones y ornamentos propios.
+        Transforma visualmente el portal según celebraciones colombianas con colores, pinturas y banner propios.
         Mantiene intactos el logo, las fotografías reales, los textos y los productos de MPM.
       </p>
 

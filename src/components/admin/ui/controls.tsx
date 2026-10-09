@@ -21,7 +21,7 @@ import { cx } from "@/components/admin/ui/cx";
 export { cx };
 
 const buttonVariants = {
-  primary: "bg-slate-900 text-white hover:bg-slate-700 disabled:bg-slate-400",
+  primary: "admin-primary bg-slate-900 text-white hover:bg-slate-700 disabled:bg-slate-400",
   secondary: "bg-white text-slate-900 border border-slate-300 hover:bg-slate-50 disabled:opacity-50",
   danger: "bg-red-600 text-white hover:bg-red-700 disabled:opacity-50",
   ghost: "text-slate-600 hover:bg-slate-100 disabled:opacity-50",

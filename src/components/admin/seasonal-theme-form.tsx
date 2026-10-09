@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, type CSSProperties } from "react";
 
 import {
   saveSeasonalThemeAction,
@@ -8,6 +8,7 @@ import {
 } from "@/app/admin/festividades/actions";
 import { AdminButton, AdminSelectField } from "@/components/admin/ui/controls";
 import { AdminCard, AdminCardBody } from "@/components/admin/ui/display";
+import { SeasonalThemeNotice } from "@/components/layout/seasonal-theme-notice";
 import {
   SEASONAL_THEME_OPTIONS,
   SEASONAL_THEMES,
@@ -48,7 +49,7 @@ export function SeasonalThemeForm({
             name="seasonalThemeMode"
             value={mode}
             onChange={(event) => setMode(event.target.value as SeasonalThemeModeValue)}
-            hint="Cada celebración transforma la atmósfera del portal con paleta, patrones, ornamentos, encabezado, portada y detalles propios; las prendas y la marca MPM se mantienen."
+            hint="Cada celebración transforma la atmósfera del portal con su paleta, su pintura de fondo, su banner y detalles propios; las prendas y la marca MPM se mantienen."
             className="sm:col-span-2"
           >
             {MODE_OPTIONS.map((option) => (
@@ -76,16 +77,19 @@ export function SeasonalThemeForm({
           {preview ? (
             <div
               className="mt-3 overflow-hidden rounded-lg border shadow-sm"
-              style={{ borderColor: preview.primary, background: preview.wash }}
+              style={
+                {
+                  borderColor: preview.primary,
+                  background: preview.wash,
+                  // El banner usa estas variables: aquí toman los colores de la festividad elegida.
+                  "--seasonal-primary": preview.primary,
+                  "--seasonal-secondary": preview.secondary,
+                  "--seasonal-tertiary": preview.tertiary,
+                  "--seasonal-ink": preview.ink,
+                } as CSSProperties
+              }
             >
-              <div
-                className="px-5 py-5 text-center"
-                style={{ color: preview.ink, background: `linear-gradient(110deg, ${preview.primary}, color-mix(in srgb, ${preview.secondary} 72%, ${preview.primary}))` }}
-              >
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] opacity-90">{preview.eyebrow}</p>
-                <p className="mt-1 text-xl font-black tracking-tight">{preview.name}</p>
-                <p className="mt-1 text-xs font-medium opacity-85">{preview.message}</p>
-              </div>
+              <SeasonalThemeNotice theme={preview} />
               <div className="p-4">
                 <p className="font-semibold text-slate-900">Vista del ambiente visual</p>
                 <p className="mt-1 text-sm text-slate-700">La misma identidad continúa en la navegación, portada, fondos, tarjetas y pie de página.</p>

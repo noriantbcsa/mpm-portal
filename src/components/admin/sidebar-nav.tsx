@@ -48,7 +48,7 @@ export function SidebarNav({ role }: { role: Role }) {
             aria-current={active ? "page" : undefined}
             className={cx(
               "flex shrink-0 items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              active ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100",
+              active ? "admin-nav-active bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100",
             )}
           >
             <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />

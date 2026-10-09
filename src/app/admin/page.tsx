@@ -33,7 +33,7 @@ export default async function AdminDashboardPage() {
         <KpiCard label="Carritos abandonados" value={stats.abandonedCartsCount} hint="8+ días sin actividad" />
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="seasonal-glass mt-8 flex w-fit max-w-full flex-wrap gap-x-4 gap-y-1 rounded-md px-3 py-1.5">
         <Link href="/admin/solicitudes" className="text-sm font-medium text-blue-700 hover:underline">
           Ver solicitudes →
         </Link>
