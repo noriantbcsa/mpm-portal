@@ -14,9 +14,9 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Diálogo modal accesible: el foco entra al abrir, no se escapa con Tab
-  // (el único control es "Cerrar"), Escape cierra, la página de fondo no se
-  // desplaza y al cerrar el foco vuelve a "Ampliar foto".
+  // Diálogo modal accesible: el foco entra al abrir, Tab se mantiene en
+  // "Cerrar", Escape o el fondo cierran, la página de fondo no se desplaza y
+  // al cerrar el foco vuelve a "Ampliar foto".
   useEffect(() => {
     if (!isExpanded) return;
     const expandButton = expandButtonRef.current;
@@ -86,12 +86,15 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           role="dialog"
           aria-modal="true"
           aria-label={`Foto ampliada de ${productName}`}
-          className="fixed inset-0 z-50 grid place-items-center bg-black/90 p-4"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) setIsExpanded(false);
-          }}
+          className="fixed inset-0 z-50 grid overscroll-contain place-items-center bg-black/90 p-4"
         >
-          <div className="relative h-[min(86vh,980px)] w-[min(94vw,760px)]">
+          <button
+            type="button"
+            aria-label={`Cerrar foto ampliada de ${productName}`}
+            onClick={() => setIsExpanded(false)}
+            className="focus-ring absolute inset-0 cursor-default"
+          />
+          <div className="relative z-10 h-[min(86vh,980px)] w-[min(94vw,760px)]">
             <Image src={current.url} alt={current.alt} fill sizes="94vw" placeholder="blur" blurDataURL={IMAGE_BLUR_DATA_URL} decoding="async" className="object-contain" />
             <button
               ref={closeButtonRef}
