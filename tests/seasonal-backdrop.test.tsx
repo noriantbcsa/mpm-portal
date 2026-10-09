@@ -13,7 +13,9 @@ describe("SeasonalBackdrop", () => {
       const html = renderToStaticMarkup(<SeasonalBackdrop theme={{ preset: name.toUpperCase().replaceAll("-", "_") } as unknown as SeasonalTheme} />);
       const layers = [...html.matchAll(/class="seasonal-art ([^"]*)"/g)].map((m) => m[1]);
       expect(layers, name).toHaveLength(3);
-      const visual = layers.map((classes, i) => (classes.includes("seasonal-art--flip") ? opposite[entry.arts[i].side] : entry.arts[i].side));
+      // Orden del fondo: lateral, complemento, principal (la principal es del banner).
+      const order = [1, 2, 0];
+      const visual = layers.map((classes, i) => (classes.includes("seasonal-art--flip") ? opposite[entry.arts[order[i]].side] : entry.arts[order[i]].side));
       expect(visual, name).toEqual(["left", "right", "left"]);
     }
   });

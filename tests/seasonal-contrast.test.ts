@@ -17,14 +17,14 @@ function contrast(a: string, b: string) {
 
 describe("banner festivo", () => {
   it.each(Object.values(SEASONAL_THEMES).map((theme) => [theme.preset, theme] as const))(
-    "%s: el texto se lee sobre el fondo del banner (contraste ≥ 4.5)",
+    "%s: la etiqueta del banner se lee (texto sobre color primario, contraste ≥ 4.5)",
     (_preset, theme) => {
       expect(contrast(theme.ink, theme.primary)).toBeGreaterThanOrEqual(4.5);
     },
   );
 
   it.each(Object.values(SEASONAL_THEMES).map((theme) => [theme.preset, theme] as const))(
-    "%s: el filete inferior se distingue del fondo (contraste ≥ 1.5)",
+    "%s: los colores primario y secundario de la franja se distinguen (contraste ≥ 1.5)",
     (_preset, theme) => {
       expect(contrast(theme.secondary, theme.primary)).toBeGreaterThanOrEqual(1.5);
     },

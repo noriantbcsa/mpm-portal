@@ -95,66 +95,173 @@ li {
   box-shadow: 0 0 0 4px var(--ink);
 }
 
-/* Banner festivo: una barra sobria y compacta (mismo criterio que el aviso de
-   campaña): fondo liso del color de la festividad, sin patrones ni degradados,
-   una línea en escritorio y dos en celular. El color del texto (`--seasonal-ink`)
-   se verifica por contraste en las pruebas. */
+/* Banner festivo: la pintura propia de la celebración como protagonista, el
+   nombre en grande, una franja con los tres colores del tema y un marco fino.
+   El texto va del lado opuesto al motivo, sobre el papel liso de la pintura
+   (velo que se desvanece hacia el motivo), por eso siempre se lee. */
 .seasonal-ribbon {
-  border-bottom: 3px solid var(--seasonal-secondary);
-  background: var(--seasonal-primary);
-  color: var(--seasonal-ink);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: var(--banner-paper, #f6efe3);
+  color: var(--banner-ink, #1b1b1f);
+  border-bottom: 3px solid var(--seasonal-primary);
 }
 
-.seasonal-ribbon-inner {
+.seasonal-ribbon::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  background-image: var(--banner-art);
+  background-repeat: no-repeat;
+  background-size: auto 138%;
+  background-position: var(--banner-side, right) 30%;
+}
+
+.seasonal-ribbon::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background: linear-gradient(
+    var(--banner-veil, to right),
+    var(--banner-paper, #f6efe3) 0 36%,
+    color-mix(in srgb, var(--banner-paper, #f6efe3) 74%, transparent) 54%,
+    transparent 80%
+  );
+}
+
+.seasonal-ribbon-strip {
+  height: 7px;
+  background: linear-gradient(
+    90deg,
+    var(--seasonal-primary) 0 34%,
+    var(--seasonal-secondary) 34% 67%,
+    var(--seasonal-tertiary) 67% 100%
+  );
+}
+
+.seasonal-ribbon-body {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: center;
-  column-gap: 0.9rem;
-  row-gap: 0.1rem;
+  min-height: 8.5rem;
+  align-items: center;
   margin: 0 auto;
-  max-width: 72rem;
-  padding: 0.85rem 1rem;
-  text-align: center;
+  max-width: 76rem;
+  padding: 1.25rem 1.5rem 1.4rem;
+}
+
+/* Marco fino editorial. */
+.seasonal-ribbon-body::before {
+  position: absolute;
+  inset: 0.55rem 0.75rem;
+  content: "";
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
+}
+
+.seasonal-ribbon-text {
+  display: flex;
+  max-width: min(38rem, 66%);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0 0.5rem;
+}
+
+.seasonal-ribbon--text-right .seasonal-ribbon-body {
+  justify-content: flex-end;
 }
 
 .seasonal-eyebrow {
+  width: fit-content;
+  padding: 0.22rem 0.65rem;
+  background: var(--seasonal-primary);
+  color: var(--seasonal-ink);
   font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  opacity: 0.88;
+}
+
+.seasonal-ribbon--dark .seasonal-eyebrow {
+  background: var(--seasonal-secondary);
+  color: #111827;
 }
 
 .seasonal-title {
-  font-family: var(--font-heading);
-  font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4.4vw, 3.2rem);
   font-weight: 800;
-  letter-spacing: 0.06em;
-  line-height: 1.25;
+  line-height: 1.02;
+  letter-spacing: 0.015em;
   text-transform: uppercase;
   text-wrap: balance;
 }
 
+/* Subrayado de acento bajo el título. */
+.seasonal-title::after {
+  display: block;
+  width: 3.5rem;
+  height: 4px;
+  margin-top: 0.6rem;
+  content: "";
+  background: var(--seasonal-primary);
+}
+
+.seasonal-ribbon--dark .seasonal-title::after {
+  background: var(--seasonal-secondary);
+}
+
 .seasonal-message {
-  flex-basis: 100%;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
   font-weight: 500;
-  line-height: 1.35;
+  line-height: 1.4;
   text-wrap: balance;
-  opacity: 0.94;
 }
 
-@media (min-width: 900px) {
+@media (max-width: 479px) {
+  .seasonal-ribbon-body {
+    min-height: 7rem;
+    padding: 0.9rem 0.9rem 1rem;
+  }
+
+  .seasonal-ribbon-text {
+    max-width: 76%;
+    gap: 0.3rem;
+    padding: 0 0.25rem;
+  }
+
+  .seasonal-eyebrow {
+    padding: 0.18rem 0.5rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+
+  .seasonal-title {
+    font-size: clamp(1.15rem, 6.2vw, 1.5rem);
+  }
+
+  .seasonal-title::after {
+    margin-top: 0.4rem;
+  }
+
   .seasonal-message {
-    flex-basis: auto;
-    display: block;
-    overflow: visible;
+    font-size: 0.78rem;
+    line-height: 1.3;
+  }
+}
+
+/* En pantallas muy angostas el mensaje se omite: el nombre y la etiqueta bastan. */
+@media (max-width: 359px) {
+  .seasonal-message {
+    display: none;
   }
 }
 
@@ -436,6 +543,11 @@ html[data-festivity] .seasonal-main::after {
   mask-composite: intersect;
 }
 
+.seasonal-art--dark.seasonal-art--top {
+  -webkit-mask-image: var(--glow), linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: var(--glow), linear-gradient(to bottom, #000 70%, transparent);
+}
+
 .seasonal-art--dark.seasonal-art--middle {
   -webkit-mask-image: var(--glow), linear-gradient(to bottom, transparent, #000 22% 78%, transparent);
   mask-image: var(--glow), linear-gradient(to bottom, transparent, #000 22% 78%, transparent);
@@ -583,9 +695,6 @@ html[data-festivity] .seasonal-footer {
   background: linear-gradient(135deg, color-mix(in srgb, var(--seasonal-wash) 88%, white), white);
 }
 
-html[data-festivity="colombia"] .seasonal-ribbon {
-  border-bottom-color: #ce1126;
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,
