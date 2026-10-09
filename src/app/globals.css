@@ -481,8 +481,23 @@ html[data-festivity] .seasonal-footer {
   border-bottom: 1px solid #e4e1da;
 }
 
-/* El catálogo también adopta la temporada sin sacrificar la lectura de las
-   fichas: una franja de color y superficies muy suaves, no fondos pesados. */
+/* Texto que queda sobre la pintura: un halo de papel lo mantiene legible sin
+   usar cajas que tapen el fondo. Se hereda; el texto blanco (sobre fotos o
+   fondos oscuros) y los botones llenos no lo llevan. */
+html[data-festivity] .seasonal-main {
+  text-shadow: 0 0 0.5rem rgb(255 252 246 / 0.95), 0 0 1.1rem rgb(255 252 246 / 0.9);
+}
+
+html[data-festivity] .seasonal-main :is(.text-white, .text-white *, .bg-ink, .bg-ink *, button, [class*="bg-brand-primary"], [class*="bg-brand-primary"] *) {
+  text-shadow: none;
+}
+
+/* Fichas de talla/color sin elegir: sin fondo propio quedaban con el texto
+   directo sobre la pintura. Las elegidas conservan su estilo. */
+html[data-festivity] .seasonal-main label.focus-ring-within:not(:has(:checked)) {
+  background-color: rgb(255 252 246 / 0.86);
+}
+
 /* Vidrio esmerilado: las bandas con texto llevan un velo translúcido con
    desenfoque; la pintura festiva se ve suave detrás y el texto siempre se lee. */
 html[data-festivity] .seasonal-glass,
