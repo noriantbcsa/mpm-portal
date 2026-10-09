@@ -96,7 +96,7 @@ li {
 }
 
 /* Banner festivo: la pintura propia de la celebración como protagonista, el
-   nombre en grande, una franja con los tres colores del tema y un marco fino.
+   nombre en grande y una franja con los tres colores del tema.
    El texto va del lado opuesto al motivo, sobre el papel liso de la pintura
    (velo que se desvanece hacia el motivo), por eso siempre se lee. */
 .seasonal-ribbon {
@@ -150,15 +150,6 @@ li {
   margin: 0 auto;
   max-width: 76rem;
   padding: 1.25rem 1.5rem 1.4rem;
-}
-
-/* Marco fino editorial. */
-.seasonal-ribbon-body::before {
-  position: absolute;
-  inset: 0.55rem 0.75rem;
-  content: "";
-  pointer-events: none;
-  border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
 }
 
 .seasonal-ribbon-text {
@@ -608,7 +599,7 @@ html[data-festivity] .seasonal-main {
   text-shadow: 0 0 0.5rem rgb(255 252 246 / 0.95), 0 0 1.1rem rgb(255 252 246 / 0.9);
 }
 
-html[data-festivity] .seasonal-main :is(.text-white, .text-white *, .bg-ink, .bg-ink *, button, [class*="bg-brand-primary"], [class*="bg-brand-primary"] *) {
+html[data-festivity] .seasonal-main :is(.text-white, .text-white *, .bg-ink, .bg-ink *, button, input, select, textarea, [role="status"], [role="alert"], [class*="bg-brand-primary"], [class*="bg-brand-primary"] *) {
   text-shadow: none;
 }
 

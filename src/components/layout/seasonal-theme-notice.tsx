@@ -5,7 +5,7 @@ import type { SeasonalTheme } from "@/lib/seasonal-themes";
 
 /**
  * Banner de la festividad: la pintura propia de la celebración, el nombre en
- * grande, una franja con los colores del tema y un marco fino. El texto va del
+ * grande y una franja con los colores del tema. El texto va del
  * lado opuesto al motivo, sobre papel liso, así siempre se lee.
  */
 export function SeasonalThemeNotice({ theme }: { theme: SeasonalTheme | null }) {
