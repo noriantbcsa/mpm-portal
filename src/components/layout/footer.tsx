@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Camera, Music2, UsersRound } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa6";
 
 import { getSiteSettings } from "@/lib/site-config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -43,13 +43,6 @@ export async function Footer() {
                 </a>
               </li>
             )}
-            {settings.contactPhone && (
-              <li>
-                <a className="break-words hover:text-ink" href={`tel:${settings.contactPhone.replace(/\D/g, "")}`}>
-                  {settings.contactPhone}
-                </a>
-              </li>
-            )}
             {settings.address && <li className="break-words">{settings.address}</li>}
           </ul>
         </div>
@@ -60,21 +53,21 @@ export async function Footer() {
             {settings.instagramUrl && (
               <li>
                 <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 hover:text-ink">
-                  <Camera className="h-4 w-4" aria-hidden="true" /> Instagram · @mpm_moda_mpm
+                  <FaInstagram className="h-4 w-4" aria-hidden="true" /> Instagram · @mpm_moda_mpm
                 </a>
               </li>
             )}
             {settings.facebookUrl && (
               <li>
                 <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 hover:text-ink">
-                  <UsersRound className="h-4 w-4" aria-hidden="true" /> Facebook · MPM Fabricante
+                  <FaFacebookF className="h-4 w-4" aria-hidden="true" /> Facebook · MPM Fabricante
                 </a>
               </li>
             )}
             {settings.tiktokUrl && (
               <li>
                 <a href={settings.tiktokUrl} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 hover:text-ink">
-                  <Music2 className="h-4 w-4" aria-hidden="true" /> TikTok · @mpm_moda_mpm
+                  <FaTiktok className="h-4 w-4" aria-hidden="true" /> TikTok · @mpm_moda_mpm
                 </a>
               </li>
             )}
