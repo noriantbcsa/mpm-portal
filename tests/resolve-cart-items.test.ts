@@ -17,7 +17,7 @@ describe("resolveCartItems", () => {
 
   it("builds a snapshot from live product data, ignoring any client-sent price/name", async () => {
     findManyMock.mockResolvedValueOnce([
-      { id: "p1", name: "Camiseta básica", sku: "MPM-0001", priceRef: 39900 },
+      { id: "p1", name: "Camiseta básica", sku: "MPM-0001", priceRef: 39900, priceWholesale: 24000 },
     ]);
 
     const result = await resolveCartItems([
@@ -33,6 +33,7 @@ describe("resolveCartItems", () => {
         color: "Negro",
         quantity: 2,
         priceRefSnapshot: 39900,
+        priceWholesaleSnapshot: 24000,
       },
     ]);
   });
@@ -46,11 +47,11 @@ describe("resolveCartItems", () => {
   });
 
   it("clamps quantity to the 1..500 range", async () => {
-    findManyMock.mockResolvedValueOnce([{ id: "p1", name: "X", sku: "SKU-1", priceRef: null }]);
+    findManyMock.mockResolvedValueOnce([{ id: "p1", name: "X", sku: "SKU-1", priceRef: null, priceWholesale: null }]);
     const [tooLow] = await resolveCartItems([{ productId: "p1", size: null, color: null, quantity: -5 }]);
     expect(tooLow.quantity).toBe(1);
 
-    findManyMock.mockResolvedValueOnce([{ id: "p1", name: "X", sku: "SKU-1", priceRef: null }]);
+    findManyMock.mockResolvedValueOnce([{ id: "p1", name: "X", sku: "SKU-1", priceRef: null, priceWholesale: null }]);
     const [tooHigh] = await resolveCartItems([{ productId: "p1", size: null, color: null, quantity: 10000 }]);
     expect(tooHigh.quantity).toBe(500);
   });

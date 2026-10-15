@@ -20,6 +20,7 @@ export function AddToCartForm({
   color,
   onColorChange,
   priceRef,
+  priceWholesale,
   canOrder,
 }: {
   productId: string;
@@ -32,6 +33,7 @@ export function AddToCartForm({
   color: string;
   onColorChange: (color: string) => void;
   priceRef: number | null;
+  priceWholesale: number | null;
   canOrder: boolean;
 }) {
   const addItem = useCartStore((s) => s.addItem);
@@ -62,6 +64,7 @@ export function AddToCartForm({
         size: size || null,
         color: color || null,
         priceRef,
+        priceWholesale,
       },
       quantity,
     );

@@ -12,6 +12,7 @@ const baseItem = {
   size: "M",
   color: "Negro",
   priceRef: 39900,
+  priceWholesale: 25000,
 };
 
 describe("cartItemKey", () => {
@@ -99,9 +100,10 @@ describe("useCartStore limits and reconciliation", () => {
   it("drops unavailable products and refreshes prices", () => {
     useCartStore.getState().addItem(baseItem, 1);
     useCartStore.getState().addItem({ ...baseItem, productId: "gone" }, 1);
-    useCartStore.getState().reconcile(["gone"], { [baseItem.productId]: 45000 });
+    useCartStore.getState().reconcile(["gone"], { [baseItem.productId]: { detail: 45000, wholesale: 30000 } });
     const { items } = useCartStore.getState();
     expect(items).toHaveLength(1);
     expect(items[0].priceRef).toBe(45000);
+    expect(items[0].priceWholesale).toBe(30000);
   });
 });

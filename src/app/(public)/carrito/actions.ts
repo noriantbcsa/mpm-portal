@@ -25,7 +25,7 @@ import { consumeRateLimit, getRequestRateLimitKey } from "@/lib/security/rate-li
  */
 export type CartReconciliation = {
   unavailableProductIds: string[];
-  prices: Record<string, number | null>;
+  prices: Record<string, { detail: number | null; wholesale: number | null }>;
 };
 
 export async function syncCartSessionAction(items: RawCartItem[]): Promise<CartReconciliation | null> {

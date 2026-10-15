@@ -14,6 +14,7 @@ export function ProductPurchasePanel({
   sizes,
   colors,
   priceRef,
+  priceWholesale,
   canOrder,
   children,
 }: {
@@ -25,6 +26,7 @@ export function ProductPurchasePanel({
   sizes: string[];
   colors: string[];
   priceRef: number | null;
+  priceWholesale: number | null;
   canOrder: boolean;
   children: ReactNode;
 }) {
@@ -62,6 +64,7 @@ export function ProductPurchasePanel({
             color={selectedColor}
             onColorChange={setSelectedColor}
             priceRef={priceRef}
+            priceWholesale={priceWholesale}
             canOrder={canOrder}
           />
         </div>

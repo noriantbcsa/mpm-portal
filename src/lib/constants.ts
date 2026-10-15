@@ -40,6 +40,7 @@ export const PUBLIC_CATEGORY_WHERE = {
 /** Límites del carrito; el servidor los vuelve a validar al recibir la solicitud. */
 export const MAX_CART_ITEM_QUANTITY = 500;
 export const MAX_CART_LINES = 50;
+export const WHOLESALE_MINIMUM_QUANTITY = 6;
 
 export const PRODUCT_TAG_LABELS: Record<ProductTagType, string> = {
   OFERTA: "Oferta",

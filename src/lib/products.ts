@@ -41,6 +41,7 @@ const productListSelect = {
   colors: true,
   tags: true,
   priceRef: true,
+  priceWholesale: true,
   categoryId: true,
   category: { select: { id: true, name: true, slug: true, parent: { select: { name: true, slug: true } } } },
   // La tarjeta solo pinta una foto, pero conserva las rutas de las variantes

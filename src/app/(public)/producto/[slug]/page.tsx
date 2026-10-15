@@ -119,6 +119,7 @@ export default async function ProductoPage({ params }: PageProps) {
         sizes={product.sizes}
         colors={product.colors}
         priceRef={product.priceRef ? Number(product.priceRef) : null}
+        priceWholesale={product.priceWholesale ? Number(product.priceWholesale) : null}
         canOrder={canOrder}
       >
         <div className="flex flex-wrap items-center gap-2">

@@ -21,6 +21,7 @@ export type CartItem = {
   color: string | null;
   quantity: number;
   priceRef: number | null;
+  priceWholesale: number | null;
 };
 
 export function cartItemKey(item: Pick<CartItem, "productId" | "size" | "color">) {
@@ -34,7 +35,7 @@ type CartState = {
   updateQuantity: (key: string, quantity: number) => void;
   removeItem: (key: string) => void;
   /** Quita prendas que ya no se pueden pedir y actualiza los precios vigentes. */
-  reconcile: (unavailableProductIds: string[], prices?: Record<string, number | null>) => void;
+  reconcile: (unavailableProductIds: string[], prices?: Record<string, { detail: number | null; wholesale: number | null }>) => void;
   clear: () => void;
   totalItems: () => number;
 };
@@ -75,9 +76,12 @@ export const useCartStore = create<CartState>()(
         const { items } = get();
         const next = items
           .filter((i) => !unavailable.has(i.productId))
-          .map((i) => (Object.hasOwn(prices, i.productId) ? { ...i, priceRef: prices[i.productId] } : i));
+          .map((i) => {
+            const price = prices[i.productId];
+            return price ? { ...i, priceRef: price.detail, priceWholesale: price.wholesale } : i;
+          });
         const changed =
-          next.length !== items.length || next.some((item, index) => item.priceRef !== items[index].priceRef);
+          next.length !== items.length || next.some((item, index) => item.priceRef !== items[index].priceRef || item.priceWholesale !== items[index].priceWholesale);
         if (changed) set({ items: next });
       },
       clear: () => set({ items: [] }),
@@ -85,7 +89,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "mpm-cart",
-      version: 1,
+      version: 2,
     },
   ),
 );

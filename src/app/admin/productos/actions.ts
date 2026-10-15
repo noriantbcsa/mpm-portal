@@ -41,6 +41,7 @@ export async function saveProductAction(
     .filter((t): t is (typeof PRODUCT_TAG_VALUES)[number] => (PRODUCT_TAG_VALUES as readonly string[]).includes(t));
 
   const priceRefRaw = String(formData.get("priceRef") ?? "").trim();
+  const priceWholesaleRaw = String(formData.get("priceWholesale") ?? "").trim();
 
   const parsed = productFormSchema.safeParse({
     sku: formData.get("sku"),
@@ -55,6 +56,7 @@ export async function saveProductAction(
     tags,
     campaignId: String(formData.get("campaignId") ?? "").trim() || null,
     priceRef: priceRefRaw ? Number(priceRefRaw) : null,
+    priceWholesale: priceWholesaleRaw ? Number(priceWholesaleRaw) : null,
     images,
   });
 
@@ -82,6 +84,7 @@ export async function saveProductAction(
           tags: data.tags,
           campaignId: data.campaignId || null,
           priceRef: data.priceRef,
+          priceWholesale: data.priceWholesale,
           images: {
             deleteMany: {},
             create: data.images,
@@ -111,6 +114,7 @@ export async function saveProductAction(
         tags: data.tags,
         campaignId: data.campaignId || null,
         priceRef: data.priceRef,
+        priceWholesale: data.priceWholesale,
         images: { create: data.images },
       },
     });

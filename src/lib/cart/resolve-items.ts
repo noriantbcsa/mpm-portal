@@ -22,6 +22,7 @@ export type ResolvedCartItem = {
   color: string | null;
   quantity: number;
   priceRefSnapshot: number | null;
+  priceWholesaleSnapshot: number | null;
 };
 
 /**
@@ -56,6 +57,7 @@ export async function resolveCartItems(items: RawCartItem[]): Promise<ResolvedCa
       color: item.color || null,
       quantity: Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Math.round(item.quantity))),
       priceRefSnapshot: product.priceRef ? Number(product.priceRef) : null,
+      priceWholesaleSnapshot: product.priceWholesale ? Number(product.priceWholesale) : null,
     });
   }
   return resolved;
@@ -69,5 +71,8 @@ export function findUnavailableProductIds(items: RawCartItem[], resolved: Resolv
 
 /** Precio vigente por producto, para refrescar el total que ve el cliente. */
 export function currentPrices(resolved: ResolvedCartItem[]) {
-  return Object.fromEntries(resolved.map((item) => [item.productId, item.priceRefSnapshot]));
+  return Object.fromEntries(resolved.map((item) => [item.productId, {
+    detail: item.priceRefSnapshot,
+    wholesale: item.priceWholesaleSnapshot,
+  }]));
 }

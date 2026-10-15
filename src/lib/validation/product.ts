@@ -53,6 +53,10 @@ export const productFormSchema = z.object({
     .union([z.number().nonnegative(), z.null()])
     .optional()
     .transform((v) => (v === undefined ? null : v)),
+  priceWholesale: z
+    .union([z.number().nonnegative(), z.null()])
+    .optional()
+    .transform((v) => (v === undefined ? null : v)),
   images: z.array(productImageInputSchema).default([]),
 });
 

@@ -9,6 +9,7 @@ import { useCartStore, cartItemKey, useHasHydrated } from "@/store/cart-store";
 import { MAX_CART_ITEM_QUANTITY } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/format";
+import { getCartPricing, WHOLESALE_MINIMUM_QUANTITY } from "@/lib/pricing";
 import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 import { Button, LinkButton } from "@/components/ui/button";
 import { TextField, TextAreaField, SelectField } from "@/components/ui/field";
@@ -177,8 +178,8 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
     );
   }
 
-  const total = items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = items.reduce((sum, i) => sum + (i.priceRef ?? 0) * i.quantity, 0);
+  const pricing = getCartPricing(items);
+  const { total: totalPrice, totalQuantity: total, isWholesale, savings } = pricing;
 
   return (
     <div className="seasonal-glass mx-auto my-6 max-w-5xl px-4 py-8 sm:px-6">
@@ -213,9 +214,9 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
                     {item.size && ` · Talla ${item.size}`}
                     {item.color && ` · ${item.color}`}
                   </p>
-                  {showPrices && item.priceRef && (
+                  {(showPrices || isWholesale) && (isWholesale ? item.priceWholesale ?? item.priceRef : item.priceRef) && (
                     <p className="mt-1 text-sm font-medium text-brand-primary">
-                      {formatPrice(item.priceRef)}
+                      {formatPrice(isWholesale ? item.priceWholesale ?? item.priceRef : item.priceRef)}
                     </p>
                   )}
                   <div className="mt-auto flex items-center justify-between pt-2">
@@ -246,8 +247,17 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
 
           <div className="flex items-center justify-between border-b border-line pb-3 text-sm">
             <span className="text-ink-soft">{total} {total === 1 ? "prenda" : "prendas"}</span>
-            {showPrices && <span className="font-semibold text-ink">{formatPrice(totalPrice)}</span>}
+            {(showPrices || isWholesale) && <span className="font-semibold text-ink">{formatPrice(totalPrice)}</span>}
           </div>
+          {isWholesale && (
+            <div className="rounded-xl border border-success/30 bg-success/10 px-3 py-3 text-sm text-ink" role="status">
+              <p className="font-semibold text-success">Estás comprando en modo mayorista</p>
+              <p className="mt-1 text-ink-soft">Con {total} prendas aplicamos precio mayorista y ya ahorraste {formatPrice(savings)}.</p>
+            </div>
+          )}
+          {!isWholesale && (
+            <p className="text-sm text-ink-soft">Agrega {WHOLESALE_MINIMUM_QUANTITY - total} {WHOLESALE_MINIMUM_QUANTITY - total === 1 ? "prenda más" : "prendas más"} para activar el precio mayorista.</p>
+          )}
 
           <h2 className="font-display text-lg font-medium text-ink">Tus datos de contacto</h2>
 

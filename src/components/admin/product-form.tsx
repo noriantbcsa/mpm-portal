@@ -35,6 +35,7 @@ export type ProductFormInitial = {
   tags: (keyof typeof PRODUCT_TAG_LABELS)[];
   campaignId: string | null;
   priceRef: number | null;
+  priceWholesale: number | null;
   images: ImageRow[];
 };
 
@@ -129,12 +130,20 @@ export function ProductForm({
             ))}
           </AdminSelectField>
           <AdminTextField
-            label="Precio referencial (COP, opcional)"
+            label="Precio al detal (COP, opcional)"
             name="priceRef"
             type="number"
             min={0}
             defaultValue={initial?.priceRef ?? ""}
-            hint="Solo se muestra al público si está activado en Ajustes."
+            hint="Precio por unidad para compras de una a cinco prendas."
+          />
+          <AdminTextField
+            label="Precio mayorista (COP, opcional)"
+            name="priceWholesale"
+            type="number"
+            min={0}
+            defaultValue={initial?.priceWholesale ?? ""}
+            hint="Se aplica automáticamente desde seis prendas en el carrito."
           />
           <fieldset className="sm:col-span-2">
             <legend className="text-sm font-medium text-slate-700">Etiquetas</legend>

@@ -60,13 +60,37 @@ function filenameColor(filename: string) {
 
 function referenceName(folder: string) {
   const names: Record<string, string> = {
-    "SHORT DOBLE CORREA": "Short doble correa",
-    "CCP (camison cola de pato)": "Camisón cola de pato",
-    "CMLR (NUEVO LANZAMIENTO) DAMAS": "CMLR · nuevo lanzamiento",
-    "PLUS DAMA": "Plus dama",
+    CMLD: "camisa manga larga dama",
+    CMCD: "camisa manga corta dama",
+    BMC: "blusón manga corta",
+    "CCP (camison cola de pato)": "camisón cola de pato",
+    "CMLR (NUEVO LANZAMIENTO) DAMAS": "camisa manga larga rayada dama",
+    CMCRD: "camisa manga corta rayada dama",
+    "SHORT DOBLE CORREA": "short doble correa",
+    "R-UNICA": "camisa talla única rayada",
+    UNICA: "camisa talla única",
+    OVCML: "camisa corta manga larga",
+    "PLUS DAMA": "camisa manga larga dama plus",
+    CMLH: "camisa manga larga hombre",
+    CMCH: "camisa manga corta hombre",
+    CMLRH: "camisa manga larga rayada hombre",
+    CMCRH: "camisa manga corta rayada hombre",
+    "CMCH XXL": "camisa manga corta hombre XXL",
+    "CMLH XXL": "camisa manga larga hombre XXL",
   };
-  return names[folder] ?? `Referencia ${folder}`;
+  return names[folder] ?? folder;
 }
+
+/** Precios entregados por MPM: [mayorista, detal], en pesos colombianos. */
+const catalogPricing: Record<string, readonly [number, number]> = {
+  CMLD: [34000, 65000], CMCD: [31000, 60000], BMC: [35000, 60000],
+  "CCP (camison cola de pato)": [38000, 65000],
+  "CMLR (NUEVO LANZAMIENTO) DAMAS": [38000, 65000], CMCRD: [35000, 60000],
+  "SHORT DOBLE CORREA": [27000, 50000], "R-UNICA": [32000, 60000], UNICA: [29000, 55000],
+  OVCML: [34000, 65000], "PLUS DAMA": [38000, 65000], CMLH: [38000, 70000],
+  CMCH: [36000, 65000], CMLRH: [40000, 70000], CMCRH: [38000, 65000],
+  "CMCH XXL": [40000, 70000], "CMLH XXL": [42000, 75000],
+};
 
 function sizesFor(folder: string) {
   if (/^(R-UNICA|UNICA)$/i.test(folder)) return ["Talla única"];
@@ -107,10 +131,14 @@ async function importRealCatalog() {
       secondaryColor: "#c8ff00",
       accentColor: "#eef2e5",
       heroImageUrl: fallbackHeroImage,
-      whatsappNumber: "573025449577",
+      whatsappNumber: "573115560988",
       whatsappDefaultMessage: "Hola MPM, quiero más información sobre sus prendas.",
       contactEmail: "ventas@mpm-ejemplo.com",
+      contactPhone: "+57 311 556 0988",
       address: "C.C. Visto, Local 3163, piso 3 · Bogotá Centro, Bogotá, Colombia",
+      instagramUrl: "https://www.instagram.com/mpm_moda_mpm/",
+      facebookUrl: "https://www.facebook.com/MpmFabricante",
+      tiktokUrl: "https://www.tiktok.com/@mpm_moda_mpm",
       footerText: "MPM · Moda y estilo día a día. Atención al detal y al por mayor.",
       dataPolicyText:
         "Texto provisional de política de tratamiento de datos personales. Debe ser revisado y aprobado por MPM antes de producción; ver docs/DEPLOYMENT.md.",
@@ -135,21 +163,22 @@ async function importRealCatalog() {
       if (!files.length) continue;
       const colors = [...new Set(files.map(filenameColor).filter((value): value is string => Boolean(value)))];
       const name = referenceName(folder.name);
+      const [priceWholesale, priceRef] = catalogPricing[folder.name] ?? [null, null];
       const sku = `${collection.prefix}-${folder.name.replace(/[^a-z0-9]+/gi, "-").replace(/(^-|-$)/g, "").toUpperCase()}`;
       const slug = `${collection.slug}-${folder.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`;
       const tags = /NUEVO LANZAMIENTO/i.test(folder.name) ? ["NUEVO" as const] : [];
-      const description = [`Referencia ${folder.name}.`, colors.length ? `Colores registrados: ${colors.join(", ")}.` : `Galería con ${files.length} vistas registradas.`].join(" ");
+      const description = ["Elaborado en popelina stretch.", colors.length ? `Colores registrados: ${colors.join(", ")}.` : `Galería con ${files.length} vistas registradas.`].join(" ");
       const images = files.map((file, order) => {
         const color = filenameColor(file);
         return { url: asPublicUrl(join(productDir, file)), alt: `${name}${color ? ` · color ${color}` : ` · vista ${order + 1}`}`, color, order };
       });
       await prisma.product.upsert({
         where: { sku },
-        create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors, tags, images: { create: images } },
+        create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors, tags, priceRef, priceWholesale, images: { create: images } },
         // Repetir el seed solo refresca las fotos entregadas: nombre,
         // descripción, categoría, tallas, etiquetas, etc. pueden haberse
         // editado desde /admin y no deben pisarse.
-        update: { images: { deleteMany: {}, create: images } },
+        update: { name, description, priceRef, priceWholesale, images: { deleteMany: {}, create: images } },
       });
       imported += 1;
 

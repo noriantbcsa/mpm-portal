@@ -43,48 +43,42 @@ export async function Footer() {
                 </a>
               </li>
             )}
-            {settings.contactPhone && <li className="break-words">{settings.contactPhone}</li>}
+            {settings.contactPhone && (
+              <li>
+                <a className="break-words hover:text-ink" href={`tel:${settings.contactPhone.replace(/\D/g, "")}`}>
+                  {settings.contactPhone}
+                </a>
+              </li>
+            )}
             {settings.address && <li className="break-words">{settings.address}</li>}
           </ul>
         </div>
 
         <div>
           <h2 className="text-sm font-semibold text-ink">Síguenos</h2>
-          <div className="mt-3 flex gap-3">
+          <ul className="mt-3 space-y-2 text-sm text-ink-soft">
             {settings.instagramUrl && (
-              <a
-                href={settings.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram de MPM"
-                className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-line hover:bg-paper"
-              >
-                <Camera className="h-4 w-4" aria-hidden="true" />
-              </a>
+              <li>
+                <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 hover:text-ink">
+                  <Camera className="h-4 w-4" aria-hidden="true" /> Instagram · @mpm_moda_mpm
+                </a>
+              </li>
             )}
             {settings.facebookUrl && (
-              <a
-                href={settings.facebookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook de MPM"
-                className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-line hover:bg-paper"
-              >
-                <UsersRound className="h-4 w-4" aria-hidden="true" />
-              </a>
+              <li>
+                <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 hover:text-ink">
+                  <UsersRound className="h-4 w-4" aria-hidden="true" /> Facebook · MPM Fabricante
+                </a>
+              </li>
             )}
             {settings.tiktokUrl && (
-              <a
-                href={settings.tiktokUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="TikTok de MPM"
-                className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-line hover:bg-paper"
-              >
-                <Music2 className="h-4 w-4" aria-hidden="true" />
-              </a>
+              <li>
+                <a href={settings.tiktokUrl} target="_blank" rel="noopener noreferrer" className="focus-ring inline-flex items-center gap-2 hover:text-ink">
+                  <Music2 className="h-4 w-4" aria-hidden="true" /> TikTok · @mpm_moda_mpm
+                </a>
+              </li>
             )}
-          </div>
+          </ul>
         </div>
       </div>
       <div className="border-t border-line px-4 py-4 text-center text-xs text-ink-soft">

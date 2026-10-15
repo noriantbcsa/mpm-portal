@@ -107,6 +107,9 @@ model Product {
   tags        ProductTagType[]
   campaignId  String?
   campaign    Campaign?        @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  /// Precio por unidad para compras de seis o más prendas.
+  priceWholesale Decimal?      @db.Decimal(12, 2)
+  /// Precio por unidad al detal. Se conserva el nombre para no romper la API existente.
   priceRef    Decimal?         @db.Decimal(12, 2)
 
   viewCount      Int @default(0)
