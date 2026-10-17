@@ -27,7 +27,7 @@ const collections = [
     category: "Damas",
     slug: "damas",
     referenceSlug: "damas-referencias",
-    referenceName: "Referencias Damas",
+    referenceName: "Catálogo Damas",
     imageUrl: fallbackHeroImage,
     audience: "MUJER" as const,
     prefix: "DAM",
@@ -37,7 +37,7 @@ const collections = [
     category: "Caballero",
     slug: "caballero",
     referenceSlug: "caballero-referencias",
-    referenceName: "Referencias Caballero",
+    referenceName: "Catálogo Caballero",
     // La foto de CMCRH original tiene fondo casi blanco: con la superposición
     // semitransparente de CatalogExplorer se veía prácticamente en blanco.
     // Esta tiene una prenda de color sólido, con mejor contraste.
@@ -167,7 +167,7 @@ async function importRealCatalog() {
       const sku = `${collection.prefix}-${folder.name.replace(/[^a-z0-9]+/gi, "-").replace(/(^-|-$)/g, "").toUpperCase()}`;
       const slug = `${collection.slug}-${folder.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`;
       const tags = /NUEVO LANZAMIENTO/i.test(folder.name) ? ["NUEVO" as const] : [];
-      const description = ["Elaborado en popelina stretch.", colors.length ? `Colores registrados: ${colors.join(", ")}.` : `Galería con ${files.length} vistas registradas.`].join(" ");
+      const description = "Elaborado en popelina stretch.";
       const images = files.map((file, order) => {
         const color = filenameColor(file);
         return { url: asPublicUrl(join(productDir, file)), alt: `${name}${color ? ` · color ${color}` : ` · vista ${order + 1}`}`, color, order };

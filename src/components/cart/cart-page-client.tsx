@@ -210,8 +210,7 @@ export function CartPageClient({ showPrices }: { showPrices: boolean }) {
                     {item.name}
                   </Link>
                   <p className="break-words text-xs text-ink-soft">
-                    Ref. {item.sku}
-                    {item.size && ` · Talla ${item.size}`}
+                    {item.size && `Talla ${item.size}`}
                     {item.color && ` · ${item.color}`}
                   </p>
                   {(showPrices || isWholesale) && (isWholesale ? item.priceWholesale ?? item.priceRef : item.priceRef) && (
