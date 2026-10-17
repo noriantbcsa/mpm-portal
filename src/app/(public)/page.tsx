@@ -119,7 +119,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <ProductShelf title="Lo nuevo" description="Referencias recién incorporadas al catálogo MPM." seeAllHref="/catalogo" products={latestProducts} showPrices={settings.showPrices} />
+      <ProductShelf title="Lo nuevo" description="Prendas recién incorporadas al catálogo MPM." seeAllHref="/catalogo" products={latestProducts} showPrices={settings.showPrices} />
 
       {womenResult.items.length > 0 && <ProductShelf title="Damas" description="Una selección de la colección para ella." seeAllHref="/catalogo/damas" products={womenResult.items} showPrices={settings.showPrices} />}
       {menResult.items.length > 0 && <ProductShelf title="Caballero" description="Una selección de la colección para él." seeAllHref="/catalogo/caballero" products={menResult.items} showPrices={settings.showPrices} />}

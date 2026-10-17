@@ -66,7 +66,6 @@ export function ProductCard({
         <h3 className="break-words font-display text-base font-semibold leading-snug text-ink line-clamp-2">
           {product.name}
         </h3>
-        <p className="text-xs font-medium text-ink-soft">Ref. {product.sku}</p>
         <p className="min-h-5 text-xs leading-5 text-ink-soft">
           {variantSummary || "Consulta disponibilidad"}
         </p>

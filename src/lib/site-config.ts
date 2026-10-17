@@ -35,7 +35,7 @@ export const DEFAULT_SITE_SETTINGS = {
   heroCtaHref: "/catalogo",
   footerText: "MPM · Moda y estilo día a día. Atención al detal y al por mayor.",
   dataPolicyText: null as string | null,
-  showPrices: false,
+  showPrices: true,
   seasonalThemeMode: "AUTOMATIC" as SeasonalThemeModeValue,
   seasonalThemePreset: "DEFAULT" as SeasonalThemePresetValue,
   updatedAt: new Date(0),

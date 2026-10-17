@@ -136,7 +136,6 @@ export default async function ProductoPage({ params }: PageProps) {
         <h1 className="mt-4 break-words font-display text-3xl font-semibold leading-none tracking-[-0.045em] text-ink sm:text-4xl">
           {product.name}
         </h1>
-        <p className="mt-2 text-xs font-medium uppercase tracking-[0.12em] text-ink-soft">Ref. {product.sku}</p>
         {price && <p className="mt-5 text-xl font-semibold text-ink">{price}</p>}
 
         <p className="mt-5 whitespace-pre-line text-sm leading-6 text-ink-soft">{product.description}</p>
@@ -149,7 +148,6 @@ export default async function ProductoPage({ params }: PageProps) {
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Público</dt><dd className="mt-1 text-ink">{AUDIENCE_LABELS[product.audience]}</dd></div>
               {product.material && <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Material</dt><dd className="mt-1 text-ink">{product.material}</dd></div>}
-              <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Referencia</dt><dd className="mt-1 text-ink">{product.sku}</dd></div>
               <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Variantes</dt><dd className="mt-1 text-ink">{product.colors.length} colores</dd></div>
             </dl>
           </details>
