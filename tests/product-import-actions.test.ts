@@ -60,6 +60,14 @@ beforeEach(() => {
 });
 
 describe("bulkImportProductsAction", () => {
+  it("el CSV no reduce el detal por debajo del mayorista que ya tiene la prenda", async () => {
+    productFindMany.mockImplementation(async (args: { select?: Record<string, boolean> }) =>
+      args.select?.sku ? [{ sku: "EXISTE-1", priceWholesale: 35000 }] : []);
+    const result = await run(csvFile("EXISTE-1,Camisa,Una camisa de prueba,Damas,,,,,,,,,,30000")) as Success;
+    expect(result).toMatchObject({ skipped: 1, updated: 0 });
+    expect(result.errors[0]).toContain("mayorista actual");
+    expect(productUpdate).not.toHaveBeenCalled();
+  });
   it("respeta la subcategoría indicada y rechaza una hija de otra rama", async () => {
     categoryFindMany.mockResolvedValue([
       { id: "cat-damas", name: "Damas", parentId: null },

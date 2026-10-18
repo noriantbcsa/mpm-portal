@@ -25,6 +25,7 @@ validación de datos, relaciones PostgreSQL y flujos de interfaz.
 | Productos | Editar una foto podía perder su identificador de Cloudinary | Se conserva `publicId` en el formulario de edición |
 | Productos | Gestionar muchas fotos exigía recorrer todos sus campos | Miniaturas y editores plegables, campos opcionales agrupados y descripción accesible automática |
 | CSV | Se ignoraba una subcategoría cuando la principal existía | Validación de la relación principal/hija y asignación a la subcategoría indicada |
+| CSV | Bajar el detal podía dejarlo por debajo del mayorista existente | La fila se rechaza con un mensaje para ajustar ambos precios en el producto |
 | Guardados | Un registro eliminado podía producir una excepción técnica | Mensajes recuperables para relaciones inexistentes, duplicados y registros borrados |
 
 ## Base de datos
@@ -57,6 +58,6 @@ y transacciones; los datos comerciales de producción no se usan como fixtures.
 La comprobación en navegador utiliza una cuenta y registros temporales de la
 base local y los retira al terminar; no envía comunicaciones ni pedidos.
 
-Resultado de la batería completa: **353 pruebas aprobadas**, incluidas las
+Resultado de la batería completa: **355 pruebas aprobadas**, incluidas las
 pruebas PostgreSQL de concurrencia, sin omisiones. TypeScript, ESLint y la
 compilación de producción completaron correctamente.

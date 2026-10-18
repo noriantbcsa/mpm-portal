@@ -189,14 +189,12 @@ export async function bulkImportProductsAction(
   // Se precargan una sola vez las referencias y slugs existentes: antes cada
   // fila hacía 1 consulta por SKU más 1+ por cada intento de slug, lo que con
   // 2000 filas podía agotar el tiempo de la petición.
-  const existingSkus = new Set(
-    (
-      await prisma.product.findMany({
-        where: { sku: { in: rows.map((r) => r.data.referencia) } },
-        select: { sku: true },
-      })
-    ).map((p) => p.sku),
-  );
+  const existingProducts = await prisma.product.findMany({
+    where: { sku: { in: rows.map((r) => r.data.referencia) } },
+    select: { sku: true, priceWholesale: true },
+  });
+  const existingSkus = new Set(existingProducts.map((product) => product.sku));
+  const wholesaleBySku = new Map(existingProducts.map((product) => [product.sku, product.priceWholesale ? Number(product.priceWholesale) : null]));
   const takenSlugs = new Set((await prisma.product.findMany({ select: { slug: true } })).map((p) => p.slug));
 
   const rowErrors: string[] = parseErrors.map((e) => `Fila ${e.row}: ${e.message}`);
@@ -262,6 +260,12 @@ export async function bulkImportProductsAction(
     const priceRef = parseCopPrice(data.precio);
     if (priceRef === undefined || (priceRef !== null && (priceRef <= 0 || priceRef > 9_999_999_999.99))) {
       rowErrors.push(`Fila ${row}: precio "${data.precio}" no válido (ejemplo: 39900 o 39.900).`);
+      skipped += 1;
+      continue;
+    }
+    const existingWholesale = wholesaleBySku.get(data.referencia);
+    if (priceRef !== null && existingWholesale != null && priceRef < existingWholesale) {
+      rowErrors.push(`Fila ${row}: el precio al detal no puede ser menor que el mayorista actual (${existingWholesale}). Ajusta ambos precios desde el formulario del producto.`);
       skipped += 1;
       continue;
     }
