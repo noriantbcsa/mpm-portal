@@ -31,6 +31,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: product.name,
     description: product.description.slice(0, 160),
     alternates: { canonical: `/producto/${product.slug}` },
+    // Una ficha incompleta (sin precio) sigue siendo accesible para que el
+    // equipo la termine en administración, pero no debe competir ni crear
+    // una página delgada en el índice mientras esté incompleta.
+    ...(product.priceRef ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       title: product.name,
       description: product.description.slice(0, 160),

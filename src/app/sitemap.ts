@@ -16,7 +16,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
   const [products, categories, campaigns] = await Promise.all([
     prisma.product.findMany({
-      where: PUBLIC_PRODUCT_WHERE,
+      // Una ficha sin precio no está lista para competir en buscadores. Se
+      // conserva en el catálogo para que el equipo la complete desde admin,
+      // pero no se envía a los rastreadores hasta tener datos comerciales.
+      where: { ...PUBLIC_PRODUCT_WHERE, priceRef: { not: null } },
       select: { slug: true, updatedAt: true },
     }),
     prisma.category.findMany({

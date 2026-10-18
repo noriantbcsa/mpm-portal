@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getLiveCampaignBySlug } from "@/lib/campaigns";
 import { getProductBySlug, listProducts } from "@/lib/products";
 import { findUnavailableProductIds, resolveCartItems } from "@/lib/cart/resolve-items";
+import sitemap from "@/app/sitemap";
 
 // Reglas de visibilidad pública añadidas en el bucle de auditoría 4:
 // campañas fuera de vigencia, categorías ocultas y prendas que no se pueden
@@ -19,6 +20,7 @@ const campaignIds: string[] = [];
 let visibleProductId = "";
 let soldOutProductId = "";
 let hiddenCategoryProductId = "";
+let incompleteProductId = "";
 
 if (dbAvailable) {
   const visible = await prisma.category.create({ data: { name: "ITV Visible", slug: "itv-visible" } });
@@ -46,6 +48,18 @@ if (dbAvailable) {
       data: { ...base, sku: "ITV-3", name: "ITV Oculta", slug: "itv-oculta", categoryId: childOfHidden.id, status: "DISPONIBLE" },
     })
   ).id;
+  incompleteProductId = (
+    await prisma.product.create({
+      data: {
+        ...base,
+        sku: "ITV-4",
+        name: "ITV Sin precio",
+        slug: "itv-sin-precio",
+        categoryId: visible.id,
+        status: "DISPONIBLE",
+      },
+    })
+  ).id;
 
   campaignIds.push(
     (await prisma.campaign.create({
@@ -60,7 +74,7 @@ if (dbAvailable) {
 
 afterAll(async () => {
   if (!dbAvailable) return;
-  await prisma.product.deleteMany({ where: { sku: { in: ["ITV-1", "ITV-2", "ITV-3"] } } });
+  await prisma.product.deleteMany({ where: { sku: { in: ["ITV-1", "ITV-2", "ITV-3", "ITV-4"] } } });
   await prisma.campaign.deleteMany({ where: { id: { in: campaignIds } } });
   for (const id of categoryIds) await prisma.category.delete({ where: { id } });
   await prisma.$disconnect();
@@ -80,6 +94,12 @@ describe.skipIf(!dbAvailable)("visibilidad pública (integración)", () => {
     expect(skus).not.toContain("ITV-3");
     expect(await getProductBySlug("itv-oculta")).toBeNull();
     expect(await getProductBySlug("itv-oculta", { includeHidden: true })).not.toBeNull();
+  });
+
+  it("el sitemap excluye prendas públicas que aún no tienen precio", async () => {
+    expect(incompleteProductId).not.toBe("");
+    const urls = (await sitemap()).map((entry) => entry.url);
+    expect(urls).not.toContain(expect.stringContaining("/producto/itv-sin-precio"));
   });
 
   it("el carrito descarta prendas agotadas o en categorías ocultas y dice cuáles", async () => {
