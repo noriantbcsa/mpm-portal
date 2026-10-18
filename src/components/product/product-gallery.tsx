@@ -9,7 +9,8 @@ export type GalleryImage = { url: string; alt: string; color?: string | null };
 
 export function ProductGallery({ images, productName }: { images: GalleryImage[]; productName: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const current = images[0];
+  const [imageIndex, setImageIndex] = useState(0);
+  const current = images[imageIndex] ?? images[0];
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -42,7 +43,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
   if (!current) {
     return (
       <div className="flex aspect-square items-center justify-center border border-line bg-brand-accent text-sm text-ink-soft">
-        {productName}: sin fotos disponibles todavía
+        {productName}: aún no hay foto de este color
       </div>
     );
   }
@@ -80,6 +81,23 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           Ampliar foto
         </button>
       </div>
+
+      {images.length > 1 && (
+        <div role="group" aria-label="Vistas del color elegido" className="flex min-w-0 gap-2 overflow-x-auto p-1">
+          {images.map((image, index) => (
+            <button
+              key={image.url}
+              type="button"
+              aria-label={`Ver foto ${index + 1} de ${images.length}${image.color ? ` · ${image.color}` : ""}`}
+              aria-pressed={imageIndex === index}
+              onClick={() => setImageIndex(index)}
+              className={`focus-ring relative h-24 w-20 shrink-0 border-2 bg-paper ${imageIndex === index ? "border-ink" : "border-line"}`}
+            >
+              <Image src={image.url} alt="" fill sizes="80px" className="object-contain" />
+            </button>
+          ))}
+        </div>
+      )}
 
       {isExpanded && (
         <div

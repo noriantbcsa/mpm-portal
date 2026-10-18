@@ -5,7 +5,7 @@
  * al filtrarla recupera todas esas variantes reales.
  *
  * El prefijo "V."/"V " es siempre una abreviatura de "Verde" en las fotos
- * reales (verificado contra los 306 archivos del catálogo: "V. Cali",
+ * reales (verificado contra las 360 fotos del catálogo: "V. Cali",
  * "V. Esmeralda", "V. Limón", "V. Pastel", "V. Pino", "V Botella" — nunca
  * aparece como marcador de "variante"), así que se expande en vez de
  * borrarse: borrarlo dejaría colores como "Cali" o "Pastel" sin el "Verde"
@@ -17,7 +17,13 @@ const COLOR_ALIASES: Record<string, string> = {
   "MEGENTA": "MAGENTA",
   "PALO ROSA": "PALO ROSA",
   "PALOROSA": "PALO ROSA",
-  "TURQUI": "TURQUESA",
+  "BOTELLA": "VERDE BOTELLA",
+  "ESMERALDA": "VERDE ESMERALDA",
+  "LIMON": "VERDE LIMON",
+  "PASTEL": "VERDE PASTEL",
+  "PINO": "VERDE PINO",
+  "PALO": "PALO ROSA",
+  "VINO": "VINO TINTO",
   "VINOTINTO": "VINO TINTO",
   "AZUL CELESTE": "CELESTE",
   "CELESTE AZUL": "CELESTE",
@@ -35,44 +41,45 @@ const COLOR_SWATCHES: Record<string, CatalogColorSwatch> = {
   BEIGE: { background: "#d8c3a5", foreground: "#101417" },
   BLANCO: { background: "#ffffff", foreground: "#101417" },
   BOTELLA: { background: "#164b3a", foreground: "#ffffff" },
-  CACAO: { background: "#70452d", foreground: "#ffffff" },
-  CAFE: { background: "#513321", foreground: "#ffffff" },
-  CAMEL: { background: "#bd8751", foreground: "#101417" },
+  CACAO: { background: "#baa17f", foreground: "#101417" },
+  CAFE: { background: "#b18a59", foreground: "#101417" },
+  CAMEL: { background: "#d6b899", foreground: "#101417" },
   CELESTE: { background: "#8cc9e8", foreground: "#101417" },
-  CEREZA: { background: "#a91f35", foreground: "#ffffff" },
-  CHOCOLATE: { background: "#3d241c", foreground: "#ffffff" },
+  CEREZA: { background: "#ce163d", foreground: "#ffffff" },
+  CHOCOLATE: { background: "#a55929", foreground: "#ffffff" },
   ESMERALDA: { background: "#16845b", foreground: "#ffffff" },
   FUCSIA: { background: "#c62a83", foreground: "#ffffff" },
-  GUAYABA: { background: "#ee7e79", foreground: "#101417" },
-  "HOJA SECA": { background: "#9b6a37", foreground: "#ffffff" },
-  JADE: { background: "#35a57a", foreground: "#101417" },
+  GUAYABA: { background: "#f2b29a", foreground: "#101417" },
+  "HOJA SECA": { background: "#96b6a1", foreground: "#101417" },
+  JADE: { background: "#0799a6", foreground: "#101417" },
   LILA: { background: "#ae98d2", foreground: "#101417" },
   LIMON: { background: "#c7d83f", foreground: "#101417" },
   MAGENTA: { background: "#b82c87", foreground: "#ffffff" },
-  MENTA: { background: "#a8ddc7", foreground: "#101417" },
+  MENTA: { background: "#3fc5c0", foreground: "#101417" },
   MORADO: { background: "#654191", foreground: "#ffffff" },
   MOSTAZA: { background: "#c79526", foreground: "#101417" },
   NARANJA: { background: "#eb7d2f", foreground: "#101417" },
   NEGRO: { background: "#101417", foreground: "#ffffff" },
-  OLIVA: { background: "#6c7837", foreground: "#ffffff" },
+  OLIVA: { background: "#9ebdbb", foreground: "#101417" },
   PALO: { background: "#bd8f71", foreground: "#101417" },
   "PALO ROSA": { background: "#d99aa3", foreground: "#101417" },
   PASTEL: { background: "#e4b7ba", foreground: "#101417" },
   PETROLEO: { background: "#17616a", foreground: "#ffffff" },
   PINO: { background: "#1e5b43", foreground: "#ffffff" },
-  REY: { background: "#2456a6", foreground: "#ffffff" },
+  REY: { background: "#1d40bc", foreground: "#ffffff" },
   ROJO: { background: "#c92c35", foreground: "#ffffff" },
   ROSADO: { background: "#eb9cad", foreground: "#101417" },
   SALMON: { background: "#ef937f", foreground: "#101417" },
-  TERRACOTA: { background: "#b85f42", foreground: "#ffffff" },
+  TERRACOTA: { background: "#bd422d", foreground: "#ffffff" },
   TURQUESA: { background: "#30aeb2", foreground: "#101417" },
-  VERDE: { background: "#3e8b51", foreground: "#ffffff" },
+  TURQUI: { background: "#192440", foreground: "#ffffff" },
+  VERDE: { background: "#20a377", foreground: "#101417" },
   "VERDE BOTELLA": { background: "#1d523e", foreground: "#ffffff" },
   "VERDE CALI": { background: "#3c9b69", foreground: "#101417" },
-  "VERDE ESMERALDA": { background: "#169363", foreground: "#ffffff" },
-  "VERDE LIMON": { background: "#9fca4d", foreground: "#101417" },
-  "VERDE PASTEL": { background: "#afd2a7", foreground: "#101417" },
-  "VERDE PINO": { background: "#2b684e", foreground: "#ffffff" },
+  "VERDE ESMERALDA": { background: "#194c4e", foreground: "#ffffff" },
+  "VERDE LIMON": { background: "#63cf39", foreground: "#101417" },
+  "VERDE PASTEL": { background: "#a0e1ce", foreground: "#101417" },
+  "VERDE PINO": { background: "#087d76", foreground: "#ffffff" },
   VINO: { background: "#752b3b", foreground: "#ffffff" },
   "VINO TINTO": { background: "#5e2030", foreground: "#ffffff" },
 };
@@ -83,8 +90,9 @@ export function catalogColorKey(value: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .toUpperCase()
     .trim()
+    .replace(/\s*\(\d+\)$/, "")
     .replace(/^V\.?\s+/, "VERDE ")
-    .replace(/\s*\d+(?:\s+\d+)*\s*$/g, "")
+    .replace(/\s*\d+(?:[.\s]+\d+)*\s*$/g, "")
     .replace(/\s+/g, " ");
 
   return COLOR_ALIASES[normalized] ?? normalized;
@@ -92,9 +100,23 @@ export function catalogColorKey(value: string) {
 
 export function formatCatalogColor(value: string) {
   const key = catalogColorKey(value);
-  return key
-    .toLocaleLowerCase("es-CO")
-    .replace(/(^|\s)\S/g, (letter) => letter.toLocaleUpperCase("es-CO"));
+  const spellings: Record<string, string> = {
+    CAFE: "Café", LIMON: "Limón", PETROLEO: "Petróleo", SALMON: "Salmón", TURQUI: "Turquí",
+  };
+  return key.split(" ").map((word) => spellings[word] ??
+    word.charAt(0) + word.slice(1).toLocaleLowerCase("es-CO")).join(" ");
+}
+
+export function uniqueCatalogColors(values: string[]) {
+  return [...new Set(values.filter(isFilterableCatalogColor).map(formatCatalogColor))];
+}
+
+/** Nunca presenta una foto de otro color como si fuera el elegido. */
+export function catalogImagesForColor<T extends { color?: string | null }>(images: T[], color: string) {
+  if (!color) return images;
+  const key = catalogColorKey(color);
+  const matching = images.filter((image) => image.color && catalogColorKey(image.color) === key);
+  return matching.length ? matching : images.filter((image) => !image.color);
 }
 
 export function getCatalogColorSwatch(value: string) {

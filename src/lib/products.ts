@@ -10,6 +10,7 @@ import {
   formatCatalogColor,
   isFilterableCatalogColor,
   isFilterableCatalogSize,
+  uniqueCatalogColors,
 } from "@/lib/catalog-colors";
 import type { CatalogSort } from "@/lib/catalog-params";
 
@@ -280,7 +281,7 @@ export function withoutPlaceholderOptions<T extends { sizes: string[]; colors: s
   return {
     ...product,
     sizes: product.sizes.filter(isFilterableCatalogSize),
-    colors: product.colors.filter(isFilterableCatalogColor),
+    colors: uniqueCatalogColors(product.colors),
   };
 }
 

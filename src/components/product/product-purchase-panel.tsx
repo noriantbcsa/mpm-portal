@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 
 import { ProductGallery, type GalleryImage } from "@/components/product/product-gallery";
 import { AddToCartForm } from "@/components/cart/add-to-cart-form";
+import { catalogImagesForColor, uniqueCatalogColors } from "@/lib/catalog-colors";
 
 export function ProductPurchasePanel({
   images,
@@ -30,15 +31,13 @@ export function ProductPurchasePanel({
   canOrder: boolean;
   children: ReactNode;
 }) {
-  const [selectedColor, setSelectedColor] = useState(colors[0] ?? "");
+  const colorOptions = uniqueCatalogColors(colors);
+  const [selectedColor, setSelectedColor] = useState(colorOptions[0] ?? "");
 
   // Cuando las fotos reales identifican un color, elegirlo filtra la galería.
   // Las vistas cuyo nombre no permite inferir un color siguen disponibles.
   const hasColorPhotos = images.some((image) => image.color);
-  const filteredByColor = hasColorPhotos
-    ? images.filter((image) => image.color?.toLowerCase() === selectedColor.toLowerCase())
-    : images;
-  const visibleImages = filteredByColor.length > 0 ? filteredByColor : images;
+  const visibleImages = catalogImagesForColor(images, selectedColor);
 
   return (
     <div className="grid w-full min-w-0 gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(330px,0.65fr)] lg:gap-12">
@@ -58,9 +57,9 @@ export function ProductPurchasePanel({
             slug={slug}
             name={productName}
             sku={sku}
-            imageUrl={visibleImages[0]?.url ?? images[0]?.url ?? null}
+            imageUrl={visibleImages[0]?.url ?? null}
             sizes={sizes}
-            colors={colors}
+            colors={colorOptions}
             color={selectedColor}
             onColorChange={setSelectedColor}
             priceRef={priceRef}

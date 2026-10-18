@@ -6,6 +6,8 @@ import {
   getCatalogColorSwatch,
   isFilterableCatalogColor,
   isFilterableCatalogSize,
+  catalogImagesForColor,
+  uniqueCatalogColors,
 } from "@/lib/catalog-colors";
 
 describe("catalogColorKey", () => {
@@ -34,7 +36,22 @@ describe("catalogColorKey", () => {
 
   it("aplica los alias conocidos", () => {
     expect(catalogColorKey("PALOROSA")).toBe("PALO ROSA");
-    expect(catalogColorKey("TURQUI")).toBe("TURQUESA");
+    expect(catalogColorKey("TURQUI")).toBe("TURQUI");
+    expect(catalogColorKey("Turquí")).not.toBe(catalogColorKey("Turquesa"));
+  });
+});
+
+describe("selección de fotos por color", () => {
+  it("reúne vistas equivalentes sin mezclar turquí con turquesa", () => {
+    const photos = [{ color: "TURQUI" }, { color: "Turquesa" }, { color: "CELESTE 4.1" }, { color: "CELESTE (2)" }];
+    expect(catalogImagesForColor(photos, "Turquí")).toEqual([photos[0]]);
+    expect(catalogImagesForColor(photos, "Celeste")).toEqual(photos.slice(2));
+    expect(uniqueCatalogColors(["V. PINO", "PINO", "Verde Pino", "CELESTE 4.1", "Celeste"])).toEqual(["Verde Pino", "Celeste"]);
+  });
+
+  it("no inventa una foto de otro color cuando falta la elegida", () => {
+    expect(catalogImagesForColor([{ color: "Rojo" }], "Blanco")).toEqual([]);
+    expect(catalogImagesForColor([{ color: "Rojo" }, { color: null }], "Blanco")).toEqual([{ color: null }]);
   });
 });
 
@@ -47,7 +64,7 @@ describe("formatCatalogColor", () => {
 
 describe("getCatalogColorSwatch", () => {
   it("devuelve el tono visual y un texto legible para el color elegido", () => {
-    expect(getCatalogColorSwatch("Cacao")).toEqual({ background: "#70452d", foreground: "#ffffff" });
+    expect(getCatalogColorSwatch("Cacao")).toEqual({ background: "#baa17f", foreground: "#101417" });
     expect(getCatalogColorSwatch("Celeste")).toEqual({ background: "#8cc9e8", foreground: "#101417" });
   });
 

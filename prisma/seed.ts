@@ -15,6 +15,8 @@ import { join, relative, sep } from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/lib/auth/passwords";
+import photoColors from "../src/lib/catalog-photo-colors.json";
+import { formatCatalogColor } from "../src/lib/catalog-colors";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL no está definida. Configura .env antes de ejecutar db:seed.");
@@ -53,11 +55,13 @@ function asPublicUrl(filePath: string) {
   return `/${relative(join(process.cwd(), "public"), filePath).split(sep).map(encodeURIComponent).join("/")}`;
 }
 
-function filenameColor(filename: string) {
+function filenameColor(filename: string, directory: string) {
+  const audited = (photoColors as Record<string, string>)[asPublicUrl(join(directory, filename))];
+  if (audited) return audited;
   const name = filename.replace(/\.[^.]+$/, "").replace(/\s*\(\d+\)$/, "").trim();
   return /^(whatsapp image|photo_|[0-9]+$|[0-9a-f]{8}-)/i.test(name)
     ? null
-    : name.replace(/\./g, " ").replace(/\s+/g, " ");
+    : formatCatalogColor(name.replace(/\./g, " ").replace(/\s+/g, " "));
 }
 
 function referenceName(folder: string) {
@@ -163,7 +167,7 @@ async function importRealCatalog() {
       const productDir = join(collectionDir, folder.name);
       const files = readdirSync(productDir, { withFileTypes: true }).filter((item) => item.isFile() && /\.webp$/i.test(item.name)).map((item) => item.name).sort((a, b) => a.localeCompare(b, "es"));
       if (!files.length) continue;
-      const colors = [...new Set(files.map(filenameColor).filter((value): value is string => Boolean(value)))];
+      const colors = [...new Set(files.map((file) => filenameColor(file, productDir)).filter((value): value is string => Boolean(value)))];
       const name = referenceName(folder.name);
       const [priceWholesale, priceRef] = catalogPricing[folder.name] ?? [null, null];
       const sku = `${collection.prefix}-${folder.name.replace(/[^a-z0-9]+/gi, "-").replace(/(^-|-$)/g, "").toUpperCase()}`;
@@ -171,7 +175,7 @@ async function importRealCatalog() {
       const tags = /NUEVO LANZAMIENTO/i.test(folder.name) ? ["NUEVO" as const] : [];
       const description = "Elaborado en popelina stretch.";
       const images = files.map((file, order) => {
-        const color = filenameColor(file);
+        const color = filenameColor(file, productDir);
         return { url: asPublicUrl(join(productDir, file)), alt: `${name}${color ? ` · color ${color}` : ` · vista ${order + 1}`}`, color, order };
       });
       await prisma.product.upsert({
