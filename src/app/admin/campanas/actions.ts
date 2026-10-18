@@ -12,11 +12,12 @@ import {
   campaignStartFromDateKey,
 } from "@/lib/validation/campaign";
 import { uniqueSlug } from "@/lib/slug";
+import { adminSaveError, adminValidationError, AdminSelectionChangedError } from "@/lib/admin-form-errors";
 
 // Clave arbitraria pero fija para pg_advisory_xact_lock (activación de campañas).
 const CAMPAIGN_ACTIVATION_LOCK_KEY = 4_172_001;
 
-export type CampaignFormState = { status: "idle" } | { status: "error"; message: string };
+export type CampaignFormState = { status: "idle" } | { status: "error"; message: string; fieldErrors?: Record<string, string> };
 
 export async function saveCampaignAction(
   _prevState: CampaignFormState,
@@ -37,11 +38,17 @@ export async function saveCampaignAction(
   });
 
   if (!parsed.success) {
-    const first = parsed.error.issues[0];
-    return { status: "error", message: first?.message ?? "Revisa los datos del formulario." };
+    return adminValidationError(parsed.error.issues);
   }
 
   const data = parsed.data;
+  const validateSelection = async (tx: Prisma.TransactionClient) => {
+    const [categories, products] = await Promise.all([
+      tx.category.count({ where: { id: { in: data.priorityCategoryIds } } }),
+      tx.product.count({ where: { id: { in: data.productIds } } }),
+    ]);
+    if (categories !== data.priorityCategoryIds.length || products !== data.productIds.length) throw new AdminSelectionChangedError();
+  };
 
   // Solo puede haber una campaña activa a la vez. Se aplica dentro de la
   // misma transacción que guarda la campaña, y un bloqueo transaccional de
@@ -67,9 +74,11 @@ export async function saveCampaignAction(
     isActive: data.isActive,
   };
 
+  try {
   if (id) {
     await prisma.$transaction(async (tx) => {
       await lockActivation(tx);
+      await validateSelection(tx);
       await tx.campaign.update({
         where: { id },
         data: {
@@ -100,6 +109,7 @@ export async function saveCampaignAction(
 
   await prisma.$transaction(async (tx) => {
     await lockActivation(tx);
+    await validateSelection(tx);
     const campaign = await tx.campaign.create({
       data: {
         ...commonData,
@@ -113,4 +123,9 @@ export async function saveCampaignAction(
     await applyActivation(tx, campaign.id);
   });
   redirect("/admin/campanas?creado=1");
+  } catch (error) {
+    const message = adminSaveError(error);
+    if (message) return { status: "error", message };
+    throw error;
+  }
 }

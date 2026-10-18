@@ -6,6 +6,7 @@ import { saveCampaignAction, type CampaignFormState } from "@/app/admin/campanas
 import {
   AdminButton,
   AdminCheckbox,
+  AdminForm,
   AdminTextAreaField,
   AdminTextField,
 } from "@/components/admin/ui/controls";
@@ -47,9 +48,10 @@ export function CampaignForm({
   const [state, formAction, pending] = useActionState(saveCampaignAction, initialState);
   const [name, setName] = useState(initial?.name ?? "");
   const [description, setDescription] = useState(initial?.description ?? defaults?.description ?? "");
+  const errors = state.status === "error" ? state.fieldErrors : undefined;
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <AdminForm feedback={state} action={formAction} className="flex flex-col gap-6">
       {initial && <input type="hidden" name="id" value={initial.id} />}
 
       <AdminCard>
@@ -57,6 +59,8 @@ export function CampaignForm({
           <AdminTextField
             label="Nombre"
             name="name"
+            maxLength={120}
+            error={errors?.name}
             defaultValue={initial?.name}
             onChange={(event) => setName(event.target.value)}
             placeholder="Ej.: Día del Padre"
@@ -66,6 +70,8 @@ export function CampaignForm({
           <AdminTextAreaField
             label="Descripción"
             name="description"
+            maxLength={1000}
+            error={errors?.description}
             defaultValue={initial?.description ?? defaults?.description ?? ""}
             onChange={(event) => setDescription(event.target.value)}
             hint={`Se muestra en el aviso superior del sitio. Mejor corta (hasta ${CAMPAIGN_BANNER_TEXT_HINT} caracteres).`}
@@ -84,8 +90,8 @@ export function CampaignForm({
           <p className="sm:col-span-2 text-xs leading-5 text-slate-500">
             El diseño de la campaña es fijo y sobrio para que siempre se vea bien. Aquí solo se editan el texto, las fechas y las referencias.
           </p>
-          <AdminTextField label="Fecha de inicio" name="startDate" type="date" defaultValue={initial ? toDateInputValue(initial.startDate) : defaults?.startDate} />
-          <AdminTextField label="Fecha de fin" name="endDate" type="date" defaultValue={initial ? toDateInputValue(initial.endDate) : defaults?.endDate} />
+          <AdminTextField label="Fecha de inicio" name="startDate" type="date" error={errors?.startDate} defaultValue={initial ? toDateInputValue(initial.startDate) : defaults?.startDate} />
+          <AdminTextField label="Fecha de fin" name="endDate" type="date" error={errors?.endDate} defaultValue={initial ? toDateInputValue(initial.endDate) : defaults?.endDate} />
           <AdminCheckbox
             label="Campaña activa (reemplaza cualquier otra campaña activa)"
             name="isActive"
@@ -129,17 +135,11 @@ export function CampaignForm({
         </AdminCardBody>
       </AdminCard>
 
-      {state.status === "error" && (
-        <p role="alert" className="text-sm font-medium text-red-600">
-          {state.message}
-        </p>
-      )}
-
       <div className="flex justify-end">
         <AdminButton type="submit" disabled={pending}>
           {pending ? "Guardando…" : "Guardar campaña"}
         </AdminButton>
       </div>
-    </form>
+    </AdminForm>
   );
 }

@@ -51,7 +51,7 @@ export default async function EditarProductoPage({ params, searchParams }: PageP
             campaignId: product.campaignId,
             priceRef: product.priceRef ? Number(product.priceRef) : null,
             priceWholesale: product.priceWholesale ? Number(product.priceWholesale) : null,
-            images: product.images.map((i) => ({ url: i.url, alt: i.alt, color: i.color, order: i.order })),
+            images: product.images.map((i) => ({ url: i.url, alt: i.alt, color: i.color, order: i.order, publicId: i.publicId })),
           }}
         />
       </div>

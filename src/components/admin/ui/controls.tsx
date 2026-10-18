@@ -2,12 +2,13 @@
 
 import type {
   ButtonHTMLAttributes,
+  FormHTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
@@ -20,6 +21,28 @@ import { cx } from "@/components/admin/ui/cx";
  * de diseño de la tienda, para no volver a pisarnos los mismos archivos.
  */
 export { cx };
+
+type FormFeedback = { status: string; message?: string; fieldErrors?: Record<string, string> };
+
+/** Los errores de validación no deben borrar el trabajo de un formulario. */
+export function AdminForm({ feedback, children, ...props }: FormHTMLAttributes<HTMLFormElement> & { feedback: FormFeedback }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (feedback.status !== "error") return;
+    const form = formRef.current;
+    (form?.querySelector<HTMLElement>('[aria-invalid="true"]') ?? form?.querySelector<HTMLElement>('[role="alert"]'))?.focus();
+  }, [feedback]);
+  return (
+    <form {...props} ref={formRef} onReset={(event) => { props.onReset?.(event); event.preventDefault(); }}>
+      {feedback.status === "error" && (
+        <p role="alert" tabIndex={-1} className="rounded-md border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600">
+          {feedback.message}
+        </p>
+      )}
+      {children}
+    </form>
+  );
+}
 
 const buttonVariants = {
   primary: "admin-primary bg-slate-900 text-white hover:bg-slate-700 disabled:bg-slate-400",
@@ -96,7 +119,7 @@ function FieldShell({
   children: (ids: { inputId: string; describedBy: string | undefined }) => ReactNode;
 }) {
   const inputId = useId();
-  const hintId = hint ? `${inputId}-hint` : undefined;
+  const hintId = hint && !error ? `${inputId}-hint` : undefined;
   const errorId = error ? `${inputId}-error` : undefined;
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
 
@@ -177,6 +200,8 @@ function PasswordInput({
       />
       <button
         type="button"
+        disabled={inputProps.disabled}
+        aria-controls={inputId}
         onClick={() => setVisible((value) => !value)}
         aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
         aria-pressed={visible}

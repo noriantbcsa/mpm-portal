@@ -7,8 +7,9 @@ import { requireRole } from "@/lib/auth/dal";
 import { categoryFormSchema } from "@/lib/validation/category";
 import { uniqueSlug } from "@/lib/slug";
 import { getCategorySubtreeIds } from "@/lib/categories";
+import { adminSaveError, adminValidationError } from "@/lib/admin-form-errors";
 
-export type CategoryFormState = { status: "idle" } | { status: "error"; message: string };
+export type CategoryFormState = { status: "idle" } | { status: "error"; message: string; fieldErrors?: Record<string, string> };
 
 export async function saveCategoryAction(
   _prevState: CategoryFormState,
@@ -24,19 +25,22 @@ export async function saveCategoryAction(
     description: String(formData.get("description") ?? "").trim() || null,
     imageUrl: String(formData.get("imageUrl") ?? "").trim() || null,
     parentId: parentIdRaw || null,
-    order: Number(formData.get("order") ?? 0) || 0,
+    order: Number(formData.get("order") ?? 0),
     isVisible: formData.get("isVisible") === "on",
   });
 
   if (!parsed.success) {
-    const first = parsed.error.issues[0];
-    return { status: "error", message: first?.message ?? "Revisa los datos del formulario." };
+    return adminValidationError(parsed.error.issues);
   }
 
   const data = parsed.data;
+  try {
+  const error = await prisma.$transaction(async (tx): Promise<CategoryFormState | null> => {
+  // Serializa cambios de jerarquía: A→B y B→A simultáneos no pueden crear un ciclo.
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(${4_172_002})`;
 
   if (id && data.parentId) {
-    const forbidden = await getCategorySubtreeIds(id);
+    const forbidden = await getCategorySubtreeIds(id, tx);
     if (forbidden.includes(data.parentId)) {
       return { status: "error", message: "Una categoría no puede ser subcategoría de sí misma." };
     }
@@ -46,7 +50,7 @@ export async function saveCategoryAction(
   // ya estaba más profunda (de antes de la regla) debe poder seguir
   // renombrándose u ocultándose sin tener que desprenderla primero.
   const currentParentId = id
-    ? ((await prisma.category.findUnique({ where: { id }, select: { parentId: true } }))?.parentId ?? null)
+    ? ((await tx.category.findUnique({ where: { id }, select: { parentId: true } }))?.parentId ?? null)
     : null;
   const parentChanged = !id || currentParentId !== (data.parentId ?? null);
 
@@ -55,7 +59,7 @@ export async function saveCategoryAction(
     // pública (PUBLIC_CATEGORY_WHERE) mira únicamente al padre
     // directo, así que una tercera capa bajo una categoría oculta
     // seguiría siendo pública.
-    const parent = await prisma.category.findUnique({
+    const parent = await tx.category.findUnique({
       where: { id: data.parentId },
       select: { parentId: true },
     });
@@ -63,13 +67,13 @@ export async function saveCategoryAction(
     if (parent.parentId !== null) {
       return { status: "error", message: "Las categorías admiten solo dos niveles: elige una categoría principal como padre." };
     }
-    if (id && (await prisma.category.count({ where: { parentId: id } })) > 0) {
+    if (id && (await tx.category.count({ where: { parentId: id } })) > 0) {
       return { status: "error", message: "Esta categoría ya tiene subcategorías, así que no puede ser subcategoría de otra." };
     }
   }
 
   if (id) {
-    await prisma.category.update({
+    await tx.category.update({
       where: { id },
       data: {
         name: data.name,
@@ -80,15 +84,15 @@ export async function saveCategoryAction(
         isVisible: data.isVisible,
       },
     });
-    redirect("/admin/categorias?guardado=1");
+    return null;
   }
 
   const slug = await uniqueSlug(data.name, async (candidate) => {
-    const existing = await prisma.category.findUnique({ where: { slug: candidate } });
+    const existing = await tx.category.findUnique({ where: { slug: candidate } });
     return Boolean(existing);
   });
 
-  await prisma.category.create({
+  await tx.category.create({
     data: {
       name: data.name,
       slug,
@@ -99,5 +103,13 @@ export async function saveCategoryAction(
       isVisible: data.isVisible,
     },
   });
-  redirect("/admin/categorias?creado=1");
+  return null;
+  });
+  if (error) return error;
+  } catch (error) {
+    const message = adminSaveError(error);
+    if (message) return { status: "error", message };
+    throw error;
+  }
+  redirect(`/admin/categorias?${id ? "guardado" : "creado"}=1`);
 }

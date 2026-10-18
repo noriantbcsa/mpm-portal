@@ -17,6 +17,18 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
   const options = buildCategoryOptions(categories);
   const productCounts = await prisma.product.groupBy({ by: ["categoryId"], _count: { _all: true } });
   const countByCategory = new Map(productCounts.map((row) => [row.categoryId, row._count._all]));
+  const byId = new Map(categories.map((category) => [category.id, category]));
+  const totalByCategory = new Map<string, number>();
+  for (const category of categories) {
+    const count = countByCategory.get(category.id) ?? 0;
+    const visited = new Set<string>();
+    let current: typeof category | undefined = category;
+    while (current && !visited.has(current.id)) {
+      visited.add(current.id);
+      totalByCategory.set(current.id, (totalByCategory.get(current.id) ?? 0) + count);
+      current = current.parentId ? byId.get(current.parentId) : undefined;
+    }
+  }
 
   return (
     <div>
@@ -35,12 +47,26 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
       )}
 
       <div className="mt-6">
+        <div className="grid gap-3 sm:hidden">
+          {options.map((option) => {
+            const category = byId.get(option.id)!;
+            const visible = category.isVisible && (!category.parentId || byId.get(category.parentId)?.isVisible);
+            return (
+              <article key={category.id} className="min-w-0 rounded-lg border border-slate-200 bg-white p-4">
+                <h2 className="break-words text-sm font-semibold text-slate-900">{option.label}</h2>
+                <p className="mt-1 text-xs text-slate-500">{totalByCategory.get(category.id) ?? 0} prendas, incluidas las subcategorías</p>
+                <div className="mt-2"><AdminBadge tone={visible ? "green" : "neutral"}>{visible ? "Visible" : category.isVisible ? "Oculta por categoría principal" : "Oculta"}</AdminBadge></div>
+                <a href={`/admin/categorias/${category.id}/editar`} className="mt-2 inline-flex min-h-10 items-center text-sm font-medium text-blue-700 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">Editar categoría</a>
+              </article>
+            );
+          })}
+        </div>
+        <div className="hidden sm:block">
         <AdminTable>
           <thead>
             <tr>
               <AdminTh>Nombre</AdminTh>
-              <AdminTh>Slug</AdminTh>
-              <AdminTh>Productos</AdminTh>
+              <AdminTh>Productos (incluye subcategorías)</AdminTh>
               <AdminTh>Estado</AdminTh>
               <AdminTh>
                 <span className="sr-only">Acciones</span>
@@ -49,7 +75,8 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
           </thead>
           <tbody>
             {options.map((option) => {
-              const category = categories.find((c) => c.id === option.id)!;
+              const category = byId.get(option.id)!;
+              const visible = category.isVisible && (!category.parentId || byId.get(category.parentId)?.isVisible);
               return (
                 <tr key={category.id}>
                   <AdminTd className="font-medium text-slate-900">
@@ -57,11 +84,10 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
                       {option.label}
                     </a>
                   </AdminTd>
-                  <AdminTd className="text-slate-500">{category.slug}</AdminTd>
-                  <AdminTd>{countByCategory.get(category.id) ?? 0}</AdminTd>
+                  <AdminTd>{totalByCategory.get(category.id) ?? 0}</AdminTd>
                   <AdminTd>
-                    <AdminBadge tone={category.isVisible ? "green" : "neutral"}>
-                      {category.isVisible ? "Visible" : "Oculta"}
+                    <AdminBadge tone={visible ? "green" : "neutral"}>
+                      {visible ? "Visible" : category.isVisible ? "Oculta por categoría principal" : "Oculta"}
                     </AdminBadge>
                   </AdminTd>
                   <AdminTd>
@@ -77,6 +103,7 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
             })}
           </tbody>
         </AdminTable>
+        </div>
       </div>
     </div>
   );

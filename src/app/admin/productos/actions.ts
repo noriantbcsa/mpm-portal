@@ -8,6 +8,8 @@ import { productFormSchema, PRODUCT_TAG_VALUES } from "@/lib/validation/product"
 import { imageUrlSchema } from "@/lib/validation/url";
 import { uniqueSlug } from "@/lib/slug";
 import { decodeCsvBytes, parseCopPrice, parseProductsCsv, splitMultiValue } from "@/lib/csv";
+import { uniqueCatalogColors } from "@/lib/catalog-colors";
+import { adminSaveError, adminValidationError } from "@/lib/admin-form-errors";
 
 export type ProductFormState =
   | { status: "idle" }
@@ -28,9 +30,19 @@ export async function saveProductAction(
 
   const id = String(formData.get("id") ?? "").trim() || null;
 
-  let images: { url: string; alt: string; order: number }[] = [];
+  let images: unknown = [];
   try {
     images = JSON.parse(String(formData.get("images") ?? "[]"));
+    if (Array.isArray(images)) images = images.map((image: unknown, index: number) => {
+      if (!image || typeof image !== "object") return image;
+      const row = image as Record<string, unknown>;
+      return {
+        ...row,
+        order: index,
+        alt: typeof row.alt === "string" && row.alt.trim() ? row.alt :
+          `${String(formData.get("name") ?? "Prenda").trim()}${typeof row.color === "string" && row.color.trim() ? ` · color ${row.color.trim()}` : ` · foto ${index + 1}`}`.slice(0, 160),
+      };
+    });
   } catch {
     return { status: "error", message: "No se pudo leer la lista de imágenes." };
   }
@@ -61,13 +73,20 @@ export async function saveProductAction(
   });
 
   if (!parsed.success) {
-    const first = parsed.error.issues[0];
-    return { status: "error", message: first?.message ?? "Revisa los datos del formulario." };
+    return adminValidationError(parsed.error.issues);
   }
 
   const data = parsed.data;
+  data.sizes = [...new Set(data.sizes)];
+  data.colors = uniqueCatalogColors([...data.colors, ...data.images.flatMap((image) => image.color ? [image.color] : [])]);
 
   try {
+    const [category, campaign] = await Promise.all([
+      prisma.category.findUnique({ where: { id: data.categoryId }, select: { id: true } }),
+      data.campaignId ? prisma.campaign.findUnique({ where: { id: data.campaignId }, select: { id: true } }) : null,
+    ]);
+    if (!category) return { status: "error", message: "La categoría seleccionada ya no existe. Elige otra.", fieldErrors: { categoryId: "Elige una categoría vigente." } };
+    if (data.campaignId && !campaign) return { status: "error", message: "La campaña seleccionada ya no existe. Elige otra o deja Ninguna.", fieldErrors: { campaignId: "Elige una campaña vigente." } };
     if (id) {
       await prisma.product.update({
         where: { id },
@@ -129,6 +148,8 @@ export async function saveProductAction(
       }
       return { status: "error", message: "Ya existe un producto con esa referencia (SKU)." };
     }
+    const message = adminSaveError(error);
+    if (message) return { status: "error", message };
     throw error;
   }
 }
@@ -187,9 +208,14 @@ export async function bulkImportProductsAction(
     const categoryKey = data.categoria.trim().toLowerCase();
     let category = categoryByName.get(categoryKey);
 
-    if (!category && data.subcategoria) {
-      // Permite referenciar directamente la subcategoría por nombre.
-      category = categoryByName.get(data.subcategoria.trim().toLowerCase());
+    if (data.subcategoria && category) {
+      const parent = category;
+      category = categories.find((candidate) => candidate.parentId === parent.id && candidate.name.trim().toLowerCase() === data.subcategoria.trim().toLowerCase());
+      if (!category) {
+        rowErrors.push(`Fila ${row}: no existe la subcategoría "${data.subcategoria}" dentro de "${data.categoria}".`);
+        skipped += 1;
+        continue;
+      }
     }
 
     if (!category) {
@@ -234,7 +260,7 @@ export async function bulkImportProductsAction(
     }
 
     const priceRef = parseCopPrice(data.precio);
-    if (priceRef === undefined) {
+    if (priceRef === undefined || (priceRef !== null && (priceRef <= 0 || priceRef > 9_999_999_999.99))) {
       rowErrors.push(`Fila ${row}: precio "${data.precio}" no válido (ejemplo: 39900 o 39.900).`);
       skipped += 1;
       continue;
@@ -281,7 +307,7 @@ export async function bulkImportProductsAction(
             categoryId: category.id,
             ...(audienceValue ? { audience: audienceValue } : {}),
             ...(data.tallas ? { sizes: splitMultiValue(data.tallas) } : {}),
-            ...(data.colores ? { colors: splitMultiValue(data.colores) } : {}),
+            ...(data.colores ? { colors: uniqueCatalogColors(splitMultiValue(data.colores)) } : {}),
             ...(data.material ? { material: data.material } : {}),
             ...(statusValue ? { status: statusValue } : {}),
             ...(data.etiquetas ? { tags } : {}),
@@ -302,7 +328,7 @@ export async function bulkImportProductsAction(
             categoryId: category.id,
             audience: audienceValue!,
             sizes: splitMultiValue(data.tallas),
-            colors: splitMultiValue(data.colores),
+            colors: uniqueCatalogColors(splitMultiValue(data.colores)),
             material: data.material || null,
             status: statusValue ?? "DISPONIBLE",
             tags,

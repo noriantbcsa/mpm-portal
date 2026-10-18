@@ -67,18 +67,21 @@ export function buildCategoryOptions(
 }
 
 /** IDs de la categoría y todas sus subcategorías (para filtrar productos). */
-export async function getCategorySubtreeIds(categoryId: string): Promise<string[]> {
-  const all = await prisma.category.findMany({ select: { id: true, parentId: true } });
+export async function getCategorySubtreeIds(categoryId: string, client: Pick<typeof prisma, "category"> = prisma): Promise<string[]> {
+  const all = await client.category.findMany({ select: { id: true, parentId: true } });
   const byParent = new Map<string | null, string[]>();
   for (const c of all) {
     byParent.set(c.parentId, [...(byParent.get(c.parentId) ?? []), c.id]);
   }
   const result: string[] = [categoryId];
+  const visited = new Set(result);
   const queue = [categoryId];
   while (queue.length) {
     const current = queue.shift()!;
     const children = byParent.get(current) ?? [];
     for (const child of children) {
+      if (visited.has(child)) continue;
+      visited.add(child);
       result.push(child);
       queue.push(child);
     }

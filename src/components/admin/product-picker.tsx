@@ -81,7 +81,7 @@ export function ProductPicker({
           return (
             <label
               key={option.id}
-              className="flex items-center gap-2 text-sm text-slate-700"
+              className={`${visibleIds.has(option.id) ? "flex" : "hidden"} items-center gap-2 text-sm text-slate-700`}
               hidden={!visibleIds.has(option.id)}
             >
               <input

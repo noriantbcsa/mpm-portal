@@ -5,16 +5,15 @@ const countMock = vi.fn();
 const createMock = vi.fn();
 const updateMock = vi.fn();
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: {
-    category: {
+vi.mock("@/lib/prisma", () => {
+  const category = {
       findUnique: (...a: unknown[]) => findUniqueMock(...a),
       count: (...a: unknown[]) => countMock(...a),
       create: (...a: unknown[]) => createMock(...a),
       update: (...a: unknown[]) => updateMock(...a),
-    },
-  },
-}));
+    };
+  return { prisma: { category, $transaction: async (callback: (client: unknown) => unknown) => callback({ category, $executeRaw: async () => 1 }) } };
+});
 vi.mock("@/lib/auth/dal", () => ({ requireRole: async () => ({ id: "admin", role: "ADMIN" }) }));
 vi.mock("@/lib/categories", () => ({ getCategorySubtreeIds: async (id: string) => [id] }));
 vi.mock("@/lib/slug", () => ({ uniqueSlug: async (name: string) => name.toLowerCase() }));

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { imageUrlSchema } from "@/lib/validation/url";
-import { uniqueCatalogColors } from "@/lib/catalog-colors";
+import { formatCatalogColor, uniqueCatalogColors } from "@/lib/catalog-colors";
 
 export const AUDIENCE_VALUES = ["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const;
 export const PRODUCT_STATUS_VALUES = [
@@ -29,7 +29,7 @@ export const skuSchema = z
 export const productImageInputSchema = z.object({
   url: imageUrlSchema,
   alt: z.string().trim().min(1, { error: "Describe la imagen (texto alternativo)." }).max(160),
-  color: z.string().trim().max(60).optional().nullable(),
+  color: z.string().trim().max(60).optional().nullable().transform((value) => value ? formatCatalogColor(value) : null),
   order: z.number().int().min(0).default(0),
   publicId: z.string().trim().optional().nullable(),
 });

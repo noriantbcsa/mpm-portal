@@ -60,6 +60,19 @@ beforeEach(() => {
 });
 
 describe("bulkImportProductsAction", () => {
+  it("respeta la subcategoría indicada y rechaza una hija de otra rama", async () => {
+    categoryFindMany.mockResolvedValue([
+      { id: "cat-damas", name: "Damas", parentId: null },
+      { id: "cat-camisas", name: "Camisas", parentId: "cat-damas" },
+      { id: "cat-otra", name: "Vestidos", parentId: "otra-raiz" },
+    ]);
+    const good = await run(csvFile("SUB-1,Camisa,Una camisa de prueba,Damas,Camisas,mujer,,,,,,,,")) as Success;
+    expect(good.created).toBe(1);
+    expect(productCreate.mock.calls[0][0].data.categoryId).toBe("cat-camisas");
+    const bad = await run(csvFile("SUB-2,Camisa,Una camisa de prueba,Damas,Vestidos,mujer,,,,,,,,")) as Success;
+    expect(bad.skipped).toBe(1);
+    expect(bad.errors[0]).toContain("subcategoría");
+  });
   it("solo ADMIN puede importar (se exige el rol antes de leer nada)", async () => {
     requireRoleMock.mockRejectedValue(new Error("FORBIDDEN"));
     await expect(run(csvFile("A-1,Camiseta,Una camiseta,Damas,,,,,,,,,,"))).rejects.toThrow("FORBIDDEN");

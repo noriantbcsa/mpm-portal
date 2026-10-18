@@ -5,6 +5,7 @@ import { cache } from "react";
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { PUBLIC_CATEGORY_WHERE } from "@/lib/constants";
 
 /** Corrige una errata histórica de la campaña sembrada sin alterar su slug ni datos. */
 export function displayCampaignName(name: string) {
@@ -41,7 +42,7 @@ export const getActiveCampaign = cache(async () => {
     // Si por error quedaran dos activas, se muestra siempre la más reciente
     // en vez de una distinta en cada consulta.
     orderBy: { updatedAt: "desc" },
-    include: { priorityCategories: true },
+    include: { priorityCategories: { where: PUBLIC_CATEGORY_WHERE } },
   });
 });
 
@@ -49,6 +50,6 @@ export const getActiveCampaign = cache(async () => {
 export const getLiveCampaignBySlug = cache(async (slug: string) => {
   return prisma.campaign.findFirst({
     where: { slug, ...liveCampaignWhere() },
-    include: { priorityCategories: { where: { isVisible: true } } },
+    include: { priorityCategories: { where: PUBLIC_CATEGORY_WHERE } },
   });
 });
