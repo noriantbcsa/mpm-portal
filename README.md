@@ -7,11 +7,14 @@ detalle de módulos y [docs/DATA_MODEL.md](docs/DATA_MODEL.md) para el modelo
 de datos.
 
 El panel incluye una sección de **Diseño festivo** (`/admin/festividades`):
-puede aplicar automáticamente acentos visuales discretos según el calendario
-colombiano, forzar una celebración de forma manual o mantener siempre el
-diseño normal. Incluye Carnaval de Negros y Blancos, Carnaval de Barranquilla,
-San Juan/San Pedro/San Pablo, fiestas patrias, Amor y Amistad, Velitas y
-Navidad. Las fechas se interpretan en la zona horaria de Colombia.
+puede aplicar automáticamente, según el calendario colombiano, el banner
+ilustrado y el fondo de pinturas de cada una de las 15 celebraciones (Negros y
+Blancos, Carnaval de Barranquilla, San Pedro, fiestas patrias, Amor y Amistad,
+Velitas, Navidad…), forzar una de forma manual o apagarlo. Cuando no hay
+ninguna festividad activa (o está apagado) el sitio muestra el **banner del
+modo normal** (negro de marca con acento lima, `NormalModeBanner`), de modo que
+nunca queda sin banner. Las fechas se interpretan en la zona horaria de
+Colombia.
 
 > **Nota de contexto:** este proyecto se construyó con dos agentes de IA
 > trabajando en paralelo sobre el mismo repositorio: uno a cargo de la capa

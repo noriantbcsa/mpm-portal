@@ -84,9 +84,15 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             >
               <div className="max-w-xl lg:order-2 rounded-sm bg-[rgb(255_252_246/0.62)] p-4 backdrop-blur-[1.5px] sm:p-6 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink-soft">{slide.kicker}</p>
-                <h2 className="mt-3 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.045em] text-ink sm:text-5xl lg:text-6xl">
-                  {slide.title}
-                </h2>
+                {/* La portada necesita un único h1: lo lleva la primera diapositiva. */}
+                {(() => {
+                  const Heading = slideIndex === 0 ? "h1" : "h2";
+                  return (
+                    <Heading className="mt-3 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.045em] text-ink sm:text-5xl lg:text-6xl">
+                      {slide.title}
+                    </Heading>
+                  );
+                })()}
                 <p className="mt-4 max-w-md text-base leading-7 text-ink-soft">{slide.text}</p>
                 <Link
                   href={slide.ctaHref}

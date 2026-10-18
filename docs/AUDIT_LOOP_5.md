@@ -215,3 +215,14 @@ Sin festividad activa (p. ej. 6 oct–30 nov en modo automático, o diseño en "
 - **Productos (admin)**: filtro por estado.
 - **Base de datos local**: sin productos sin foto/tallas/colores, sin categorías vacías, precio mayorista nunca mayor al detal; 1 referencia sin precio (CMLRD); el ítem de carrito con `productId` nulo es el snapshot por diseño (`onDelete: SetNull`). Sin deriva de migraciones.
 - Pruebas: 327 pasan (3 nuevas).
+
+### Auditoría completa en dos bucles (17–18 de octubre de 2026)
+
+**Bucle 1.** Línea base: typecheck, lint, 353 pruebas, `next build` y `npm audit --omit=dev` (0 vulnerabilidades) en verde; CSP con nonce, HSTS, X-Frame-Options y `poweredByHeader` desactivado presentes; sin secretos versionados (solo `.env.example`); `render.yaml` y CI coherentes (deriva de migraciones incluida). Recorrido de 19 rutas públicas/de error en el build de producción local (404 reales, `%00` → 400, parámetros inválidos → 200 sin error) y flujo producto → carrito → formulario de solicitud (trampa anti-bot invisible y fuera de pantalla). Hallazgos y correcciones:
+1. **La portada no tenía `<h1>`** (la diapositiva usaba `h2`): ahora la primera diapositiva es el `h1` (`tests/hero-carousel.test.tsx`).
+2. README describía el diseño festivo como "acentos discretos" y no mencionaba el modo normal: reescrito.
+3. `DATA_MODEL.md` no decía que `Campaign.bannerImageUrl/colorPrimary/colorSecondary` están sin uso: documentado (retirarlas exige migración propia).
+
+**Bucle 2.** Re-verificación de las tres correcciones, de nuevo tests (354), build, `db:drift` (sin deriva), las 14 pantallas del admin con sesión (200) y sin sesión (307 a login), producción (`/healthz`, canonical, sitemap y robots con el dominio de Render), y desbordes a 375 px en inicio, catálogo, admin de productos y nueva campaña (ninguno). Sin hallazgos nuevos ⇒ no hace falta un tercer bucle.
+
+**Pendientes conocidos (no críticos):** `/carrito` se pinta en cliente (sin `h1` en el HTML inicial, solo "Cargando…"; está `noindex`); parches menores de dependencias sin aplicar (Dependabot: next 16.4.2, prisma 7.10.1); columnas de campaña sin uso. Hay trabajo del otro agente en el panel (formularios de campaña/categoría/producto) sin confirmar en el árbol; no se tocó.

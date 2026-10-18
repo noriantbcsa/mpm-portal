@@ -158,3 +158,11 @@ Prisma 7 requiere un archivo `prisma.config.ts` (ya no se admite
 `datasource.url` dentro de `schema.prisma`); ver
 [docs/DEPLOYMENT.md](DEPLOYMENT.md) para cómo correr `prisma migrate deploy`
 en producción.
+
+## Columnas sin uso (a propósito)
+
+`Campaign.bannerImageUrl`, `Campaign.colorPrimary` y `Campaign.colorSecondary`
+ya no se leen ni se escriben: las campañas usan un diseño fijo y sobrio
+(decisión del 8 de octubre de 2026) y la validación del formulario ya no las
+acepta. Se conservan en la base para no perder datos históricos; retirarlas
+requiere una migración propia.
