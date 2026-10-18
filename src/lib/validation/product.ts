@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { imageUrlSchema } from "@/lib/validation/url";
+import { uniqueCatalogColors } from "@/lib/catalog-colors";
 
 export const AUDIENCE_VALUES = ["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const;
 export const PRODUCT_STATUS_VALUES = [
@@ -44,20 +45,32 @@ export const productFormSchema = z.object({
   categoryId: z.string().min(1, { error: "Selecciona una categoría." }),
   audience: z.enum(AUDIENCE_VALUES),
   sizes: z.array(z.string().trim().min(1)).default([]),
-  colors: z.array(z.string().trim().min(1)).default([]),
+  colors: z.array(z.string().trim().min(1).max(60)).max(100).default([]).transform(uniqueCatalogColors),
   material: z.string().trim().max(160).optional().nullable(),
   status: z.enum(PRODUCT_STATUS_VALUES).default("DISPONIBLE"),
   tags: z.array(z.enum(PRODUCT_TAG_VALUES)).default([]),
   campaignId: z.string().optional().nullable(),
   priceRef: z
-    .union([z.number().nonnegative(), z.null()])
+    .union([z.number().positive({ error: "El precio al detal debe ser mayor a cero; déjalo vacío para cotizar." }).max(9_999_999_999.99), z.null()])
     .optional()
     .transform((v) => (v === undefined ? null : v)),
   priceWholesale: z
-    .union([z.number().nonnegative(), z.null()])
+    .union([z.number().positive({ error: "El precio mayorista debe ser mayor a cero; déjalo vacío si no aplica." }).max(9_999_999_999.99), z.null()])
     .optional()
     .transform((v) => (v === undefined ? null : v)),
-  images: z.array(productImageInputSchema).default([]),
+  images: z.array(productImageInputSchema).max(100).default([]),
+}).superRefine((product, ctx) => {
+  if (product.priceWholesale != null && product.priceRef == null) {
+    ctx.addIssue({ code: "custom", path: ["priceRef"], message: "Agrega el precio al detal antes del precio mayorista." });
+  }
+  if (product.priceWholesale != null && product.priceRef != null && product.priceWholesale > product.priceRef) {
+    ctx.addIssue({ code: "custom", path: ["priceWholesale"], message: "El precio mayorista no puede superar el precio al detal." });
+  }
+  const urls = new Set<string>();
+  product.images.forEach((image, index) => {
+    if (urls.has(image.url)) ctx.addIssue({ code: "custom", path: ["images", index, "url"], message: `La foto ${index + 1} está repetida. Conserva una sola copia.` });
+    urls.add(image.url);
+  });
 });
 
 export type ProductFormInput = z.infer<typeof productFormSchema>;

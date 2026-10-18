@@ -46,6 +46,9 @@ export const imageUrlSchema = z
   })
   .refine((value) => isSitePath(value) || isHttp(parseUrl(value)), {
     error: "La URL debe usar http o https.",
+  })
+  .refine((value) => isSitePath(value) || (parseUrl(value)?.protocol === "https:" && parseUrl(value)?.hostname === "res.cloudinary.com"), {
+    error: "Usa una foto de Cloudinary (https://res.cloudinary.com/…) o una ruta del sitio (/catalogo/…).",
   });
 
 const EMPTY = z.literal("");

@@ -7,7 +7,8 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
-import { useId } from "react";
+import { useId, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 import { cx } from "@/components/admin/ui/cx";
@@ -138,17 +139,52 @@ export function AdminTextField({
 }: SharedFieldProps & InputHTMLAttributes<HTMLInputElement>) {
   return (
     <FieldShell label={label} hint={hint} error={error} required={required} className={className}>
-      {({ inputId, describedBy }) => (
-        <input
-          id={inputId}
-          aria-describedby={describedBy}
-          aria-invalid={Boolean(error)}
-          required={required}
-          className={controlBase}
-          {...inputProps}
-        />
-      )}
+      {({ inputId, describedBy }) =>
+        inputProps.type === "password" ? (
+          <PasswordInput inputId={inputId} describedBy={describedBy} invalid={Boolean(error)} required={required} {...inputProps} />
+        ) : (
+          <input
+            id={inputId}
+            aria-describedby={describedBy}
+            aria-invalid={Boolean(error)}
+            required={required}
+            className={controlBase}
+            {...inputProps}
+          />
+        )
+      }
     </FieldShell>
+  );
+}
+
+/** Campo de contraseña con botón "ojo" para mostrar u ocultar lo escrito. */
+function PasswordInput({
+  inputId,
+  describedBy,
+  invalid,
+  ...inputProps
+}: { inputId: string; describedBy: string | undefined; invalid: boolean } & InputHTMLAttributes<HTMLInputElement>) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        id={inputId}
+        aria-describedby={describedBy}
+        aria-invalid={invalid}
+        className={cx(controlBase, "pr-11")}
+        {...inputProps}
+        type={visible ? "text" : "password"}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((value) => !value)}
+        aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
+        aria-pressed={visible}
+        className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-md text-slate-500 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
+      >
+        {visible ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
+      </button>
+    </div>
   );
 }
 

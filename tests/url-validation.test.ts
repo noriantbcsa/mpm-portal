@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { campaignFormSchema } from "@/lib/validation/campaign";
 import { categoryFormSchema } from "@/lib/validation/category";
 import { productFormSchema } from "@/lib/validation/product";
 import { siteSettingsFormSchema } from "@/lib/validation/site-settings";
@@ -79,13 +78,6 @@ describe("esquemas de formularios con imágenes ya sembradas (rutas relativas)",
     expect(categoryFormSchema.safeParse({ ...base, imageUrl: "" }).success).toBe(true);
     expect(() => categoryFormSchema.safeParse({ ...base, imageUrl: "abc" })).not.toThrow();
     expect(categoryFormSchema.safeParse({ ...base, imageUrl: "abc" }).success).toBe(false);
-  });
-
-  it("campaña: banner relativo válido, inválido sin lanzar", () => {
-    const base = { name: "Carnaval", isActive: false };
-    expect(campaignFormSchema.safeParse({ ...base, bannerImageUrl: "/seasonal/x.webp" }).success).toBe(true);
-    expect(() => campaignFormSchema.safeParse({ ...base, bannerImageUrl: "abc" })).not.toThrow();
-    expect(campaignFormSchema.safeParse({ ...base, bannerImageUrl: "abc" }).success).toBe(false);
   });
 
   it("producto: editar uno sembrado (todas sus fotos son rutas relativas) es válido", () => {

@@ -31,7 +31,8 @@ export function CreateUserForm() {
       <AdminTextField
         label="Contraseña temporal"
         name="password"
-        type="text"
+        type="password"
+        autoComplete="new-password"
         required
         hint="Compártela por un canal seguro; el usuario podrá cambiarla luego."
       />
@@ -96,7 +97,8 @@ export function EditUserForm({
         <AdminTextField
           label="Nueva contraseña (opcional)"
           name="password"
-          type="text"
+          type="password"
+          autoComplete="new-password"
           hint="Déjalo en blanco para no cambiarla."
         />
         {state.status === "error" && (

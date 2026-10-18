@@ -25,10 +25,12 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const q = toSingle(sp.q);
   const categoria = toSingle(sp.categoria);
+  const estadoRaw = toSingle(sp.estado);
+  const estado = estadoRaw && estadoRaw in PRODUCT_STATUS_LABELS ? (estadoRaw as keyof typeof PRODUCT_STATUS_LABELS) : undefined;
   const pagina = toPositiveInt(sp.pagina, 1);
 
   const [{ items, page, pageCount, total }, categories] = await Promise.all([
-    listProducts({ q, categorySlug: categoria, includeHidden: true, page: pagina, pageSize: 20 }),
+    listProducts({ q, categorySlug: categoria, status: estado ? [estado] : undefined, includeHidden: true, page: pagina, pageSize: 20 }),
     getAllCategoriesFlat({ includeHidden: true }),
   ]);
 
@@ -36,6 +38,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
     const search = new URLSearchParams();
     if (q) search.set("q", q);
     if (categoria) search.set("categoria", categoria);
+    if (estado) search.set("estado", estado);
     if (nextPage > 1) search.set("pagina", String(nextPage));
     const qs = search.toString();
     return qs ? `/admin/productos?${qs}` : "/admin/productos";
@@ -76,6 +79,19 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
           {categories.map((c) => (
             <option key={c.id} value={c.slug}>
               {c.name}
+            </option>
+          ))}
+        </select>
+        <select
+          name="estado"
+          aria-label="Filtrar por estado"
+          defaultValue={estado ?? ""}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        >
+          <option value="">Todos los estados</option>
+          {Object.entries(PRODUCT_STATUS_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
             </option>
           ))}
         </select>

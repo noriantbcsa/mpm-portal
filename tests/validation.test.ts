@@ -160,13 +160,6 @@ describe("campaign dates (Colombia calendar days)", () => {
     expect(toColombiaDateKey(start)).toBe("2026-10-31");
     expect(toColombiaDateKey(end)).toBe("2026-10-31");
   });
-
-  it("rejects non-hex campaign colors", async () => {
-    const { campaignFormSchema } = await import("@/lib/validation/campaign");
-    const base = { name: "Campaña", isActive: false };
-    expect(campaignFormSchema.safeParse({ ...base, colorPrimary: "#E4572E" }).success).toBe(true);
-    expect(campaignFormSchema.safeParse({ ...base, colorPrimary: "red; background:url(x)" }).success).toBe(false);
-  });
 });
 
 describe("catalog search params", () => {

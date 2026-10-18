@@ -11,6 +11,7 @@ import {
 } from "@/components/admin/ui/controls";
 import { AdminCard, AdminCardBody } from "@/components/admin/ui/display";
 import { CAMPAIGN_BANNER_TEXT_HINT } from "@/lib/campaign-defaults";
+import { ProductPicker } from "@/components/admin/product-picker";
 import { toColombiaDateKey } from "@/lib/validation/campaign";
 
 const initialState: CampaignFormState = { status: "idle" };
@@ -24,8 +25,6 @@ export type CampaignFormInitial = {
   id: string;
   name: string;
   description: string | null;
-  colorPrimary: string | null;
-  colorSecondary: string | null;
   startDate: Date | null;
   endDate: Date | null;
   isActive: boolean;
@@ -102,21 +101,11 @@ export function CampaignForm({
           <p className="mt-1 text-xs text-slate-500">
             Elige las referencias específicas que aparecerán en la página pública. Una referencia puede pertenecer a una sola campaña a la vez.
           </p>
-          <div className="mt-3 grid max-h-80 gap-2 overflow-y-auto rounded-md border border-slate-200 p-3 sm:grid-cols-2">
-            {productOptions.map((product) => {
-              const selected = initial?.productIds.includes(product.id) ?? false;
-              const assignedElsewhere = product.campaign && product.campaign.id !== initial?.id;
-              return (
-                <AdminCheckbox
-                  key={product.id}
-                  name="productIds"
-                  value={product.id}
-                  label={`${product.sku} · ${product.name}${assignedElsewhere ? ` (${product.campaign!.name})` : ""}`}
-                  defaultChecked={selected}
-                />
-              );
-            })}
-          </div>
+          <ProductPicker
+            options={productOptions}
+            selectedIds={initial?.productIds ?? []}
+            currentCampaignId={initial?.id}
+          />
         </AdminCardBody>
       </AdminCard>
 

@@ -203,3 +203,15 @@ A pedido del dueño ("mucho más diseño"), el banner de las 15 festividades pas
 **Carga masiva por CSV probada en el navegador** (subiendo un archivo real): una fila nueva se crea con todos sus campos (público, tallas, colores, foto, etiqueta, precio), una fila con categoría inexistente se omite con un mensaje claro ("Fila 3: no existe la categoría…") y una segunda carga con celdas opcionales vacías actualiza solo lo indicado (nombre, descripción, precio 45.000) y **conserva** tallas, colores y foto. Datos de prueba eliminados.
 
 **Nosotros en modo histórico**: la cuadrícula de tarjetas pasa a una línea de tiempo vertical (línea central con los hitos 2017 → El siguiente paso → Hoy → Siempre alternados izquierda/derecha y con su ícono sobre la línea en escritorio; a un solo lado en celular). Se conserva el contenido existente.
+
+### Banner del modo normal y revisión general (17 de octubre de 2026)
+
+Sin festividad activa (p. ej. 6 oct–30 nov en modo automático, o diseño en "Apagado") el sitio no tenía banner y se veía apagado. Nuevo `NormalModeBanner` (`src/components/layout/normal-mode-banner.tsx`): negro de marca, acento lima, "Moda que se nota" y botón "Ver catálogo"; verificado a 375 y escritorio. Con festividad sigue el banner ilustrado de cada una. Revisión: typecheck y lint limpios, 293 pruebas unitarias y 36 de integración pasan, sin deriva de migraciones (`db:drift` con `SHADOW_DATABASE_URL`), 23 migraciones aplicadas. Nota: las pruebas requieren Node 22 (el Node 18 del sistema falla en vitest).
+
+### Ojo de contraseña, campañas y productos (17 de octubre de 2026)
+
+- **Ojo para ver la contraseña** en todo campo `type="password"` del kit admin (login, perfil, usuarios). Las contraseñas de usuarios nuevos/restablecidas dejaron de mostrarse en texto plano por defecto.
+- **Campañas**: selector de referencias con búsqueda, contador y "marcar/quitar visibles" (antes una lista de 360 casillas sin filtro); avisa cuando una referencia pasará desde otra campaña; el listado muestra el número de prendas y ordena activas primero. Se retiraron de la validación los campos muertos `bannerImageUrl`, `colorPrimary` y `colorSecondary` (las columnas siguen en la base, sin uso).
+- **Productos (admin)**: filtro por estado.
+- **Base de datos local**: sin productos sin foto/tallas/colores, sin categorías vacías, precio mayorista nunca mayor al detal; 1 referencia sin precio (CMLRD); el ítem de carrito con `productId` nulo es el snapshot por diseño (`onDelete: SetNull`). Sin deriva de migraciones.
+- Pruebas: 327 pasan (3 nuevas).

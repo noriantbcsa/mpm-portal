@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CartSessionSync } from "@/components/cart/cart-session-sync";
 import { SeasonalThemeNotice } from "@/components/layout/seasonal-theme-notice";
+import { NormalModeBanner } from "@/components/layout/normal-mode-banner";
 import { SeasonalBackdrop } from "@/components/layout/seasonal-backdrop";
 import { getSiteSettings } from "@/lib/site-config";
 import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
@@ -16,7 +17,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
   return (
     <div className="public-site-shell flex min-h-full flex-1 flex-col">
       <SkipLink />
-      <SeasonalThemeNotice theme={seasonalTheme} />
+      {seasonalTheme ? <SeasonalThemeNotice theme={seasonalTheme} /> : <NormalModeBanner siteName={settings.siteName} />}
       <Header />
       <main id="contenido" className="seasonal-main relative min-w-0 flex-1 overflow-hidden">
         <SeasonalBackdrop theme={seasonalTheme} />

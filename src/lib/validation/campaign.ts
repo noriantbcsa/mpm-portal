@@ -1,19 +1,15 @@
 import { z } from "zod";
 
-import { optionalImageUrlSchema } from "@/lib/validation/url";
-
-const optionalHexColor = z
-  .string()
-  .trim()
-  .refine((value) => value === "" || /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value), {
-    error: "Usa un color hexadecimal, por ejemplo #E4572E.",
-  })
-  .optional()
-  .nullable();
+function isCalendarDay(value: string) {
+  if (value === "") return true;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
 
 const optionalDateKey = z
   .string()
-  .refine((value) => value === "" || /^\d{4}-\d{2}-\d{2}$/.test(value), { error: "Fecha inválida." })
+  .refine(isCalendarDay, { error: "Elige una fecha válida del calendario." })
   .optional()
   .nullable();
 
@@ -21,14 +17,11 @@ export const campaignFormSchema = z
   .object({
     name: z.string().trim().min(2, { error: "El nombre es obligatorio." }).max(120),
     description: z.string().trim().max(1000).optional().nullable(),
-    bannerImageUrl: optionalImageUrlSchema.optional().nullable(),
-    colorPrimary: optionalHexColor,
-    colorSecondary: optionalHexColor,
     startDate: optionalDateKey,
     endDate: optionalDateKey,
     isActive: z.boolean().default(false),
-    priorityCategoryIds: z.array(z.string()).default([]),
-    productIds: z.array(z.string()).default([]),
+    priorityCategoryIds: z.array(z.string().trim().min(1)).max(1000).default([]).transform((ids) => [...new Set(ids)]),
+    productIds: z.array(z.string().trim().min(1)).max(5000).default([]).transform((ids) => [...new Set(ids)]),
   })
   .refine(
     (data) =>

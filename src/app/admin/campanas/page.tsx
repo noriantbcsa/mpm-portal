@@ -20,7 +20,10 @@ type PageProps = { searchParams: Promise<{ creado?: string; guardado?: string }>
 export default async function CampanasPage({ searchParams }: PageProps) {
   await requireRole(["ADMIN"]);
   const sp = await searchParams;
-  const campaigns = await prisma.campaign.findMany({ orderBy: { createdAt: "desc" } });
+  const campaigns = await prisma.campaign.findMany({
+    orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
+    include: { _count: { select: { products: true } } },
+  });
   const now = new Date();
 
   return (
@@ -53,6 +56,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
               <tr>
                 <AdminTh>Nombre</AdminTh>
                 <AdminTh>Vigencia</AdminTh>
+                <AdminTh>Prendas</AdminTh>
                 <AdminTh>Estado</AdminTh>
                 <AdminTh>
                   <span className="sr-only">Acciones</span>
@@ -88,6 +92,7 @@ export default async function CampanasPage({ searchParams }: PageProps) {
                       {campaign.startDate ? formatDate(campaign.startDate) : "—"}
                       {campaign.endDate ? ` a ${formatDate(campaign.endDate)}` : ""}
                     </AdminTd>
+                    <AdminTd>{campaign._count.products}</AdminTd>
                     <AdminTd>
                       <AdminBadge tone={statusTone}>{statusLabel}</AdminBadge>
                     </AdminTd>
