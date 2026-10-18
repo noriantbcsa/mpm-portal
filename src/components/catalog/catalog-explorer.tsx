@@ -36,7 +36,7 @@ export function CatalogExplorer({
             {activeRoot ? `Explorar ${activeRoot.name}` : "Comprar por categoría"}
           </p>
           <p className="mt-0.5 text-xs text-ink-soft">
-            {activeRoot ? "Elige una colección para acotar las referencias." : "Elige Damas o Caballero para ver sus referencias."}
+            {activeRoot ? "Elige una colección para acotar las prendas." : "Elige Damas o Caballero para ver sus prendas."}
           </p>
         </div>
         <ul className="flex flex-wrap gap-2" aria-label="Categorías del catálogo">

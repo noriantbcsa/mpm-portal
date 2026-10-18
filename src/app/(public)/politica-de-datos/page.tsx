@@ -5,6 +5,7 @@ import { getSiteSettings } from "@/lib/site-config";
 export const metadata: Metadata = {
   title: "Política de tratamiento de datos personales",
   description: "Cómo MPM recolecta, usa y protege los datos personales de sus clientes.",
+  alternates: { canonical: "/politica-de-datos" },
 };
 
 // El texto se edita desde /admin/ajustes; sin esto quedaría congelado en el

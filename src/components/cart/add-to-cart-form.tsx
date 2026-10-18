@@ -70,7 +70,7 @@ export function AddToCartForm({
     );
     if (!added) {
       setConfirmation(null);
-      setLimitError(`Tu carrito ya tiene ${MAX_CART_LINES} referencias distintas. Envía esta solicitud o quita alguna antes de agregar más.`);
+      setLimitError(`Tu carrito ya tiene ${MAX_CART_LINES} prendas distintas. Envía esta solicitud o quita alguna antes de agregar más.`);
       return;
     }
     setLimitError(null);

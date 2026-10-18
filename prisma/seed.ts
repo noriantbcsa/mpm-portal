@@ -28,6 +28,7 @@ const collections = [
     slug: "damas",
     referenceSlug: "damas-referencias",
     referenceName: "Catálogo Damas",
+    description: "Compra camisas, blusones y prendas para dama en MPM. Elige talla y color, al detal o al por mayor.",
     imageUrl: fallbackHeroImage,
     audience: "MUJER" as const,
     prefix: "DAM",
@@ -38,6 +39,7 @@ const collections = [
     slug: "caballero",
     referenceSlug: "caballero-referencias",
     referenceName: "Catálogo Caballero",
+    description: "Compra camisas y prendas para caballero en MPM. Elige talla y color, al detal o al por mayor.",
     // La foto de CMCRH original tiene fondo casi blanco: con la superposición
     // semitransparente de CatalogExplorer se veía prácticamente en blanco.
     // Esta tiene una prenda de color sólido, con mejor contraste.
@@ -102,7 +104,7 @@ function sizesFor(folder: string) {
 async function importRealCatalog() {
   const categories = await Promise.all(collections.map((item, order) => prisma.category.upsert({
     where: { slug: item.slug },
-    create: { name: item.category, slug: item.slug, description: `Colecciones de ${item.category}.`, imageUrl: item.imageUrl, order },
+    create: { name: item.category, slug: item.slug, description: item.description, imageUrl: item.imageUrl, order },
     // Repetir el seed no debe pisar lo que se editó en /admin/categorias
     // (visibilidad, nombre, orden, portada).
     update: {},
@@ -115,7 +117,7 @@ async function importRealCatalog() {
       create: {
         name: item.referenceName,
         slug: item.referenceSlug,
-        description: `Modelos reales de ${item.category} con galería de fotos y especificaciones.`,
+        description: `Prendas de ${item.category} con galería de fotos y especificaciones.`,
         parentId: parent.id,
         order: 0,
       },

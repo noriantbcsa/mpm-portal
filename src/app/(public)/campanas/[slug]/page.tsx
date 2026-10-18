@@ -66,7 +66,7 @@ export default async function CampanaPage({ params }: PageProps) {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="mb-6 flex items-baseline justify-between gap-4 border-b border-line pb-3">
           <h2 className="font-display text-lg font-semibold uppercase tracking-[0.1em] text-ink">Colección</h2>
-          <p className="text-sm text-ink-soft">{total} {total === 1 ? "referencia" : "referencias"}</p>
+          <p className="text-sm text-ink-soft">{total} {total === 1 ? "prenda" : "prendas"}</p>
         </div>
         <ProductGrid products={items} showPrices={settings.showPrices} />
       </div>

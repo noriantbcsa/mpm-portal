@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 
 import { getSiteSettings } from "@/lib/site-config";
@@ -11,14 +11,28 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   return {
     metadataBase: new URL(getSiteUrl()),
+    applicationName: settings.siteName,
     title: {
       default: `${settings.siteName} · ${settings.tagline}`,
       template: `%s · ${settings.siteName}`,
     },
     description: settings.tagline,
+    openGraph: {
+      type: "website",
+      locale: "es_CO",
+      siteName: settings.siteName,
+    },
+    twitter: {
+      card: "summary_large_image",
+    },
     icons: settings.logoUrl ? [{ url: settings.logoUrl }] : undefined,
   };
 }
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+  colorScheme: "light",
+};
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   // La CSP con nonce se crea por petición en proxy.ts. Leer la cabecera hace

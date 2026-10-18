@@ -7,6 +7,7 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 export const metadata: Metadata = {
   title: "Nosotros",
   description: "Conoce la historia, el trabajo y los valores de MPM Moda.",
+  alternates: { canonical: "/nosotros" },
 };
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ type TimelineStep = { period: string; title: string; description: string; icon: 
 const timeline: TimelineStep[] = [
   { period: "2017", title: "Un sueño en el Madrugón", description: "MPM comenzó distribuyendo prendas según las necesidades del mercado en el centro de Bogotá.", icon: Store },
   { period: "El siguiente paso", title: "De distribuir a confeccionar", description: "La experiencia del sector impulsó el paso a la fabricación propia, empezando con blusones de dama en doce tonos.", icon: Scissors },
-  { period: "Hoy", title: "Moda para ella y para él", description: "Ampliamos las líneas de confección con variedad de colores y tallas para atender cada referencia con cercanía.", icon: Factory },
+  { period: "Hoy", title: "Moda para ella y para él", description: "Ampliamos las líneas de confección con variedad de colores y tallas para atender cada prenda con cercanía.", icon: Factory },
   { period: "Siempre", title: "Bogotá para todo el país", description: "Desde nuestra tienda física en Bogotá acompañamos pedidos con envíos nacionales seguros y atención personalizada.", icon: Send },
 ];
 
@@ -76,7 +77,7 @@ export default async function NosotrosPage() {
           {values.map((value) => (
             <div key={value} className="bg-brand-accent/35 p-5 sm:p-6">
               <p className="font-display text-xl font-semibold text-ink">{value}</p>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">{value === "Calidad" && "Materiales y acabados que responden a altos estándares."}{value === "Pasión" && "Energía puesta desde el diseño hasta la atención."}{value === "Dedicación" && "Esmero en cada detalle y en cada referencia."}{value === "Cumplimiento" && "Compromisos claros, atención oportuna y confianza."}</p>
+              <p className="mt-2 text-sm leading-6 text-ink-soft">{value === "Calidad" && "Materiales y acabados que responden a altos estándares."}{value === "Pasión" && "Energía puesta desde el diseño hasta la atención."}{value === "Dedicación" && "Esmero en cada detalle y en cada prenda."}{value === "Cumplimiento" && "Compromisos claros, atención oportuna y confianza."}</p>
             </div>
           ))}
         </div>
@@ -84,7 +85,7 @@ export default async function NosotrosPage() {
 
       <section className="seasonal-glass p-6 text-center sm:p-8">
         <h2 className="font-display text-3xl font-semibold tracking-[-0.04em] text-ink">Hablemos de tu próximo pedido</h2>
-        <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-ink-soft">Escríbenos para resolver dudas sobre referencias, pedidos por volumen o dotación empresarial.</p>
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-ink-soft">Escríbenos para resolver dudas sobre prendas, pedidos por volumen o dotación empresarial.</p>
         <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="focus-ring mt-6 inline-flex min-h-10 items-center justify-center rounded-full bg-[#25D366] px-6 py-3 text-base font-semibold text-[#0b3d24] hover:brightness-95">Escribir por WhatsApp</a>
       </section>
     </div>

@@ -17,10 +17,20 @@ import { JsonLd } from "@/components/seo/json-ld";
 // actualizan desde el administrador sin esperar al siguiente despliegue.
 export const dynamic = "force-dynamic";
 
-// La portada es la URL canónica de la raíz (título y descripción vienen del
-// layout); sin esto `/?utm_source=…` y variantes se indexaban como páginas
-// distintas.
-export const metadata: Metadata = { alternates: { canonical: "/" } };
+// La portada es la URL canónica de la raíz; título y descripción describen la
+// oferta comercial para buscadores y para quien comparte el enlace.
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const title = "Moda femenina y masculina al detal y al por mayor";
+  const description = `Compra prendas para dama y caballero en ${settings.siteName}, Bogotá. Elige talla y color, compra al detal o al por mayor y recibe atención por WhatsApp.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+    openGraph: { title, description },
+  };
+}
 
 export default async function HomePage() {
   const [settings, activeCampaign, categories, latestResult] = await Promise.all([
@@ -50,7 +60,7 @@ export default async function HomePage() {
   const slides: HeroSlide[] = [
     { id: "portada", kicker: "Nueva colección · MPM", title: settings.heroTitle, text: settings.heroSubtitle, ctaLabel: settings.heroCtaLabel, ctaHref: settings.heroCtaHref, photos: featured },
     ...(womenResult.items.length > 0
-      ? [{ id: "damas", kicker: "Damas", title: "Para ella", text: "Blusas, camisas y referencias de la colección femenina, en variedad de tallas y colores.", ctaLabel: "Ver damas", ctaHref: "/catalogo/damas", photos: photosOf(womenResult.items) }]
+      ? [{ id: "damas", kicker: "Damas", title: "Para ella", text: "Blusas y camisas de la colección femenina, en variedad de tallas y colores.", ctaLabel: "Ver damas", ctaHref: "/catalogo/damas", photos: photosOf(womenResult.items) }]
       : []),
     ...(menResult.items.length > 0
       ? [{ id: "caballero", kicker: "Caballero", title: "Para él", text: "Camisas y prendas de la colección masculina, hechas para el día a día.", ctaLabel: "Ver caballero", ctaHref: "/catalogo/caballero", photos: photosOf(menResult.items) }]
@@ -64,14 +74,28 @@ export default async function HomePage() {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: settings.siteName,
-          url: siteUrl,
-          potentialAction: {
-            "@type": "SearchAction",
-            target: `${siteUrl}/catalogo?q={search_term_string}`,
-            "query-input": "required name=search_term_string",
-          },
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: settings.siteName,
+              url: siteUrl,
+              inLanguage: "es-CO",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: `${siteUrl}/catalogo?q={search_term_string}`,
+                "query-input": "required name=search_term_string",
+              },
+            },
+            {
+              "@type": "ClothingStore",
+              name: settings.siteName,
+              url: siteUrl,
+              description: "Moda femenina y masculina al detal y al por mayor en Bogotá.",
+              telephone: settings.contactPhone ?? `+${settings.whatsappNumber}`,
+              areaServed: "CO",
+              sameAs: [settings.instagramUrl, settings.tiktokUrl].filter((url): url is string => Boolean(url)),
+            },
+          ],
         }}
       />
 
