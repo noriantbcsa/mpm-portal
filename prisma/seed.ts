@@ -146,8 +146,9 @@ async function importRealCatalog() {
       facebookUrl: "https://www.facebook.com/MpmFabricante",
       tiktokUrl: "https://www.tiktok.com/@mpm_moda_mpm",
       footerText: "MPM · Moda y estilo día a día. Atención al detal y al por mayor.",
-      dataPolicyText:
-        "Texto provisional de política de tratamiento de datos personales. Debe ser revisado y aprobado por MPM antes de producción; ver docs/DEPLOYMENT.md.",
+      // Sin texto propio: /politica-de-datos muestra la política por defecto
+      // (src/lib/data-policy.ts). Se reemplaza desde /admin/ajustes.
+      dataPolicyText: null,
       showPrices: true,
     },
     update: {},
