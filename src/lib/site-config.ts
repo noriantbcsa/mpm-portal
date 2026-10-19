@@ -4,6 +4,7 @@ import { cache } from "react";
 
 import { prisma } from "@/lib/prisma";
 import type { SeasonalThemeModeValue, SeasonalThemePresetValue } from "@/lib/seasonal-themes";
+import { DEFAULT_WHATSAPP_MESSAGE, LEGACY_WHATSAPP_DEFAULT_MESSAGE } from "@/lib/whatsapp-default-message";
 
 /**
  * Identidad provisional del portal. Todo lo que aparece aquí se puede
@@ -20,7 +21,7 @@ export const DEFAULT_SITE_SETTINGS = {
   secondaryColor: "#D9A441",
   accentColor: "#F4EFE7",
   whatsappNumber: "573115560988",
-  whatsappDefaultMessage: "Hola MPM, quiero más información sobre sus prendas.",
+  whatsappDefaultMessage: DEFAULT_WHATSAPP_MESSAGE,
   contactEmail: null as string | null,
   contactPhone: "+57 311 556 0988" as string | null,
   address: "C.C. Visto, Local 3163, piso 3 · Bogotá Centro, Bogotá, Colombia" as string | null,
@@ -62,7 +63,14 @@ export const getSiteSettings = cache(async (): Promise<SiteSettingsData> => {
 
   try {
     const settings = await prisma.siteSettings.findUnique({ where: { id: "default" } });
-    lastGoodSettings = settings ?? DEFAULT_SITE_SETTINGS;
+    lastGoodSettings = settings
+      ? {
+          ...settings,
+          whatsappDefaultMessage: settings.whatsappDefaultMessage === LEGACY_WHATSAPP_DEFAULT_MESSAGE
+            ? DEFAULT_WHATSAPP_MESSAGE
+            : settings.whatsappDefaultMessage,
+        }
+      : DEFAULT_SITE_SETTINGS;
     return lastGoodSettings;
   } catch (error) {
     if (!lastGoodSettings) throw error;

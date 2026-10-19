@@ -17,6 +17,7 @@ import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/lib/auth/passwords";
 import photoColors from "../src/lib/catalog-photo-colors.json";
 import { formatCatalogColor } from "../src/lib/catalog-colors";
+import { DEFAULT_WHATSAPP_MESSAGE } from "../src/lib/whatsapp-default-message";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL no está definida. Configura .env antes de ejecutar db:seed.");
@@ -138,7 +139,7 @@ async function importRealCatalog() {
       accentColor: "#eef2e5",
       heroImageUrl: fallbackHeroImage,
       whatsappNumber: "573115560988",
-      whatsappDefaultMessage: "Hola MPM, quiero más información sobre sus prendas.",
+      whatsappDefaultMessage: DEFAULT_WHATSAPP_MESSAGE,
       contactEmail: "ventas@mpm-ejemplo.com",
       contactPhone: "+57 311 556 0988",
       address: "C.C. Visto, Local 3163, piso 3 · Bogotá Centro, Bogotá, Colombia",

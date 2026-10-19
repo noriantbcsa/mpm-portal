@@ -43,4 +43,29 @@ describe("getSiteSettings", () => {
     const { getSiteSettings, DEFAULT_SITE_SETTINGS } = await import("@/lib/site-config");
     expect((await getSiteSettings()).siteName).toBe(DEFAULT_SITE_SETTINGS.siteName);
   });
+
+  it("renueva el mensaje anterior guardado sin sobrescribir otros ajustes", async () => {
+    findUnique.mockResolvedValue({
+      id: "default",
+      siteName: "MPM Real",
+      whatsappDefaultMessage: "Hola MPM, quiero más información sobre sus prendas.",
+    });
+    const { getSiteSettings, DEFAULT_SITE_SETTINGS } = await import("@/lib/site-config");
+
+    const settings = await getSiteSettings();
+    expect(settings.whatsappDefaultMessage).toBe(DEFAULT_SITE_SETTINGS.whatsappDefaultMessage);
+    expect(settings.siteName).toBe("MPM Real");
+  });
+
+  it("conserva los mensajes personalizados de WhatsApp", async () => {
+    findUnique.mockResolvedValue({
+      id: "default",
+      whatsappDefaultMessage: "Hola, necesito una cotización para mi empresa.",
+    });
+    const { getSiteSettings } = await import("@/lib/site-config");
+
+    expect((await getSiteSettings()).whatsappDefaultMessage).toBe(
+      "Hola, necesito una cotización para mi empresa.",
+    );
+  });
 });
