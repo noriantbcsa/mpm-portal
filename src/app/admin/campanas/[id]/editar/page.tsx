@@ -5,6 +5,8 @@ import { requireRole } from "@/lib/auth/dal";
 import { getAllCategoriesFlat, buildCategoryOptions } from "@/lib/categories";
 import { prisma } from "@/lib/prisma";
 import { CampaignForm } from "@/components/admin/campaign-form";
+import { campaignPaletteFromSettings } from "@/lib/campaign-style";
+import { getSiteSettings } from "@/lib/site-config";
 import { getCampaignProductOptions } from "@/lib/campaigns";
 
 export const metadata: Metadata = { title: "Editar campaña", robots: { index: false } };
@@ -14,12 +16,14 @@ type PageProps = { params: Promise<{ id: string }> };
 export default async function EditarCampanaPage({ params }: PageProps) {
   await requireRole(["ADMIN"]);
   const { id } = await params;
-  const [campaign, categories, products] = await Promise.all([
+  const [campaign, categories, products, settings] = await Promise.all([
     prisma.campaign.findUnique({ where: { id }, include: { priorityCategories: true, products: { select: { id: true } } } }),
     getAllCategoriesFlat({ includeHidden: true }),
     getCampaignProductOptions(),
+    getSiteSettings(),
   ]);
   if (!campaign) notFound();
+  const palette = campaignPaletteFromSettings(settings);
 
   return (
     <div className="max-w-2xl">
@@ -29,6 +33,7 @@ export default async function EditarCampanaPage({ params }: PageProps) {
         <CampaignForm
           categoryOptions={buildCategoryOptions(categories)}
           productOptions={products}
+          palette={palette}
           initial={{
             id: campaign.id,
             name: campaign.name,

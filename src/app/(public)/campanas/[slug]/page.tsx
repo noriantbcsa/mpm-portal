@@ -6,6 +6,7 @@ import { displayCampaignName, getLiveCampaignBySlug } from "@/lib/campaigns";
 import { listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
 import { formatDate } from "@/lib/format";
+import { campaignPaletteFromSettings, campaignStyleVars } from "@/lib/campaign-style";
 import { ProductGrid } from "@/components/catalog/product-grid";
 
 export const dynamic = "force-dynamic";
@@ -33,13 +34,13 @@ export default async function CampanaPage({ params }: PageProps) {
   const { items, total } = await listProducts({ campaignSlug: slug, pageSize: 60 });
   return (
     <div className="campaign-page">
-      <section className="campaign-hero">
+      <section className="campaign-hero" style={campaignStyleVars(campaignPaletteFromSettings(settings))}>
         <div className="mx-auto flex min-h-[16rem] max-w-4xl flex-col items-center justify-center gap-4 px-4 py-14 text-center sm:py-20">
           <p className="campaign-kicker">Campaña</p>
           <h1 className="font-display text-4xl font-semibold uppercase leading-tight tracking-[0.06em] sm:text-6xl">{displayCampaignName(campaign.name)}</h1>
-          {campaign.description && <p className="max-w-xl text-base leading-7 text-ink-soft sm:text-lg">{campaign.description}</p>}
+          {campaign.description && <p className="campaign-lede max-w-xl text-base leading-7 sm:text-lg">{campaign.description}</p>}
           {(campaign.startDate || campaign.endDate) && (
-            <p className="text-sm uppercase tracking-[0.12em] text-ink-soft">
+            <p className="campaign-lede text-sm uppercase tracking-[0.12em]">
               {campaign.startDate ? formatDate(campaign.startDate) : "—"}
               {campaign.endDate ? ` — ${formatDate(campaign.endDate)}` : ""}
             </p>

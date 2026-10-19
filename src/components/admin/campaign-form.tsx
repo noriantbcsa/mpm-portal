@@ -14,6 +14,7 @@ import { AdminCard, AdminCardBody } from "@/components/admin/ui/display";
 import { CAMPAIGN_BANNER_TEXT_HINT } from "@/lib/campaign-defaults";
 import { ProductPicker } from "@/components/admin/product-picker";
 import { toColombiaDateKey } from "@/lib/validation/campaign";
+import { campaignStyleVars, type CampaignPalette } from "@/lib/campaign-style";
 
 const initialState: CampaignFormState = { status: "idle" };
 
@@ -38,12 +39,15 @@ export function CampaignForm({
   productOptions,
   initial,
   defaults,
+  palette,
 }: {
   categoryOptions: { id: string; label: string }[];
   productOptions: { id: string; sku: string; name: string; campaign: { id: string; name: string } | null }[];
   initial?: CampaignFormInitial;
   /** Valores con los que arranca una campaña nueva (se ignoran al editar). */
   defaults?: { description: string; startDate: string; endDate: string };
+  /** Colores con los que se verá hoy el aviso en el sitio (festividad activa o marca). */
+  palette: CampaignPalette;
 }) {
   const [state, formAction, pending] = useActionState(saveCampaignAction, initialState);
   const [name, setName] = useState(initial?.name ?? "");
@@ -79,16 +83,26 @@ export function CampaignForm({
           />
           <div className="sm:col-span-2">
             <p className="mb-1 text-xs font-medium text-slate-600">Así se verá el aviso en el sitio</p>
-            <div className="rounded-md bg-slate-900 px-4 py-4 text-center text-base font-medium leading-snug text-white sm:text-left sm:text-lg">
-              <span className="font-bold">{name.trim() || "Nombre de la campaña"}</span>
-              {description.trim() ? ` · ${description.trim()}` : " · conoce la selección"}
+            <div
+              className={`campaign-announcement overflow-hidden rounded-md${palette.festive ? " campaign-announcement--festive" : ""}`}
+              style={campaignStyleVars(palette)}
+            >
+              <div className="campaign-announcement-inner">
+                <span className="campaign-chip">Oferta</span>
+                <p className="campaign-announcement-text">
+                  <span className="campaign-announcement-name">{name.trim() || "Nombre de la campaña"}</span>
+                  {description.trim() ? ` · ${description.trim()}` : " · conoce la selección"}
+                </p>
+                <span className="campaign-cta">Ver más <span aria-hidden="true">→</span></span>
+              </div>
+              <div className="campaign-stripe" aria-hidden="true" />
             </div>
             {description.trim().length > CAMPAIGN_BANNER_TEXT_HINT && (
               <p className="mt-1 text-xs text-amber-700">El texto es largo: en celulares el aviso ocupará varias líneas.</p>
             )}
           </div>
           <p className="sm:col-span-2 text-xs leading-5 text-slate-500">
-            El diseño de la campaña es fijo y sobrio para que siempre se vea bien. Aquí solo se editan el texto, las fechas y las referencias.
+            El diseño se adapta solo: con una festividad activa usa sus colores y, sin festividad, el estilo llamativo de la marca. Aquí solo se editan el texto, las fechas y las referencias.
           </p>
           <AdminTextField label="Fecha de inicio" name="startDate" type="date" error={errors?.startDate} defaultValue={initial ? toDateInputValue(initial.startDate) : defaults?.startDate} />
           <AdminTextField label="Fecha de fin" name="endDate" type="date" error={errors?.endDate} defaultValue={initial ? toDateInputValue(initial.endDate) : defaults?.endDate} />

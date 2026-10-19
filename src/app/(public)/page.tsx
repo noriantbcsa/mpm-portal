@@ -8,6 +8,7 @@ import { displayCampaignName, getActiveCampaign } from "@/lib/campaigns";
 import { getCategoryTree } from "@/lib/categories";
 import { listProducts } from "@/lib/products";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { campaignPaletteFromSettings, campaignStyleVars } from "@/lib/campaign-style";
 import { HeroCarousel, type HeroSlide } from "@/components/home/hero-carousel";
 import { CategoryCard } from "@/components/catalog/category-card";
 import { ProductShelf } from "@/components/catalog/product-shelf";
@@ -132,12 +133,13 @@ export default async function HomePage() {
           <Link
             href={`/campanas/${activeCampaign.slug}`}
             className="campaign-showcase focus-ring group block overflow-hidden"
+            style={campaignStyleVars(campaignPaletteFromSettings(settings))}
           >
             <div className="mx-auto flex min-h-[16rem] max-w-4xl flex-col items-center justify-center gap-4 px-6 py-14 text-center sm:px-14 sm:py-20">
               <p className="campaign-kicker">Campaña</p>
               <h2 className="font-display text-3xl font-semibold uppercase leading-tight tracking-[0.06em] sm:text-5xl">{displayCampaignName(activeCampaign.name)}</h2>
-              {activeCampaign.description && <p className="max-w-xl text-base leading-7 text-ink-soft">{activeCampaign.description}</p>}
-              <span className="mt-2 w-fit border-b border-current pb-1 text-sm font-semibold uppercase tracking-[0.14em] group-hover:opacity-70">Ver colección</span>
+              {activeCampaign.description && <p className="campaign-lede max-w-xl text-base leading-7">{activeCampaign.description}</p>}
+              <span className="campaign-link mt-2 w-fit pb-1 text-sm font-semibold uppercase tracking-[0.14em] group-hover:opacity-70">Ver colección →</span>
             </div>
           </Link>
         </section>

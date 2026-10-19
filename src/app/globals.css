@@ -620,31 +620,180 @@ html[data-festivity] .seasonal-footer {
   z-index: 1;
 }
 
-/* Campañas: lenguaje editorial sobrio (tipo Zara / H&M / Arturo Calle):
-   superficies lisas, texto grande en mayúsculas con espaciado y ninguna
-   decoración; la imagen de la campaña es la protagonista. */
+/* Campañas. Los colores llegan por variables (`--cmp-*`, ver
+   src/lib/campaign-style.ts): con una festividad activa son los del diseño
+   festivo; en modo normal, la marca en versión llamativa (barra lima + encabezado
+   oscuro). El texto se calcula contra cada fondo, así que siempre se lee. */
 .campaign-announcement {
-  background: var(--brand-primary);
-  color: white;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--cmp-announce-bg, var(--brand-secondary));
+  color: var(--cmp-announce-ink, #111111);
 }
 
-.campaign-showcase {
-  background: #f3f1ec;
-  color: var(--brand-primary);
+/* Rayas diagonales suaves: dan textura sin competir con el texto. */
+.campaign-announcement::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: repeating-linear-gradient(
+    115deg,
+    transparent 0 14px,
+    color-mix(in srgb, var(--cmp-announce-ink, #111111) 7%, transparent) 14px 28px
+  );
+}
+
+/* Festividad: confeti con los tres colores del tema en los extremos. */
+.campaign-announcement--festive::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 4% 30%, var(--cmp-stripe-1) 0 5px, transparent 6px),
+    radial-gradient(circle at 8% 72%, var(--cmp-stripe-2) 0 4px, transparent 5px),
+    radial-gradient(circle at 13% 40%, var(--cmp-stripe-1) 0 3px, transparent 4px),
+    radial-gradient(circle at 96% 28%, var(--cmp-stripe-2) 0 5px, transparent 6px),
+    radial-gradient(circle at 91% 70%, var(--cmp-stripe-1) 0 4px, transparent 5px),
+    radial-gradient(circle at 86% 36%, var(--cmp-stripe-2) 0 3px, transparent 4px);
+}
+
+.campaign-announcement-inner {
+  display: flex;
+  max-width: 76rem;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  padding: 0.7rem 1rem;
+  text-align: center;
+}
+
+.campaign-chip {
+  display: inline-block;
+  flex-shrink: 0;
+  transform: rotate(-2deg);
+  background: var(--cmp-chip-bg, #111111);
+  color: var(--cmp-chip-ink, #ffffff);
+  padding: 0.2rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.campaign-announcement-text {
+  min-width: 0;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.campaign-announcement-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.campaign-cta {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  background: var(--cmp-chip-bg, #111111);
+  color: var(--cmp-chip-ink, #ffffff);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.campaign-cta:hover {
+  filter: brightness(1.12);
+}
+
+.campaign-stripe {
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--cmp-stripe-1) 0 33.33%,
+    var(--cmp-stripe-2) 33.33% 66.66%,
+    var(--cmp-stripe-3) 66.66% 100%
+  );
+}
+
+/* Un destello cruza la barra de vez en cuando (se apaga con movimiento reducido). */
+@media (prefers-reduced-motion: no-preference) {
+  .campaign-announcement .campaign-cta {
+    animation: campaign-pulse 2.8s ease-in-out infinite;
+  }
+}
+
+@keyframes campaign-pulse {
+  0%, 70%, 100% { transform: scale(1); }
+  82% { transform: scale(1.07); }
+}
+
+/* Encabezado de la página de campaña y bloque de la portada. */
+.campaign-showcase,
+.campaign-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--cmp-hero-bg, var(--brand-primary));
+  color: var(--cmp-hero-ink, #ffffff);
+}
+
+.campaign-showcase::before,
+.campaign-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(115deg, transparent 0 70%, color-mix(in srgb, var(--cmp-hero-accent) 30%, transparent) 70% 100%),
+    radial-gradient(circle at 6% 18%, color-mix(in srgb, var(--cmp-stripe-2) 55%, transparent) 0 3.5rem, transparent 3.6rem),
+    radial-gradient(circle at 94% 84%, color-mix(in srgb, var(--cmp-hero-accent) 45%, transparent) 0 4.5rem, transparent 4.6rem);
+}
+
+.campaign-showcase::after,
+.campaign-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: -1;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--cmp-stripe-1) 0 33.33%,
+    var(--cmp-stripe-2) 33.33% 66.66%,
+    var(--cmp-stripe-3) 66.66% 100%
+  );
 }
 
 .campaign-kicker {
-  color: #5b646b;
-  font-size: 0.68rem;
-  font-weight: 700;
+  display: inline-block;
+  background: var(--cmp-hero-accent, var(--brand-secondary));
+  color: var(--cmp-hero-accent-ink, #111111);
+  padding: 0.25rem 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-.campaign-hero {
-  background: #f3f1ec;
-  color: var(--brand-primary);
-  border-bottom: 1px solid #e4e1da;
+.campaign-lede {
+  color: color-mix(in srgb, var(--cmp-hero-ink, #ffffff) 88%, transparent);
+}
+
+.campaign-link {
+  border-bottom: 2px solid var(--cmp-hero-accent, var(--brand-secondary));
 }
 
 /* Texto que queda sobre la pintura: un halo de papel lo mantiene legible sin
@@ -654,7 +803,7 @@ html[data-festivity] .seasonal-main {
   text-shadow: 0 0 0.5rem rgb(255 252 246 / 0.95), 0 0 1.1rem rgb(255 252 246 / 0.9);
 }
 
-html[data-festivity] .seasonal-main :is(.text-white, .text-white *, .bg-ink, .bg-ink *, button, .admin-primary, .admin-nav-active, input, select, textarea, [role="status"], [role="alert"], [class*="bg-brand-primary"], [class*="bg-brand-primary"] *) {
+html[data-festivity] .seasonal-main :is(.campaign-announcement, .campaign-announcement *, .campaign-hero, .campaign-hero *, .campaign-showcase, .campaign-showcase *, .text-white, .text-white *, .bg-ink, .bg-ink *, button, .admin-primary, .admin-nav-active, input, select, textarea, [role="status"], [role="alert"], [class*="bg-brand-primary"], [class*="bg-brand-primary"] *) {
   text-shadow: none;
 }
 

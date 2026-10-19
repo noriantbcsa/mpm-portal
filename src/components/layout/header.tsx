@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { getSiteSettings } from "@/lib/site-config";
 import { displayCampaignName, getActiveCampaign } from "@/lib/campaigns";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { campaignPaletteFromSettings, campaignStyleVars } from "@/lib/campaign-style";
 import { CartIndicator } from "@/components/layout/cart-indicator";
 import { MobileNav, type NavLink } from "@/components/layout/mobile-nav";
 import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
@@ -23,20 +24,27 @@ export async function Header() {
 
   const whatsappHref = buildWhatsAppLink(settings.whatsappNumber, settings.whatsappDefaultMessage);
   const campaignName = activeCampaign ? displayCampaignName(activeCampaign.name) : null;
+  const palette = campaignPaletteFromSettings(settings);
 
   return (
     <header className="public-header relative z-30 border-b border-line bg-paper">
       {activeCampaign && (
-        <aside aria-label="Oferta y promoción activa" className="campaign-announcement">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 py-2.5 text-center sm:py-3">
-            <p className="min-w-0 text-sm leading-snug text-white sm:text-base">
-              <span className="font-bold uppercase tracking-[0.1em]">{campaignName}</span>
+        <aside
+          aria-label="Oferta y promoción activa"
+          className={`campaign-announcement${palette.festive ? " campaign-announcement--festive" : ""}`}
+          style={campaignStyleVars(palette)}
+        >
+          <div className="campaign-announcement-inner">
+            <span className="campaign-chip">Oferta</span>
+            <p className="campaign-announcement-text">
+              <span className="campaign-announcement-name">{campaignName}</span>
               {activeCampaign.description ? ` · ${activeCampaign.description}` : " · conoce la selección"}
             </p>
-            <Link href={`/campanas/${activeCampaign.slug}`} className="focus-ring shrink-0 py-1 text-sm font-semibold text-white underline decoration-1 underline-offset-4">
-              Ver más
+            <Link href={`/campanas/${activeCampaign.slug}`} className="campaign-cta focus-ring">
+              Ver más <span aria-hidden="true">→</span>
             </Link>
           </div>
+          <div className="campaign-stripe" aria-hidden="true" />
         </aside>
       )}
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-6">
