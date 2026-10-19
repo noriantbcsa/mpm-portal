@@ -16,12 +16,15 @@ const initialState: UserFormState = { status: "idle" };
 
 export function CreateUserForm() {
   const [state, formAction, pending] = useActionState(createUserAction, initialState);
+  // React 19 reinicia los campos tras cada envío: se devuelven los valores del
+  // servidor como `defaultValue` para no borrar lo escrito (salvo la contraseña).
+  const values = state.status === "error" ? state.values : undefined;
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <AdminTextField label="Nombre" name="name" required />
-      <AdminTextField label="Correo" name="email" type="email" required />
-      <AdminSelectField label="Rol" name="role" defaultValue="SALES">
+      <AdminTextField label="Nombre" name="name" required defaultValue={values?.name} />
+      <AdminTextField label="Correo" name="email" type="email" required defaultValue={values?.email} />
+      <AdminSelectField label="Rol" name="role" defaultValue={values?.role ?? "SALES"} key={values?.role ?? "SALES"}>
         {Object.entries(ROLE_LABELS).map(([value, label]) => (
           <option key={value} value={value}>
             {label}

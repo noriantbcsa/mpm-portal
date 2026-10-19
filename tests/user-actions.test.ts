@@ -24,7 +24,7 @@ vi.mock("next/navigation", () => ({
 const createSessionCookieMock = vi.fn();
 vi.mock("@/lib/auth/session", () => ({ createSessionCookie: (...a: unknown[]) => createSessionCookieMock(...a) }));
 
-const { updateUserAction } = await import("@/app/admin/usuarios/actions");
+const { createUserAction, updateUserAction } = await import("@/app/admin/usuarios/actions");
 
 function form(fields: Record<string, string>) {
   const fd = new FormData();
@@ -112,5 +112,23 @@ describe("updateUserAction — cambiarse la contraseña a uno mismo", () => {
     updateMock.mockResolvedValue({ role: "ADMIN", name: "Admin 2", sessionVersion: 1 });
     await run({ id: "admin1", name: "Admin 2", role: "ADMIN", active: "on", password: "" });
     expect(createSessionCookieMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("createUserAction — errores de validación", () => {
+  it("devuelve lo escrito (menos la contraseña) para que el formulario no lo pierda", async () => {
+    findUniqueMock.mockResolvedValue({ id: "u1" });
+    const result = await createUserAction(
+      { status: "idle" },
+      form({ name: "Vendedor Prueba", email: "ADMIN@MPM.LOCAL", role: "SALES", password: "ClaveTemporal123!" }),
+    );
+
+    expect(result).toMatchObject({ status: "error", message: "Ya existe un usuario con ese correo." });
+    expect((result as { values?: unknown }).values).toEqual({
+      name: "Vendedor Prueba",
+      email: "ADMIN@MPM.LOCAL",
+      role: "SALES",
+    });
+    expect(JSON.stringify(result)).not.toContain("ClaveTemporal123!");
   });
 });

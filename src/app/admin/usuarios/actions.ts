@@ -9,7 +9,14 @@ import { createUserSchema, updateUserSchema } from "@/lib/validation/user";
 import { hashPassword } from "@/lib/auth/passwords";
 import { createSessionCookie } from "@/lib/auth/session";
 
-export type UserFormState = { status: "idle" } | { status: "error"; message: string };
+export type UserFormState =
+  | { status: "idle" }
+  | {
+      status: "error";
+      message: string;
+      /** Lo escrito en el alta (sin la contraseña) para no perderlo tras un error. */
+      values?: { name: string; email: string; role: string };
+    };
 
 export async function createUserAction(
   _prevState: UserFormState,
@@ -17,6 +24,11 @@ export async function createUserAction(
 ): Promise<UserFormState> {
   await requireRole(["ADMIN"]);
 
+  const values = {
+    name: String(formData.get("name") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    role: String(formData.get("role") ?? "SALES"),
+  };
   const parsed = createUserSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -25,11 +37,11 @@ export async function createUserAction(
     active: true,
   });
   if (!parsed.success) {
-    return { status: "error", message: parsed.error.issues[0]?.message ?? "Revisa los datos." };
+    return { status: "error", message: parsed.error.issues[0]?.message ?? "Revisa los datos.", values };
   }
 
   const existing = await prisma.user.findUnique({ where: { email: parsed.data.email } });
-  if (existing) return { status: "error", message: "Ya existe un usuario con ese correo." };
+  if (existing) return { status: "error", message: "Ya existe un usuario con ese correo.", values };
 
   const passwordHash = await hashPassword(parsed.data.password);
   await prisma.user.create({
