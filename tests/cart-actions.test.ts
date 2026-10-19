@@ -52,6 +52,10 @@ const ITEM = {
   priceRefSnapshot: null,
 };
 
+// Lo que devuelve `resolveCartItems` de verdad: incluye el precio mayorista,
+// que NO es una columna de `CartRequestItem` (Prisma rechaza el campo).
+const RESOLVED_ITEM = { ...ITEM, priceWholesaleSnapshot: 24000 };
+
 function form(overrides: Record<string, string | null> = {}) {
   const base: Record<string, string> = {
     contactName: "Ana Ruiz",
@@ -89,6 +93,17 @@ beforeEach(() => {
 });
 
 describe("submitCartRequestAction", () => {
+  it("no envía a Prisma campos que no son columnas de CartRequestItem (precio mayorista)", async () => {
+    resolveCartItemsMock.mockResolvedValue([RESOLVED_ITEM]);
+
+    const result = await submitCartRequestAction(idle, form());
+
+    expect(result.status).toBe("success");
+    const data = cartRequestCreateMock.mock.calls[0][0].data;
+    expect(data.items.create).toEqual([ITEM]);
+    expect(data.items.create[0]).not.toHaveProperty("priceWholesaleSnapshot");
+  });
+
   it("guarda la solicitud con consentimiento, estado NUEVO y evento CREATED, y devuelve el enlace de WhatsApp", async () => {
     const result = await submitCartRequestAction(idle, form());
 

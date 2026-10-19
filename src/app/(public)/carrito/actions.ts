@@ -257,7 +257,19 @@ export async function submitCartRequestAction(
     dataConsent: true,
     consentedAt: new Date(),
     status: "NUEVO" as const,
-    items: { create: resolvedItems },
+    // `priceWholesaleSnapshot` solo sirve para calcular el total en pantalla;
+    // no es una columna de CartRequestItem y Prisma rechazaría el campo.
+    items: {
+      create: resolvedItems.map((item) => ({
+        productId: item.productId,
+        productNameSnapshot: item.productNameSnapshot,
+        productSkuSnapshot: item.productSkuSnapshot,
+        size: item.size,
+        color: item.color,
+        quantity: item.quantity,
+        priceRefSnapshot: item.priceRefSnapshot,
+      })),
+    },
     events: { create: { type: "CREATED" as const } },
   };
 
