@@ -1,0 +1,2 @@
+# Base de datos
+Solo lectura. Deriva migraciones↔esquema: ninguna (T-07, BD shadow desechable; la BD de desarrollo tiene la última migración 20261018090000 aplicada). Esquema (schema.prisma) leído por grep: índices en claves foráneas y estado, GIN en tags/sizes/colors y trigram en nombre/SKU/descripción, `onDelete: SetNull/Cascade` explícitos, bloqueos advisory para carrera de campañas/categorías/carrito. Sin revisar: tipos/precisión por columna, restricciones CHECK, `EXPLAIN` de consultas, backups. El esquema completo y las consultas no se leyeron línea a línea: PARCIAL.

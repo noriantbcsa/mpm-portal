@@ -1,0 +1,2 @@
+# Preparación para producción
+Positivo: build y pruebas verdes, `/healthz`, validación de entorno al arrancar (instrumentation), producción sin vulnerabilidades. Deriva de migraciones: sin diferencia. Pendiente: verificación visual/E2E/rendimiento, confirmar ejecución de CI en GitHub, backups/rollback no revisados. El defecto H-05 impedía recibir pedidos: el arreglo (7336f2a) ya está en `main`, falta confirmar que Render lo desplegó. Veredicto: NO certificado; sin bloqueos críticos conocidos.
