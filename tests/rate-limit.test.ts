@@ -54,4 +54,29 @@ describe("getRequestRateLimitKey", () => {
 
     await expect(getRequestRateLimitKey()).resolves.toBe("203.0.113.21");
   });
+
+  it("ignora X-Real-IP si falta CF-Connecting-IP en producción", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    requestHeaders.value = new Headers({ "x-real-ip": "203.0.113.99" });
+
+    await expect(getRequestRateLimitKey()).resolves.toBe("unknown");
+  });
+
+  it("CF-Connecting-IP prevalece sobre cabeceras elegidas por el cliente", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    requestHeaders.value = new Headers({
+      "cf-connecting-ip": "203.0.113.21",
+      "x-real-ip": "203.0.113.99",
+      "x-forwarded-for": "203.0.113.100",
+    });
+
+    await expect(getRequestRateLimitKey()).resolves.toBe("203.0.113.21");
+  });
+
+  it("en desarrollo conserva la IP reenviada para pruebas locales", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    requestHeaders.value = new Headers({ "x-forwarded-for": "203.0.113.42, 10.0.0.1" });
+
+    await expect(getRequestRateLimitKey()).resolves.toBe("203.0.113.42");
+  });
 });

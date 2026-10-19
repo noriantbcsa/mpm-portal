@@ -6,7 +6,28 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/dal";
 import { siteSettingsFormSchema } from "@/lib/validation/site-settings";
 
-export type SettingsFormState = { status: "idle" } | { status: "error"; message: string };
+const SETTINGS_TEXT_FIELDS = [
+  "siteName", "tagline", "logoUrl", "primaryColor", "secondaryColor", "accentColor",
+  "whatsappNumber", "whatsappDefaultMessage", "contactEmail", "contactPhone",
+  "address", "instagramUrl", "facebookUrl", "tiktokUrl", "heroTitle", "heroSubtitle",
+  "heroImageUrl", "heroCtaLabel", "heroCtaHref", "footerText", "dataPolicyText",
+] as const;
+
+export type SubmittedSettingsValues = {
+  text: Record<(typeof SETTINGS_TEXT_FIELDS)[number], string>;
+  showPrices: boolean;
+};
+
+export type SettingsFormState =
+  | { status: "idle" }
+  | { status: "error"; message: string; values: SubmittedSettingsValues };
+
+function submittedValues(formData: FormData): SubmittedSettingsValues {
+  const text = Object.fromEntries(
+    SETTINGS_TEXT_FIELDS.map((field) => [field, String(formData.get(field) ?? "")]),
+  ) as SubmittedSettingsValues["text"];
+  return { text, showPrices: formData.get("showPrices") === "on" };
+}
 
 function emptyToNull(value: FormDataEntryValue | null) {
   const str = String(value ?? "").trim();
@@ -45,7 +66,11 @@ export async function saveSiteSettingsAction(
   });
 
   if (!parsed.success) {
-    return { status: "error", message: parsed.error.issues[0]?.message ?? "Revisa los datos." };
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Revisa los datos.",
+      values: submittedValues(formData),
+    };
   }
 
   await prisma.siteSettings.upsert({

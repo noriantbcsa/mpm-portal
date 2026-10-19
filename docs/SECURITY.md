@@ -49,10 +49,15 @@
   sincronización y el envío público del carrito se limitan por IP. Es una
   barrera local de proceso; al desplegar varias instancias debe complementarse
   con el WAF/rate limit del proveedor, porque esa memoria no se comparte.
-  La IP se toma de `CF-Connecting-IP`/`X-Real-IP` (fijadas por el borde del
-  proveedor) antes que del primer valor de
-  `X-Forwarded-For`, que el cliente puede falsificar
-  (`src/lib/security/rate-limit.ts`).
+  En producción, la IP se toma solo de `CF-Connecting-IP`, que Render
+  documenta como sobrescrita por Cloudflare en sus servicios web públicos.
+  No se confía en `X-Real-IP` ni en `X-Forwarded-For`, que podrían contener
+  valores enviados por el cliente. Si falta `CF-Connecting-IP`, se usa la
+  clave compartida `unknown`; hay que comprobar esa cabecera en Render para
+  evitar que un usuario agote el límite de todos
+  (`src/lib/security/rate-limit.ts`). Fuentes: [Render, IP real detrás de su
+  proxy](https://render.com/articles/host-pocketbase-on-render) y [Cloudflare,
+  cabeceras HTTP](https://developers.cloudflare.com/fundamentals/reference/http-headers/).
 - **Autoservicio de contraseña** (`/admin/perfil`): exige la contraseña actual,
   se limita por usuario (5 intentos / 15 min), sube `sessionVersion` (cierra las
   demás sesiones) y renueva la cookie de la sesión actual.

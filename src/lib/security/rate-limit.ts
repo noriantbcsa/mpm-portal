@@ -58,16 +58,16 @@ export function consumeRateLimit(key: string, { limit, windowMs }: RateLimit) {
 /**
  * Identificador de origen para límites de frecuencia, sin guardar PII.
  *
- * Se prefiere `CF-Connecting-IP`, que Cloudflare (delante de Render) siempre
- * sobrescribe con la IP real. `True-Client-IP` solo lo fija Cloudflare en
- * algunos planes, así que no se usa: si el borde no lo pisa, el cliente
- * podría elegir su propio contador. `X-Forwarded-For` solo se admite en
- * desarrollo: en producción su primer valor puede ser inyectado por quien
- * hace la petición si no hay un proxy de confianza delante.
+ * Render documenta que Cloudflare sobrescribe `CF-Connecting-IP` en sus
+ * servicios web públicos. No confiar en `X-Real-IP`: no hay esa garantía
+ * para la cabecera y podría permitir elegir otro contador. Si falta la
+ * cabecera de Cloudflare en producción, todos comparten `unknown` hasta
+ * corregir la configuración del borde. `X-Forwarded-For` solo se admite en
+ * desarrollo, donde no se usa como defensa de producción.
  */
 export async function getRequestRateLimitKey() {
   const requestHeaders = await headers();
-  const trusted = requestHeaders.get("cf-connecting-ip") ?? requestHeaders.get("x-real-ip");
+  const trusted = requestHeaders.get("cf-connecting-ip");
   const forwarded =
     process.env.NODE_ENV === "development"
       ? requestHeaders.get("x-forwarded-for")?.split(",")[0]

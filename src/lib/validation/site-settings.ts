@@ -19,7 +19,9 @@ const safeHref = z.string().trim().min(1).max(200).refine(
 const hexColor = z
   .string()
   .trim()
-  .regex(/^#[0-9a-fA-F]{3,8}$/, { error: "Usa un color hexadecimal, ej. #1F4D3D" });
+  .regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/, {
+    error: "Usa un color hexadecimal de 3, 4, 6 u 8 dígitos, ej. #1F4D3D",
+  });
 
 export const siteSettingsFormSchema = z.object({
   siteName: z.string().trim().min(1).max(80),

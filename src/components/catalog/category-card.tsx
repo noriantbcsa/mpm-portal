@@ -14,7 +14,7 @@ export function CategoryCard({
   return (
     <Link
       href={`/catalogo/${slug}`}
-      className="focus-ring group relative flex min-h-80 items-end overflow-hidden bg-brand-primary sm:min-h-[34rem]"
+      className="focus-ring group relative flex aspect-[3/4] w-full items-end overflow-hidden bg-brand-primary"
     >
       {imageUrl && (
         <Image
@@ -25,7 +25,7 @@ export function CategoryCard({
           placeholder="blur"
           blurDataURL={IMAGE_BLUR_DATA_URL}
           decoding="async"
-          className="object-cover object-[center_18%] opacity-95 scale-105 transition-transform duration-300 group-hover:scale-110"
+          className="object-cover object-center opacity-95"
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />

@@ -109,6 +109,21 @@ describe("loginSchema", () => {
 });
 
 describe("siteSettingsFormSchema", () => {
+  it("accepts only CSS hexadecimal color lengths", () => {
+    const base = {
+      siteName: "MPM", tagline: "Ropa", secondaryColor: "#222222", accentColor: "#333333",
+      whatsappNumber: "573001234567", whatsappDefaultMessage: "Hola", heroTitle: "Hola",
+      heroSubtitle: "Subtitulo", heroCtaLabel: "Ver", heroCtaHref: "/catalogo",
+      footerText: "Pie de página", showPrices: false,
+    };
+    for (const color of ["#abc", "#abcd", "#abcdef", "#abcdef12"]) {
+      expect(siteSettingsFormSchema.safeParse({ ...base, primaryColor: color }).success).toBe(true);
+    }
+    for (const color of ["#12345", "#1234567"]) {
+      expect(siteSettingsFormSchema.safeParse({ ...base, primaryColor: color }).success).toBe(false);
+    }
+  });
+
   it("rejects a whatsapp number with a leading plus sign", () => {
     const result = siteSettingsFormSchema.safeParse({
       siteName: "MPM",
