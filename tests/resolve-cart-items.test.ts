@@ -17,7 +17,7 @@ describe("resolveCartItems", () => {
 
   it("builds a snapshot from live product data, ignoring any client-sent price/name", async () => {
     findManyMock.mockResolvedValueOnce([
-      { id: "p1", name: "Camiseta básica", sku: "MPM-0001", priceRef: 39900, priceWholesale: 24000 },
+      { id: "p1", name: "Camiseta básica", sku: "MPM-0001", priceRef: 39900, priceWholesale: 24000, sizes: ["S", "M"] },
     ]);
 
     const result = await resolveCartItems([
@@ -36,6 +36,17 @@ describe("resolveCartItems", () => {
         priceWholesaleSnapshot: 24000,
       },
     ]);
+  });
+
+  it("drops lines whose size the product no longer offers, case-insensitively", async () => {
+    findManyMock.mockResolvedValueOnce([
+      { id: "p1", name: "Camisa", sku: "CAB-CMLH", priceRef: null, priceWholesale: null, sizes: ["M", "L", "XL"] },
+    ]);
+    const result = await resolveCartItems([
+      { productId: "p1", size: "XXL", color: null, quantity: 1 },
+      { productId: "p1", size: "xl", color: null, quantity: 1 },
+    ]);
+    expect(result.map((item) => item.size)).toEqual(["xl"]);
   });
 
   it("silently drops items whose product no longer exists or is hidden", async () => {

@@ -100,7 +100,7 @@ export default async function HomePage() {
         }}
       />
 
-      <section className="border-b border-line bg-ink px-4 py-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-white sm:px-6">
+      <section className="border-b border-line bg-ink px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.14em] text-white sm:px-6">
         MPM · prendas para todos los días · atención personalizada por WhatsApp
       </section>
 
@@ -110,7 +110,7 @@ export default async function HomePage() {
         <section className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 sm:py-16">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div className="seasonal-section-heading">
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink-soft">Comprar por colección</p>
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-ink-soft">Comprar por colección</p>
               <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-4xl">Encuentra tu estilo</h2>
             </div>
             <Link href="/catalogo" className="focus-ring mb-1 text-xs font-bold uppercase tracking-[0.1em] text-ink hover:underline">Ver catálogo →</Link>
@@ -153,7 +153,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-4 pb-14 pt-8 sm:px-6 sm:pb-20">
         <div className="seasonal-soft-surface grid border border-line bg-[#f7f7f5] sm:grid-cols-[1fr_auto] sm:items-center">
           <div className="p-7 sm:p-10">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink-soft">Compra acompañada</p>
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-ink-soft">Compra acompañada</p>
             <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-ink">¿Quieres ayuda para elegir?</h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-ink-soft">Guarda tus prendas en el carrito o habla con el equipo MPM para confirmar colores, tallas y disponibilidad.</p>
           </div>

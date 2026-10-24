@@ -51,11 +51,11 @@ export function ProductCard({
           </div>
         )}
         {product.status !== "DISPONIBLE" && (
-          <span className="absolute left-3 top-3 bg-paper px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-ink shadow-sm">
+          <span className="absolute left-3 top-3 bg-paper px-2 py-1 text-xs font-bold uppercase tracking-[0.12em] text-ink shadow-sm">
             {PRODUCT_STATUS_LABELS[product.status]}
           </span>
         )}
-        <span className="absolute bottom-3 right-3 translate-y-2 bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ink opacity-0 shadow-sm transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+        <span className="absolute bottom-3 right-3 translate-y-2 bg-paper px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-ink opacity-0 shadow-sm transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100">
           Ver prenda
         </span>
       </div>

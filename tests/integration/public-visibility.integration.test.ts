@@ -10,7 +10,7 @@ import sitemap from "@/app/sitemap";
 
 // Reglas de visibilidad pública añadidas en el bucle de auditoría 4:
 // campañas fuera de vigencia, categorías ocultas y prendas que no se pueden
-// pedir. Ver docs/AUDIT_LOOP_4.md.
+// pedir. Ver docs/auditorias/AUDIT_LOOP_4.md.
 const dbAvailable = await connectOrSkip(prisma);
 
 const DAY = 24 * 60 * 60 * 1000;

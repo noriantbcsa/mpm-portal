@@ -75,7 +75,7 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
   return (
     <>
       <header className="catalog-page-header mx-auto max-w-7xl border-b border-line px-4 pb-6 pt-10 sm:px-6 sm:pt-14">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-ink-soft">MPM · Catálogo y colecciones</p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-soft">MPM · Catálogo y colecciones</p>
         <div className="mt-2 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-5xl">
           {q ? `Resultados para "${q}"` : "Catálogo completo"}
@@ -96,6 +96,7 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
           </ResponsiveFilters>
         </aside>
         <div>
+          <h2 className="sr-only">Prendas</h2>
           <ProductGrid products={items} showPrices={settings.showPrices} emptyActionHref="/catalogo" selectedColor={color[0]} />
           <Pagination page={page} pageCount={pageCount} buildHref={buildHref} />
         </div>

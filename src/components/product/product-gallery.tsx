@@ -68,7 +68,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           className="object-contain"
         />
         {current.color && (
-          <span className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] break-words bg-paper px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm">
+          <span className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] break-words bg-paper px-2.5 py-1.5 text-xs font-bold uppercase tracking-[0.1em] text-ink shadow-sm">
             Color: {current.color}
           </span>
         )}
@@ -76,7 +76,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           ref={expandButtonRef}
           type="button"
           onClick={() => setIsExpanded(true)}
-          className="focus-ring absolute bottom-3 right-3 inline-flex min-h-10 items-center bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink shadow-sm hover:bg-brand-secondary"
+          className="focus-ring absolute bottom-3 right-3 inline-flex min-h-10 items-center bg-paper px-3 py-2 text-xs font-bold uppercase tracking-[0.1em] text-ink shadow-sm hover:bg-brand-secondary"
         >
           Ampliar foto
         </button>
@@ -118,7 +118,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
               ref={closeButtonRef}
               type="button"
               onClick={() => setIsExpanded(false)}
-              className="focus-ring absolute right-0 top-0 inline-flex min-h-10 items-center bg-paper px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-ink hover:bg-brand-secondary"
+              className="focus-ring absolute right-0 top-0 inline-flex min-h-10 items-center bg-paper px-3 py-2 text-xs font-bold uppercase tracking-[0.1em] text-ink hover:bg-brand-secondary"
             >
               Cerrar
             </button>

@@ -30,3 +30,8 @@ export function getCartPricing(items: PricedCartItem[]) {
     savings: isWholesale ? Math.max(0, detailTotal - wholesaleTotal) : 0,
   };
 }
+
+/** Precio unitario que se cobra a una línea según la modalidad del pedido. */
+export function getAppliedUnitPrice(item: Omit<PricedCartItem, "quantity">, isWholesale: boolean) {
+  return isWholesale ? (item.priceWholesale ?? item.priceRef) : item.priceRef;
+}

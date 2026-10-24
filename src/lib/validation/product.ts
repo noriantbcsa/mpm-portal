@@ -1,10 +1,11 @@
 import { z } from "zod";
 
+import { normalizeSizes } from "@/lib/sizes";
 import { imageUrlSchema } from "@/lib/validation/url";
 import { formatCatalogColor, uniqueCatalogColors } from "@/lib/catalog-colors";
 
-export const AUDIENCE_VALUES = ["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const;
-export const PRODUCT_STATUS_VALUES = [
+const AUDIENCE_VALUES = ["HOMBRE", "MUJER", "NINO", "NINA", "UNISEX"] as const;
+const PRODUCT_STATUS_VALUES = [
   "DISPONIBLE",
   "BAJO_PEDIDO",
   "AGOTADO",
@@ -17,7 +18,7 @@ export const PRODUCT_TAG_VALUES = [
   "RECOMENDADO",
 ] as const;
 
-export const skuSchema = z
+const skuSchema = z
   .string()
   .trim()
   .min(2, { error: "La referencia debe tener al menos 2 caracteres." })
@@ -26,7 +27,7 @@ export const skuSchema = z
     error: "Usa solo letras, números, puntos, guiones o guiones bajos.",
   });
 
-export const productImageInputSchema = z.object({
+const productImageInputSchema = z.object({
   url: imageUrlSchema,
   alt: z.string().trim().min(1, { error: "Describe la imagen (texto alternativo)." }).max(160),
   color: z.string().trim().max(60).optional().nullable().transform((value) => value ? formatCatalogColor(value) : null),
@@ -44,7 +45,7 @@ export const productFormSchema = z.object({
     .max(4000),
   categoryId: z.string().min(1, { error: "Selecciona una categoría." }),
   audience: z.enum(AUDIENCE_VALUES),
-  sizes: z.array(z.string().trim().min(1)).default([]),
+  sizes: z.array(z.string().trim().min(1)).default([]).transform(normalizeSizes),
   colors: z.array(z.string().trim().min(1).max(60)).max(100).default([]).transform(uniqueCatalogColors),
   material: z.string().trim().max(160).optional().nullable(),
   status: z.enum(PRODUCT_STATUS_VALUES).default("DISPONIBLE"),
@@ -72,8 +73,6 @@ export const productFormSchema = z.object({
     urls.add(image.url);
   });
 });
-
-export type ProductFormInput = z.infer<typeof productFormSchema>;
 
 /** Fila cruda de una plantilla CSV/Excel (todo llega como texto). */
 export const productCsvRowSchema = z.object({

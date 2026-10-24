@@ -196,8 +196,8 @@ describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)",
     const options = await getCatalogFilterOptions("it-vestidos");
     expect(options.sizes).toContain("38");
     expect(options.sizes).not.toContain("Consultar disponibilidad");
-    expect(options.sizes.slice(0, 6)).toEqual(["XS", "S", "M", "L", "XL", "XXL"]);
-    expect(options.sizes.indexOf("38")).toBeGreaterThan(5);
+    // Solo se ofrecen las tallas estándar que el ámbito tiene (nunca una que dé 0 resultados).
+    expect(options.sizes).toEqual(["S", "M", "L", "38"]);
     expect(options.sizes).not.toContain("Talla única");
     // Solo etiquetas que alguna prenda del ámbito tiene (OFERTA sí, por IT-0001; RECOMENDADO no).
     expect(options.tags).toContain("OFERTA");

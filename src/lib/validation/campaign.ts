@@ -30,8 +30,6 @@ export const campaignFormSchema = z
     { error: "La fecha de inicio debe ser anterior a la fecha de fin.", path: ["endDate"] },
   );
 
-export type CampaignFormInput = z.infer<typeof campaignFormSchema>;
-
 /**
  * Las fechas de campaña son días del calendario colombiano, no instantes.
  * `new Date("2026-10-31")` es medianoche UTC (las 19:00 del día anterior en

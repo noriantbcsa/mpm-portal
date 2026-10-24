@@ -2,12 +2,14 @@ import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa6";
 
 import { getSiteSettings } from "@/lib/site-config";
+import { getColombiaDateKey } from "@/lib/seasonal-themes";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 export async function Footer() {
   const settings = await getSiteSettings();
   const whatsappHref = buildWhatsAppLink(settings.whatsappNumber, settings.whatsappDefaultMessage);
-  const year = new Date().getFullYear();
+  // Año en hora de Colombia: el servidor puede estar en UTC y adelantarse en Nochevieja.
+  const year = getColombiaDateKey().slice(0, 4);
 
   return (
     <footer className="seasonal-footer mt-16 border-t border-line bg-brand-accent/40">

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 
 import { IMAGE_BLUR_DATA_URL } from "@/components/ui/image-placeholder";
 
@@ -30,6 +30,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const track = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  // Pausa fijada por la persona (WCAG 2.2.2): no depende del ratón ni del foco.
+  const [userPaused, setUserPaused] = useState(false);
 
   const goTo = useCallback(
     (next: number) => {
@@ -48,13 +50,13 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   }
 
   useEffect(() => {
-    if (paused || slides.length < 2) return;
+    if (paused || userPaused || slides.length < 2) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setInterval(() => {
       if (document.visibilityState === "visible") goTo(index + 1);
     }, AUTOPLAY_MS);
     return () => window.clearInterval(timer);
-  }, [paused, index, goTo, slides.length]);
+  }, [paused, userPaused, index, goTo, slides.length]);
 
   return (
     <section
@@ -79,11 +81,12 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               role="group"
               aria-roledescription="diapositiva"
               aria-label={`${slideIndex + 1} de ${slides.length}`}
-              aria-hidden={slideIndex !== index}
+              // La primera diapositiva lleva el único h1: no se oculta a lectores de pantalla.
+              aria-hidden={slideIndex !== index && slideIndex !== 0}
               className="grid w-full shrink-0 snap-center items-center gap-6 px-4 pb-16 pt-8 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)] lg:gap-12 lg:pb-20 lg:pt-10"
             >
               <div className="max-w-xl lg:order-2 rounded-sm bg-[rgb(255_252_246/0.62)] p-4 backdrop-blur-[1.5px] sm:p-6 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink-soft">{slide.kicker}</p>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink-soft">{slide.kicker}</p>
                 {/* La portada necesita un único h1: lo lleva la primera diapositiva. */}
                 {(() => {
                   const Heading = slideIndex === 0 ? "h1" : "h2";
@@ -147,7 +150,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                   onClick={() => goTo(dot)}
                   aria-label={`Ir a ${slide.kicker}`}
                   aria-current={dot === index}
-                  className="focus-ring flex h-6 w-6 items-center justify-center"
+                  className="focus-ring flex h-8 w-8 items-center justify-center"
                 >
                   <span className={`block h-2 rounded-full transition-all ${dot === index ? "w-6 bg-ink" : "w-2 bg-ink/30"}`} />
                 </button>
@@ -160,6 +163,15 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               className="focus-ring flex h-10 w-10 items-center justify-center border border-line bg-white/85 text-ink hover:bg-white"
             >
               <ChevronRight className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setUserPaused((value) => !value)}
+              aria-pressed={userPaused}
+              aria-label={userPaused ? "Reanudar el carrusel" : "Pausar el carrusel"}
+              className="focus-ring flex h-10 w-10 items-center justify-center border border-line bg-white/85 text-ink hover:bg-white"
+            >
+              {userPaused ? <Play className="h-4 w-4" aria-hidden="true" /> : <Pause className="h-4 w-4" aria-hidden="true" />}
             </button>
           </div>
         )}

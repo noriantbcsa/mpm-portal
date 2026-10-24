@@ -20,7 +20,7 @@ type FieldWrapperProps = {
   children: (ids: { inputId: string; describedBy: string | undefined }) => ReactNode;
 };
 
-export function FieldWrapper({
+function FieldWrapper({
   label,
   hint,
   error,

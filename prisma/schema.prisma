@@ -92,25 +92,25 @@ enum Audience {
 }
 
 model Product {
-  id          String           @id @default(cuid())
-  sku         String           @unique
-  name        String
-  slug        String           @unique
-  description String
-  categoryId  String
-  category    Category         @relation(fields: [categoryId], references: [id])
-  audience    Audience         @default(UNISEX)
-  sizes       String[]
-  colors      String[]
-  material    String?
-  status      ProductStatus    @default(DISPONIBLE)
-  tags        ProductTagType[]
-  campaignId  String?
-  campaign    Campaign?        @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  id             String           @id @default(cuid())
+  sku            String           @unique
+  name           String
+  slug           String           @unique
+  description    String
+  categoryId     String
+  category       Category         @relation(fields: [categoryId], references: [id])
+  audience       Audience         @default(UNISEX)
+  sizes          String[]
+  colors         String[]
+  material       String?
+  status         ProductStatus    @default(DISPONIBLE)
+  tags           ProductTagType[]
+  campaignId     String?
+  campaign       Campaign?        @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   /// Precio por unidad para compras de seis o más prendas.
-  priceWholesale Decimal?      @db.Decimal(12, 2)
+  priceWholesale Decimal?         @db.Decimal(12, 2)
   /// Precio por unidad al detal. Se conserva el nombre para no romper la API existente.
-  priceRef    Decimal?         @db.Decimal(12, 2)
+  priceRef       Decimal?         @db.Decimal(12, 2)
 
   viewCount      Int @default(0)
   addToCartCount Int @default(0)
@@ -303,6 +303,11 @@ model CartRequest {
   dataConsent  Boolean   @default(false)
   consentedAt  DateTime?
 
+  // Precio congelado al enviar: modalidad aplicada (mayorista desde 6 prendas)
+  // y total con los precios vigentes entonces. Nulo en solicitudes anteriores.
+  isWholesale Boolean  @default(false)
+  totalAmount Decimal? @db.Decimal(14, 2)
+
   status       CartRequestStatus @default(NUEVO)
   assignedToId String?
   assignedTo   User?             @relation("AssignedSalesRep", fields: [assignedToId], references: [id], onDelete: SetNull)
@@ -319,17 +324,20 @@ model CartRequest {
 }
 
 model CartRequestItem {
-  id                  String      @id @default(cuid())
-  cartRequestId       String
-  cartRequest         CartRequest @relation(fields: [cartRequestId], references: [id], onDelete: Cascade)
-  productId           String?
-  product             Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
-  productNameSnapshot String
-  productSkuSnapshot  String
-  size                String?
-  color               String?
-  quantity            Int         @default(1)
-  priceRefSnapshot    Decimal?    @db.Decimal(12, 2)
+  id                     String      @id @default(cuid())
+  cartRequestId          String
+  cartRequest            CartRequest @relation(fields: [cartRequestId], references: [id], onDelete: Cascade)
+  productId              String?
+  product                Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productNameSnapshot    String
+  productSkuSnapshot     String
+  size                   String?
+  color                  String?
+  quantity               Int         @default(1)
+  priceRefSnapshot       Decimal?    @db.Decimal(12, 2)
+  priceWholesaleSnapshot Decimal?    @db.Decimal(12, 2)
+  // Precio unitario realmente aplicado (detal o mayorista) al enviar.
+  unitPriceApplied       Decimal?    @db.Decimal(12, 2)
 
   @@index([cartRequestId])
   @@index([productId])

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { getCatalogFilterOptions, listProducts } from "@/lib/products";
+import { CATALOG_PAGE_SIZE } from "@/lib/constants";
+import { countProducts, getCatalogFilterOptions, listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
 import { getCategoryBySlug, getCategoryTree, isCategoryPublic } from "@/lib/categories";
 import type { RawSearchParams } from "@/lib/search-params";
@@ -23,12 +24,25 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   if (!category || !isCategoryPublic(category)) return {};
   const filters = parseCatalogParams(await searchParams);
   const filtered = hasCatalogFilters(filters);
+  // La canónica de una página fuera de rango apunta a la última real.
+  let canonicalPage = filters.pagina;
+  if (canonicalPage > 1) {
+    const total = await countProducts({
+      categorySlug: category.slug,
+      q: filters.q,
+      audience: filters.publico,
+      sizes: filters.talla,
+      colors: filters.color,
+      tags: filters.etiqueta,
+    });
+    canonicalPage = Math.min(canonicalPage, Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE)));
+  }
   return {
     title: category.name,
     description: category.description ?? `Catálogo de ${category.name} en MPM.`,
     // Cada página de la paginación es canónica de sí misma (recomendación
     // de Google); solo las variantes filtradas se excluyen del índice.
-    alternates: { canonical: buildCatalogHref(`/catalogo/${category.slug}`, EMPTY_FILTERS, filters.pagina) },
+    alternates: { canonical: buildCatalogHref(`/catalogo/${category.slug}`, EMPTY_FILTERS, canonicalPage) },
     ...(filtered ? { robots: { index: false, follow: true } } : {}),
   };
 }
@@ -71,7 +85,7 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
   return (
     <>
       <header className="catalog-page-header mx-auto max-w-7xl border-b border-line px-4 pb-6 pt-10 sm:px-6 sm:pt-14">
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Colección · prendas disponibles</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-soft">Colección · prendas disponibles</p>
         <div className="mt-2 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-5xl">{category.name}</h1>
           <p className="text-sm text-ink-soft">{total} {total === 1 ? "prenda disponible" : "prendas disponibles"}</p>
@@ -86,6 +100,7 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
           </ResponsiveFilters>
         </aside>
         <div>
+          <h2 className="sr-only">Prendas</h2>
           <ProductGrid products={items} showPrices={settings.showPrices} emptyActionHref={`/catalogo/${categoria}`} selectedColor={color[0]} />
           <Pagination page={page} pageCount={pageCount} buildHref={buildHref} />
         </div>

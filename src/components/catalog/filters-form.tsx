@@ -47,7 +47,6 @@ export function FiltersForm({
         <legend className="text-sm font-semibold text-ink">Ordenar por</legend>
         <select
           name="orden"
-          aria-label="Ordenar por"
           defaultValue={active.orden ?? "relevancia"}
           className="focus-ring mt-2 w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm"
         >
@@ -105,7 +104,7 @@ export function FiltersForm({
           {options.sizes.map((size) => (
             <label
               key={size}
-              className="focus-ring-within flex min-h-11 items-center gap-1.5 rounded-full border border-line px-3 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:text-brand-primary"
+              className="focus-ring-within flex min-h-11 items-center gap-1.5 rounded-full border border-line px-3 py-1 text-xs text-ink-soft has-checked:border-brand-primary has-checked:bg-brand-primary/10 has-checked:font-bold has-checked:text-brand-primary has-checked:ring-1 has-checked:ring-brand-primary"
             >
               <input
                 type="checkbox"
@@ -128,7 +127,7 @@ export function FiltersForm({
             <span aria-hidden="true" className="text-base leading-none transition-transform group-open:rotate-45">+</span>
           </span>
         </summary>
-        <div className="border-t border-line p-3" aria-label="Elegir color">
+        <div className="border-t border-line p-3" role="group" aria-label="Elegir color">
           <div className="flex flex-wrap gap-2">
             <CatalogColorFilterOption color="" selected={!active.color[0]} label="Todos" />
             {options.colors.map((color) => (
@@ -165,7 +164,6 @@ function CatalogColorFilterOption({ color, selected, label }: { color: string; s
       style={style}
     >
       <input type="radio" name="color" value={color} defaultChecked={selected} className="sr-only" aria-label={label} />
-      <span className="sr-only">{label}</span>
     </label>
   );
 }

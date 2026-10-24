@@ -14,7 +14,7 @@
 export const DATA_POLICY_UPDATED_AT = "18 de octubre de 2026";
 
 /** Texto sembrado por versiones anteriores; se trata como "sin política propia". */
-export const LEGACY_PLACEHOLDER_PREFIX = "Texto provisional";
+const LEGACY_PLACEHOLDER_PREFIX = "Texto provisional";
 
 export type PolicySection = { title: string; paragraphs?: string[]; items?: string[] };
 

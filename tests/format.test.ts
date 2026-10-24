@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import { formatDate, formatDateTime, formatPrice, onlyDigits, formatRelativeDays } from "@/lib/format";
 
+// Según la versión de ICU, Node usa U+202F (espacio fino) antes de "a. m."/"p. m.".
+const normalizeSpaces = (value: string) => value.replace(/[\u00a0\u202f]/g, " ");
+
 describe("formatPrice", () => {
   it("formats a number as Colombian pesos without decimals", () => {
     expect(formatPrice(45000)).toBe("$ 45.000");
@@ -40,11 +43,11 @@ describe("formatDateTime", () => {
   // de cuentas) y deben mostrarse en la hora de Colombia para el equipo
   // comercial, sin depender del huso horario del servidor.
   it("convierte a la hora de Bogotá (UTC-5), incluso cruzando la medianoche", () => {
-    expect(formatDateTime(new Date("2026-09-22T04:00:00.000Z"))).toBe("21 de sept de 2026, 11:00 p. m.");
+    expect(normalizeSpaces(formatDateTime(new Date("2026-09-22T04:00:00.000Z")))).toBe("21 de sept de 2026, 11:00 p. m.");
   });
 
   it("muestra la hora local correcta a media mañana en Colombia", () => {
-    expect(formatDateTime(new Date("2026-09-22T15:30:00.000Z"))).toBe("22 de sept de 2026, 10:30 a. m.");
+    expect(normalizeSpaces(formatDateTime(new Date("2026-09-22T15:30:00.000Z")))).toBe("22 de sept de 2026, 10:30 a. m.");
   });
 });
 

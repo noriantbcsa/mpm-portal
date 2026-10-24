@@ -27,6 +27,25 @@ describe("parseProductsCsv", () => {
     expect(rows[0].row).toBe(2);
   });
 
+  it("accepts headers written with accents or capitals, as Excel does", () => {
+    const csv = [
+      "Referencia,Nombre,Descripción,Categoría,Subcategoría,Público,Tallas,Colores,Material,Fotos,Estado,Etiquetas,Campaña,Precio",
+      "MPM-0002,Camisa,Camisa de popelina,Camisas,,mujer,XS;S,Blanco,Popelina,,disponible,,,60000",
+    ].join("\n");
+    const { rows, errors } = parseProductsCsv(csv);
+    expect(errors).toHaveLength(0);
+    expect(rows[0].data.descripcion).toBe("Camisa de popelina");
+  });
+
+  it("numbers rows by their real line in the file, skipping blank lines", () => {
+    const csv = [
+      "referencia,nombre,descripcion,categoria,subcategoria,publico,tallas,colores,material,fotos,estado,etiquetas,campana,precio",
+      "",
+      "MPM-0003,Camisa,Camisa de popelina,Camisas,,mujer,XS;S,Blanco,Popelina,,disponible,,,60000",
+    ].join("\n");
+    expect(parseProductsCsv(csv).rows[0].row).toBe(3);
+  });
+
   it("reports a row-level error when a required column is missing", () => {
     const csv = [
       "referencia,nombre,descripcion,categoria,subcategoria,publico,tallas,colores,material,fotos,estado,etiquetas,campana,precio",
@@ -55,7 +74,8 @@ describe("buildProductCsvTemplate", () => {
     const template = buildProductCsvTemplate();
     const lines = template.trim().split("\n");
     expect(lines).toHaveLength(2);
-    expect(lines[0]).toBe(
+    expect(template.startsWith("\uFEFF")).toBe(true);
+    expect(lines[0].replace("\uFEFF", "")).toBe(
       "referencia,nombre,descripcion,categoria,subcategoria,publico,tallas,colores,material,fotos,estado,etiquetas,campana,precio",
     );
 

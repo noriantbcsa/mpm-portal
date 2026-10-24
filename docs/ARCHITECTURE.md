@@ -132,7 +132,7 @@ No hay pagos ni cuentas de cliente. El modelo tiene tres piezas:
    `/admin/carritos-abandonados`, así que no hace falta cron para que
    funcione, pero tampoco hay hoy una notificación proactiva al equipo de
    ventas cuando un carrito *se vuelve* abandonado (ver
-   `docs/AUDIT_LOOP_2.md`, sección de pendientes).
+   `docs/auditorias/AUDIT_LOOP_2.md`, sección de pendientes).
 
 Al enviar la solicitud, el servidor **nunca confía en los datos del
 carrito que manda el navegador** más allá del `productId` + talla/color/
@@ -152,7 +152,7 @@ de construir el `CartRequestItem` y el mensaje de WhatsApp.
   saludo inicial ya redactado, para que el asesor solo tenga que darle
   "enviar". Esta es la vía de "notificar al equipo de ventas" que pide el
   enunciado: no hay hoy un correo/webhook automático (ver
-  `docs/AUDIT_LOOP_2.md`), pero la solicitud aparece de inmediato en
+  `docs/auditorias/AUDIT_LOOP_2.md`), pero la solicitud aparece de inmediato en
   `/admin/solicitudes` y el propio cliente suele completar el contacto por
   WhatsApp al enviar el formulario.
 

@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { getSiteSettings } from "@/lib/site-config";
 import { resolveSeasonalTheme } from "@/lib/seasonal-themes";
 import { getSiteUrl } from "@/lib/site-url";
+import "@fontsource-variable/inter";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -40,6 +40,8 @@ export function AddToCartForm({
   // Sin talla preseleccionada: con la escala XS–XXL, elegir por el cliente es obligatorio.
   const [size, setSize] = useState("");
   const [quantity, setQuantity] = useState(1);
+  // Borrador de texto: permite vaciar el campo para escribir "12" sin que salte a 1.
+  const [quantityDraft, setQuantityDraft] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<string | null>(null);
   const [limitError, setLimitError] = useState<string | null>(null);
 
@@ -52,8 +54,20 @@ export function AddToCartForm({
     );
   }
 
+  function commitQuantity() {
+    if (quantityDraft === null) return;
+    const parsed = Number.parseInt(quantityDraft, 10);
+    setQuantityDraft(null);
+    setQuantity(Number.isFinite(parsed) && parsed >= 1 ? Math.min(parsed, MAX_CART_ITEM_QUANTITY) : 1);
+  }
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    // Enter dentro del campo envía el formulario antes del blur: se confirma el borrador.
+    const draft = quantityDraft === null ? quantity : Number.parseInt(quantityDraft, 10);
+    const amount = Number.isFinite(draft) && draft >= 1 ? Math.min(draft, MAX_CART_ITEM_QUANTITY) : 1;
+    setQuantity(amount);
+    setQuantityDraft(null);
     const added = addItem(
       {
         productId,
@@ -66,7 +80,7 @@ export function AddToCartForm({
         priceRef,
         priceWholesale,
       },
-      quantity,
+      amount,
     );
     if (!added) {
       setConfirmation(null);
@@ -74,7 +88,7 @@ export function AddToCartForm({
       return;
     }
     setLimitError(null);
-    setConfirmation(`Agregaste ${quantity} ${quantity === 1 ? "unidad" : "unidades"} al carrito.`);
+    setConfirmation(`Agregaste ${amount} ${amount === 1 ? "unidad" : "unidades"} al carrito.`);
   }
 
   return (
@@ -124,24 +138,31 @@ export function AddToCartForm({
             type="button"
             aria-label="Disminuir cantidad"
             className="focus-ring flex h-10 w-10 items-center justify-center bg-paper text-lg text-ink"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            onClick={() => {
+              setQuantityDraft(null);
+              setQuantity((q) => Math.max(1, q - 1));
+            }}
           >
             −
           </button>
           <input
             id="quantity"
-            type="number"
-            min={1}
-            max={MAX_CART_ITEM_QUANTITY}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.min(MAX_CART_ITEM_QUANTITY, Math.max(1, Math.trunc(Number(e.target.value)) || 1)))}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={quantityDraft ?? String(quantity)}
+            onChange={(e) => setQuantityDraft(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            onBlur={commitQuantity}
             className="focus-ring h-10 w-14 border-x border-line bg-paper text-center text-sm font-semibold text-ink"
           />
           <button
             type="button"
             aria-label="Aumentar cantidad"
             className="focus-ring flex h-10 w-10 items-center justify-center bg-paper text-lg text-ink"
-            onClick={() => setQuantity((q) => Math.min(MAX_CART_ITEM_QUANTITY, q + 1))}
+            onClick={() => {
+              setQuantityDraft(null);
+              setQuantity((q) => Math.min(MAX_CART_ITEM_QUANTITY, q + 1));
+            }}
           >
             +
           </button>
@@ -159,22 +180,21 @@ export function AddToCartForm({
         </p>
       )}
 
-      {confirmation && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex flex-wrap items-center gap-3 border border-success bg-paper px-4 py-3 text-ink shadow-sm"
-        >
-          <Check className="h-5 w-5 shrink-0 text-success" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">Agregado al carrito</p>
-            <p className="mt-0.5 text-sm text-ink-soft">{confirmation}</p>
+      {/* Región siempre montada: los lectores de pantalla anuncian el cambio de texto, no el montaje. */}
+      <div role="status" aria-live="polite">
+        {confirmation && (
+          <div className="flex flex-wrap items-center gap-3 border border-success bg-paper px-4 py-3 text-ink shadow-sm">
+            <Check className="h-5 w-5 shrink-0 text-success" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Agregado al carrito</p>
+              <p className="mt-0.5 text-sm text-ink-soft">{confirmation}</p>
+            </div>
+            <Link href="/carrito" className="focus-ring text-sm font-semibold text-success underline underline-offset-4">
+              Ver carrito
+            </Link>
           </div>
-          <Link href="/carrito" className="focus-ring text-sm font-semibold text-success underline underline-offset-4">
-            Ver carrito
-          </Link>
-        </div>
-      )}
+        )}
+      </div>
     </form>
   );
 }

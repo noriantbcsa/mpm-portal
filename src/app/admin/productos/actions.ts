@@ -7,6 +7,7 @@ import { requireRole } from "@/lib/auth/dal";
 import { productFormSchema, PRODUCT_TAG_VALUES } from "@/lib/validation/product";
 import { imageUrlSchema } from "@/lib/validation/url";
 import { uniqueSlug } from "@/lib/slug";
+import { normalizeSizes } from "@/lib/sizes";
 import { decodeCsvBytes, parseCopPrice, parseProductsCsv, splitMultiValue } from "@/lib/csv";
 import { uniqueCatalogColors } from "@/lib/catalog-colors";
 import { adminSaveError, adminValidationError } from "@/lib/admin-form-errors";
@@ -310,7 +311,7 @@ export async function bulkImportProductsAction(
             description: data.descripcion,
             categoryId: category.id,
             ...(audienceValue ? { audience: audienceValue } : {}),
-            ...(data.tallas ? { sizes: splitMultiValue(data.tallas) } : {}),
+            ...(data.tallas ? { sizes: normalizeSizes(splitMultiValue(data.tallas)) } : {}),
             ...(data.colores ? { colors: uniqueCatalogColors(splitMultiValue(data.colores)) } : {}),
             ...(data.material ? { material: data.material } : {}),
             ...(statusValue ? { status: statusValue } : {}),
