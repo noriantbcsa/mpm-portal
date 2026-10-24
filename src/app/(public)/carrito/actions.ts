@@ -114,7 +114,7 @@ function cartItemsSignature(
 }
 
 /** Lo que la persona escribió, para repoblar el formulario tras un error. */
-export type SubmittedContactValues = {
+type SubmittedContactValues = {
   contactName: string;
   contactPhone: string;
   city: string;

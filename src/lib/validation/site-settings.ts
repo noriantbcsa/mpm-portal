@@ -51,4 +51,3 @@ export const siteSettingsFormSchema = z.object({
   showPrices: z.boolean().default(false),
 });
 
-export type SiteSettingsFormInput = z.infer<typeof siteSettingsFormSchema>;

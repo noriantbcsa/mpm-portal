@@ -24,7 +24,7 @@ function getSecretKey() {
   return new TextEncoder().encode(secret);
 }
 
-export async function signSession(payload: SessionPayload) {
+async function signSession(payload: SessionPayload) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()

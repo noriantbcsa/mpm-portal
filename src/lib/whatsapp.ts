@@ -6,7 +6,7 @@ export function buildWhatsAppLink(phone: string, message: string) {
   return `https://wa.me/${digits}?${params.toString()}`;
 }
 
-export type CartRequestMessageItem = {
+type CartRequestMessageItem = {
   name: string;
   sku: string;
   quantity: number;

@@ -5,7 +5,7 @@ import { z } from "zod";
  * la primera letra en mayúscula ("Ventas@…") y, sin normalizar, el login fallaba
  * y se podían crear dos cuentas que solo difieren en mayúsculas.
  */
-export const emailSchema = z
+const emailSchema = z
   .string()
   .trim()
   .toLowerCase()
@@ -17,8 +17,6 @@ export const loginSchema = z.object({
   // primeros 72 bytes, así que ninguna contraseña legítima lo supera.
   password: z.string().min(1, { error: "Ingresa tu contraseña." }).max(200, { error: "La contraseña es demasiado larga." }),
 });
-
-export type LoginInput = z.infer<typeof loginSchema>;
 
 export const passwordSchema = z
   .string()
@@ -33,8 +31,6 @@ export const createUserSchema = z.object({
   active: z.boolean().default(true),
 });
 
-export type CreateUserInput = z.infer<typeof createUserSchema>;
-
 export const updateUserSchema = z.object({
   id: z.string().min(1),
   name: z.string().trim().min(2).max(120),
@@ -43,4 +39,3 @@ export const updateUserSchema = z.object({
   password: z.union([passwordSchema, z.literal("")]).optional(),
 });
 
-export type UpdateUserInput = z.infer<typeof updateUserSchema>;

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ABANDONED_CART_DAYS } from "@/lib/constants";
 import type { CurrentUser } from "@/lib/auth/dal";
 
-export function abandonedSinceDate() {
+function abandonedSinceDate() {
   return new Date(Date.now() - ABANDONED_CART_DAYS * 24 * 60 * 60 * 1000);
 }
 

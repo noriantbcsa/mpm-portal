@@ -2,7 +2,7 @@ import { parse } from "csv-parse/sync";
 
 import { PRODUCT_CSV_COLUMNS, productCsvRowSchema, type ProductCsvRow } from "@/lib/validation/product";
 
-export type CsvParseError = { row: number; message: string };
+type CsvParseError = { row: number; message: string };
 
 export type CsvParseResult = {
   rows: Array<{ row: number; data: ProductCsvRow }>;

@@ -31,9 +31,7 @@ export const cartRequestContactSchema = z.object({
   }),
 });
 
-export type CartRequestContactInput = z.infer<typeof cartRequestContactSchema>;
-
-export const cartItemInputSchema = z.object({
+const cartItemInputSchema = z.object({
   productId: safeText(z.string().min(1)),
   size: safeText(z.string().trim().max(40, tooLong(40))).optional().nullable(),
   color: safeText(z.string().trim().max(40, tooLong(40))).optional().nullable(),
@@ -44,8 +42,6 @@ export const cartItemInputSchema = z.object({
     .max(MAX_CART_ITEM_QUANTITY, { error: `La cantidad máxima por prenda es ${MAX_CART_ITEM_QUANTITY}.` }),
 });
 
-export type CartItemInput = z.infer<typeof cartItemInputSchema>;
-
 export const cartItemsSchema = z.array(cartItemInputSchema).max(MAX_CART_LINES, {
   error: `El carrito puede tener como máximo ${MAX_CART_LINES} referencias.`,
 });
@@ -54,8 +50,6 @@ export const submitCartRequestSchema = z.object({
   contact: cartRequestContactSchema,
   items: cartItemsSchema.min(1, { error: "Agrega al menos una prenda antes de enviar tu solicitud." }),
 });
-
-export type SubmitCartRequestInput = z.infer<typeof submitCartRequestSchema>;
 
 export const cartRequestNoteSchema = z.object({
   cartRequestId: z.string().min(1),

@@ -1,8 +1,8 @@
 import { toColombiaDateKey } from "@/lib/validation/campaign";
 
 /** Texto y vigencia con los que arranca el formulario de una campaña nueva. */
-export const DEFAULT_CAMPAIGN_DESCRIPTION = "Aprovecha esta oferta por tiempo limitado en prendas seleccionadas.";
-export const DEFAULT_CAMPAIGN_DURATION_DAYS = 14;
+const DEFAULT_CAMPAIGN_DESCRIPTION = "Aprovecha esta oferta por tiempo limitado en prendas seleccionadas.";
+const DEFAULT_CAMPAIGN_DURATION_DAYS = 14;
 
 /** Longitud recomendada para que el aviso superior quepa en una o dos líneas. */
 export const CAMPAIGN_BANNER_TEXT_HINT = 120;

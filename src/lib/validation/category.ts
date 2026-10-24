@@ -11,4 +11,3 @@ export const categoryFormSchema = z.object({
   isVisible: z.boolean().default(true),
 });
 
-export type CategoryFormInput = z.infer<typeof categoryFormSchema>;
