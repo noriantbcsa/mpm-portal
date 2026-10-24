@@ -226,8 +226,8 @@ calendario festivo y sus modos automático/manual/apagado:
   Las acciones de `/admin` restantes (productos, campañas, ajustes,
   festividades) y la acción pública del carrito no tienen pruebas
   automatizadas todavía; se verificaron navegando la aplicación (ver
-  docs/AUDIT_LOOP_1.md … AUDIT_LOOP_5.md) y están listadas como pendientes en
-  docs/AUDIT_LOOP_5.md.
+  docs/auditorias/AUDIT_LOOP_1.md … AUDIT_LOOP_5.md) y están listadas como pendientes en
+  docs/auditorias/AUDIT_LOOP_5.md.
 - Los archivos de prueba corren en serie (`fileParallelism: false` en
   `vitest.config.mts`) porque las pruebas de integración comparten una única
   base de datos de pruebas.
@@ -239,7 +239,7 @@ calendario festivo y sus modos automático/manual/apagado:
   `autoDeployTrigger: checksPass` en `render.yaml` (o "After CI checks pass" en el
   dashboard) y proteger la rama `main` exigiendo el job `verify` en GitHub
   (ver docs/DEPLOYMENT.md §8). `.github/dependabot.yml` abre PR semanales de dependencias.
-- Bitácoras de auditoría: `docs/AUDIT_LOOP_1.md` … `docs/AUDIT_LOOP_5.md`
+- Bitácoras de auditoría: `docs/auditorias/AUDIT_LOOP_1.md` … `docs/auditorias/AUDIT_LOOP_5.md`
   (la 5 es la más reciente e incluye los riesgos pendientes).
 - `npm run build` debe completar sin errores. Revisa la lista de rutas que
   imprime: cualquier página que dependa de datos editables desde `/admin`

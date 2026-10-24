@@ -183,7 +183,7 @@ motor de consultas de Prisma) y `esbuild`/`unrs-resolver` (binarios nativos
 de herramientas de build). No apruebes un script nuevo sin revisar qué
 paquete lo pide y por qué.
 
-## Qué falta antes de producción (ver también `docs/AUDIT_LOOP_5.md`, sección "Riesgos y pendientes")
+## Qué falta antes de producción (ver también `docs/auditorias/AUDIT_LOOP_5.md`, sección "Riesgos y pendientes")
 
 - Revisión legal real del texto de `/politica-de-datos`.
 - Generar un `AUTH_SECRET` de producción propio (nunca reusar el de

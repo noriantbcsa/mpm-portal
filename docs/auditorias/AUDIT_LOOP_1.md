@@ -77,4 +77,4 @@ al ejecutar.
 Quedan pendientes para el bucle 2: revisión de accesibilidad más formal,
 SEO técnico (sitemap/robots), manejo de errores/páginas 404 dedicadas,
 rendimiento (Core Web Vitals) y una pasada de seguridad más amplia. Ver
-`docs/AUDIT_LOOP_2.md`.
+`docs/auditorias/AUDIT_LOOP_2.md`.
