@@ -217,7 +217,7 @@ function withStandardSizes(found: string[]) {
   const foundKeys = new Set(found.map((size) => size.toLowerCase()));
   const standardKeys = new Set(STANDARD_CATALOG_SIZES.map((size) => size.toLowerCase()));
   // Solo las tallas estándar que existen en el ámbito (Damas XS–L, Caballero
-  // M–XL, plus XXL): ofrecer una que da 0 resultados confunde. Sin ninguna
+  // M–XL y XXL): ofrecer una que da 0 resultados confunde. Sin ninguna
   // talla cargada todavía se ofrece la escala completa.
   const present = STANDARD_CATALOG_SIZES.filter((size) => foundKeys.has(size.toLowerCase()));
   // "Talla única" no se ofrece como filtro: la escala del catálogo es XS–XXL.

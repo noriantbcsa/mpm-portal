@@ -77,7 +77,7 @@ function referenceName(folder: string) {
     "R-UNICA": "camisa talla única rayada",
     UNICA: "camisa talla única",
     OVCML: "camisa corta manga larga",
-    "PLUS DAMA": "camisa manga larga dama plus",
+    "PLUS DAMA": "camisa manga larga dama",
     CMLH: "camisa manga larga hombre",
     CMCH: "camisa manga corta hombre",
     CMLRH: "camisa manga larga rayada hombre",
@@ -99,10 +99,10 @@ const catalogPricing: Record<string, readonly [number, number]> = {
   "CMCH XXL": [40000, 70000], "CMLH XXL": [42000, 75000],
 };
 
-/** Damas: XS–L. Caballero: M–XL. Las líneas "plus" / XXL solo se ofrecen en XXL. */
+/** Damas: XS–L. Caballero: M–XL. Las líneas XXL (solo caballero) se ofrecen únicamente en XXL. */
 function sizesFor(folder: string, audience: "MUJER" | "HOMBRE") {
   if (/^(R-UNICA|UNICA)$/i.test(folder)) return ["Talla única"];
-  if (/XXL|PLUS/i.test(folder)) return ["XXL"];
+  if (/XXL/i.test(folder)) return ["XXL"];
   return audience === "MUJER" ? ["XS", "S", "M", "L"] : ["M", "L", "XL"];
 }
 
