@@ -161,6 +161,15 @@ describe("siteSettingsFormSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it.each(["/\t/evil.com", "/\n/evil.com", "//evil.com", "/\\evil.com", "https://evil.com/\tx"])(
+    "rejects the banner link %j",
+    (heroCtaHref) => {
+      const base = { siteName: "MPM", tagline: "Ropa", primaryColor: "#111111", secondaryColor: "#222222", accentColor: "#333333", whatsappNumber: "573001234567", whatsappDefaultMessage: "Hola", heroTitle: "Hola", heroSubtitle: "Subtitulo", heroCtaLabel: "Ver", footerText: "Pie", showPrices: false };
+      expect(siteSettingsFormSchema.safeParse({ ...base, heroCtaHref }).success).toBe(false);
+      expect(siteSettingsFormSchema.safeParse({ ...base, heroCtaHref: "/catalogo?talla=M#top" }).success).toBe(true);
+    },
+  );
 });
 
 describe("campaign dates (Colombia calendar days)", () => {

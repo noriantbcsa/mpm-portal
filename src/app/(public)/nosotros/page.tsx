@@ -93,7 +93,7 @@ export default async function NosotrosPage() {
         <div className="grid grid-cols-2 gap-px bg-line">
           {values.map((value) => (
             <div key={value} className="bg-brand-accent/35 p-5 sm:p-6">
-              <p className="font-display text-xl font-semibold text-ink">{value}</p>
+              <p className="font-display text-lg font-semibold text-ink sm:text-xl">{value}</p>
               <p className="mt-2 text-sm leading-6 text-ink-soft">{value === "Calidad" && "Materiales y acabados que responden a altos estándares."}{value === "Pasión" && "Energía puesta desde el diseño hasta la atención."}{value === "Dedicación" && "Esmero en cada detalle y en cada prenda."}{value === "Cumplimiento" && "Compromisos claros, atención oportuna y confianza."}</p>
             </div>
           ))}

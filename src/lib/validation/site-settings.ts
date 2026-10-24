@@ -1,13 +1,15 @@
 import { z } from "zod";
 
-import { optionalHttpUrlSchema, optionalImageUrlSchema } from "@/lib/validation/url";
+import { isSitePath, optionalHttpUrlSchema, optionalImageUrlSchema } from "@/lib/validation/url";
 
 const optionalLink = optionalHttpUrlSchema.optional().nullable();
 const optionalImage = optionalImageUrlSchema.optional().nullable();
 const safeHref = z.string().trim().min(1).max(200).refine(
   (value) => {
-    // "//dominio" y "/\\dominio" son URLs de otro sitio para el navegador.
-    if (value.startsWith("/")) return !value.startsWith("//") && !value.startsWith("/\\");
+    // Rutas del sitio: isSitePath rechaza "//dominio", "/\\dominio" y los
+    // tabuladores/saltos de línea que el navegador elimina al interpretar la URL.
+    if (value.startsWith("/")) return isSitePath(value);
+    if (/[\s\u0000-\u001f]/.test(value)) return false;
     try {
       return ["http:", "https:"].includes(new URL(value).protocol);
     } catch {

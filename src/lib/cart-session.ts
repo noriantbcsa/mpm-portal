@@ -7,11 +7,14 @@ import { CART_SESSION_COOKIE_NAME } from "@/lib/constants";
 
 const CART_SESSION_MAX_AGE = 60 * 60 * 24 * 120; // 120 días
 
+// Solo se acepta el formato que generamos (UUID): una cookie manipulada se reemplaza.
+const CART_SESSION_TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /** Devuelve el token de sesión de carrito del visitante, creándolo si hace falta. */
 export async function getOrCreateCartSessionToken(): Promise<string> {
   const cookieStore = await cookies();
   const existing = cookieStore.get(CART_SESSION_COOKIE_NAME)?.value;
-  if (existing) return existing;
+  if (existing && CART_SESSION_TOKEN_PATTERN.test(existing)) return existing;
 
   const token = randomUUID();
   cookieStore.set(CART_SESSION_COOKIE_NAME, token, {

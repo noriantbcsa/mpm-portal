@@ -7,7 +7,7 @@ export const categoryFormSchema = z.object({
   description: z.string().trim().max(500).optional().nullable(),
   imageUrl: optionalImageUrlSchema.optional().nullable(),
   parentId: z.string().optional().nullable(),
-  order: z.number().int().min(0).default(0),
+  order: z.number().int().min(0).max(10000).default(0),
   isVisible: z.boolean().default(true),
 });
 

@@ -74,7 +74,8 @@
   una cookie con firma válida pero revocada (contraseña cambiada, usuario
   desactivado) producía un bucle infinito de redirecciones.
 - **Permisos de ventas**: un usuario `SALES` solo puede cambiar estado,
-  asignación y notas de solicitudes libres o propias, y solo clasificar
+  asignación y notas de las solicitudes que tiene asignadas (las libres las
+  reparte un administrador), y solo clasificar
   carritos que no gestiona otro compañero. Las escrituras son condicionales
   (`updateMany` con la condición en el `WHERE`) para que dos asesores no se
   queden a la vez con la misma solicitud.
