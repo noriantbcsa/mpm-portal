@@ -150,9 +150,9 @@ export default async function ProductoPage({ params }: PageProps) {
               Detalles de la prenda <span className="text-lg font-normal transition-transform group-open:rotate-45">+</span>
             </summary>
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-              <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Público</dt><dd className="mt-1 text-ink">{AUDIENCE_LABELS[product.audience]}</dd></div>
-              {product.material && <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Material</dt><dd className="mt-1 text-ink">{product.material}</dd></div>}
-              <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Variantes</dt><dd className="mt-1 text-ink">{product.colors.length} {product.colors.length === 1 ? "color" : "colores"}</dd></div>
+              <div><dt className="text-xs font-bold uppercase tracking-[0.1em] text-ink-soft">Público</dt><dd className="mt-1 text-ink">{AUDIENCE_LABELS[product.audience]}</dd></div>
+              {product.material && <div><dt className="text-xs font-bold uppercase tracking-[0.1em] text-ink-soft">Material</dt><dd className="mt-1 text-ink">{product.material}</dd></div>}
+              <div><dt className="text-xs font-bold uppercase tracking-[0.1em] text-ink-soft">Variantes</dt><dd className="mt-1 text-ink">{product.colors.length} {product.colors.length === 1 ? "color" : "colores"}</dd></div>
             </dl>
           </details>
           <details className="group py-4">
@@ -166,7 +166,7 @@ export default async function ProductoPage({ params }: PageProps) {
 
       {related.length > 0 && (
         <section className="mt-16 border-t border-line pt-8">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-soft">Para combinar</p>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-soft">Para combinar</p>
           <h2 className="mt-1 font-display text-2xl font-semibold tracking-[-0.03em] text-ink">También te puede interesar</h2>
           <div className="mt-6">
             <ProductGrid products={related} showPrices={settings.showPrices} />

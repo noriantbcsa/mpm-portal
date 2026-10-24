@@ -208,16 +208,21 @@ export async function listProducts(filters: CatalogFilters = {}) {
 // aparece en los filtros como máximo un minuto después. En pruebas no se
 // memoiza para que cada caso vea sus propios datos.
 /**
- * Tallas que el filtro siempre ofrece (en este orden), aunque todavía ninguna
- * referencia las tenga cargadas; las tallas reales extra (p. ej. "38") van después.
+ * Escala estándar del filtro (en este orden); las tallas reales extra
+ * (p. ej. "38") van después.
  */
 const STANDARD_CATALOG_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 function withStandardSizes(found: string[]) {
+  const foundKeys = new Set(found.map((size) => size.toLowerCase()));
   const standardKeys = new Set(STANDARD_CATALOG_SIZES.map((size) => size.toLowerCase()));
+  // Solo las tallas estándar que existen en el ámbito (Damas XS–L, Caballero
+  // M–XL, plus XXL): ofrecer una que da 0 resultados confunde. Sin ninguna
+  // talla cargada todavía se ofrece la escala completa.
+  const present = STANDARD_CATALOG_SIZES.filter((size) => foundKeys.has(size.toLowerCase()));
   // "Talla única" no se ofrece como filtro: la escala del catálogo es XS–XXL.
   const extras = found.filter((size) => !standardKeys.has(size.toLowerCase()) && !/^talla [uú]nica$/i.test(size));
-  return [...STANDARD_CATALOG_SIZES, ...extras];
+  return [...(present.length > 0 || extras.length > 0 ? present : STANDARD_CATALOG_SIZES), ...extras];
 }
 
 // Orden en que se ofrecen las etiquetas en el filtro.

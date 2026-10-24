@@ -71,10 +71,14 @@ export function parseCopPrice(raw: string): number | null | undefined {
  * celdas van entre comillas, como las guarda Excel.
  */
 export function parseProductsCsv(csvText: string): CsvParseResult {
-  let rawRows: Record<string, string>[];
+  let parsedRecords: { record: Record<string, string>; info: { lines: number } }[];
   try {
-    rawRows = parse(csvText, {
-      columns: (header: string[]) => header.map((h) => h.trim().toLowerCase()),
+    parsedRecords = parse(csvText, {
+      info: true,
+      // Sin tildes ni mayúsculas: "Descripción" y "Categoría" valen igual que
+      // "descripcion" y "categoria" (así los escribe Excel).
+      columns: (header: string[]) =>
+        header.map((h) => h.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")),
       delimiter: detectCsvDelimiter(csvText),
       skip_empty_lines: true,
       trim: true,
@@ -85,6 +89,7 @@ export function parseProductsCsv(csvText: string): CsvParseResult {
     return { rows: [], errors: [{ row: 0, message: `No se pudo leer el archivo CSV${detail}.` }] };
   }
 
+  const rawRows = parsedRecords.map((item) => item.record);
   const headers = rawRows[0] ? Object.keys(rawRows[0]) : [];
   const missing = REQUIRED_CSV_COLUMNS.filter((column) => !headers.includes(column));
   if (rawRows.length > 0 && missing.length > 0) {
@@ -114,8 +119,10 @@ export function parseProductsCsv(csvText: string): CsvParseResult {
   const errors: CsvParseError[] = [];
   const rows: Array<{ row: number; data: ProductCsvRow }> = [];
 
-  rawRows.forEach((raw, index) => {
-    const rowNumber = index + 2; // +1 por índice base 0, +1 por la fila de encabezado
+  parsedRecords.forEach(({ record: raw, info }) => {
+    // Línea real del archivo: cuenta las filas vacías omitidas y las celdas
+    // con saltos de línea, para que coincida con el número de la hoja.
+    const rowNumber = info.lines;
     const parsed = productCsvRowSchema.safeParse(raw);
     if (!parsed.success) {
       const message = parsed.error.issues.map((issue) => issue.message).join(" ");
@@ -163,5 +170,6 @@ export function buildProductCsvTemplate(): string {
   ]
     .map(csvField)
     .join(",");
-  return `${header}\n${example}\n`;
+  // BOM UTF-8: sin él Excel de Windows muestra mal las tildes del ejemplo.
+  return `\uFEFF${header}\n${example}\n`;
 }
