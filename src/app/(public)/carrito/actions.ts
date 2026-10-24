@@ -15,6 +15,7 @@ import {
   type RawCartItem,
 } from "@/lib/cart/resolve-items";
 import { cartItemsSchema, submitCartRequestSchema } from "@/lib/validation/cart-request";
+import { onlyDigits } from "@/lib/format";
 import { getAppliedUnitPrice, getCartPricing } from "@/lib/pricing";
 import { getSiteSettings } from "@/lib/site-config";
 import { buildCartRequestMessage, buildWhatsAppLink } from "@/lib/whatsapp";
@@ -291,6 +292,7 @@ export async function submitCartRequestAction(
   };
 
   const itemsSignature = cartItemsSignature(resolvedItems);
+  const phoneDigits = onlyDigits(contact.contactPhone);
   try {
     await prisma.$transaction(async (tx) => {
       // Doble envío (doble clic, reintento, dos pestañas): se serializan los
@@ -298,12 +300,17 @@ export async function submitCartRequestAction(
       // solicitud idéntica, no se crea otra — se responde igual que la
       // primera vez. Sin esto, un doble clic antes de que exista la sesión
       // de carrito guardaba dos solicitudes.
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${contact.contactPhone}))`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${phoneDigits}))`;
+      // "300 123 4567" y "3001234567" son el mismo teléfono: se compara por dígitos.
       const recent = await tx.cartRequest.findMany({
-        where: { contactPhone: contact.contactPhone, createdAt: { gte: new Date(Date.now() - DUPLICATE_WINDOW_MS) } },
-        select: { items: { select: { productId: true, size: true, color: true, quantity: true } } },
+        where: { createdAt: { gte: new Date(Date.now() - DUPLICATE_WINDOW_MS) } },
+        select: { contactPhone: true, items: { select: { productId: true, size: true, color: true, quantity: true } } },
+        take: 500,
       });
-      if (recent.some((request) => cartItemsSignature(request.items) === itemsSignature)) return;
+      const isDuplicate = recent.some(
+        (request) => onlyDigits(request.contactPhone) === phoneDigits && cartItemsSignature(request.items) === itemsSignature,
+      );
+      if (isDuplicate) return;
       await tx.cartRequest.create({ data: { ...requestData, cartSessionId: cartSession?.id } });
     });
   } catch (error) {

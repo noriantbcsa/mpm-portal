@@ -224,7 +224,8 @@ describe("submitCartRequestAction", () => {
 
   it("doble envío: una solicitud idéntica reciente del mismo teléfono no se duplica, y responde igual", async () => {
     recentFindManyMock.mockResolvedValue([
-      { items: [{ productId: "p1", size: "M", color: "Negro", quantity: 2 }] },
+      // Mismo teléfono escrito con espacios: se compara por dígitos.
+      { contactPhone: "300 123 4567", items: [{ productId: "p1", size: "M", color: "Negro", quantity: 2 }] },
     ]);
     const result = await submitCartRequestAction(idle, form());
     expect(result.status).toBe("success");
@@ -234,7 +235,15 @@ describe("submitCartRequestAction", () => {
 
   it("la misma persona con OTRO carrito sí crea una solicitud nueva", async () => {
     recentFindManyMock.mockResolvedValue([
-      { items: [{ productId: "otro", size: null, color: null, quantity: 1 }] },
+      { contactPhone: "3001234567", items: [{ productId: "otro", size: null, color: null, quantity: 1 }] },
+    ]);
+    await submitCartRequestAction(idle, form());
+    expect(cartRequestCreateMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("el mismo carrito desde OTRO teléfono sí crea una solicitud nueva", async () => {
+    recentFindManyMock.mockResolvedValue([
+      { contactPhone: "3109998888", items: [{ productId: "p1", size: "M", color: "Negro", quantity: 2 }] },
     ]);
     await submitCartRequestAction(idle, form());
     expect(cartRequestCreateMock).toHaveBeenCalledTimes(1);

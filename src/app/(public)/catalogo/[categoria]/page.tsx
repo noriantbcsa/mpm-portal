@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { getCatalogFilterOptions, listProducts } from "@/lib/products";
+import { CATALOG_PAGE_SIZE } from "@/lib/constants";
+import { countProducts, getCatalogFilterOptions, listProducts } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-config";
 import { getCategoryBySlug, getCategoryTree, isCategoryPublic } from "@/lib/categories";
 import type { RawSearchParams } from "@/lib/search-params";
@@ -23,12 +24,25 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   if (!category || !isCategoryPublic(category)) return {};
   const filters = parseCatalogParams(await searchParams);
   const filtered = hasCatalogFilters(filters);
+  // La canónica de una página fuera de rango apunta a la última real.
+  let canonicalPage = filters.pagina;
+  if (canonicalPage > 1) {
+    const total = await countProducts({
+      categorySlug: category.slug,
+      q: filters.q,
+      audience: filters.publico,
+      sizes: filters.talla,
+      colors: filters.color,
+      tags: filters.etiqueta,
+    });
+    canonicalPage = Math.min(canonicalPage, Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE)));
+  }
   return {
     title: category.name,
     description: category.description ?? `Catálogo de ${category.name} en MPM.`,
     // Cada página de la paginación es canónica de sí misma (recomendación
     // de Google); solo las variantes filtradas se excluyen del índice.
-    alternates: { canonical: buildCatalogHref(`/catalogo/${category.slug}`, EMPTY_FILTERS, filters.pagina) },
+    alternates: { canonical: buildCatalogHref(`/catalogo/${category.slug}`, EMPTY_FILTERS, canonicalPage) },
     ...(filtered ? { robots: { index: false, follow: true } } : {}),
   };
 }

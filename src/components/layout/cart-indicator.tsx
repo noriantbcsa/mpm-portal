@@ -1,20 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
-import { useCartStore } from "@/store/cart-store";
+import { useCartStore, useHasHydrated } from "@/store/cart-store";
 
 export function CartIndicator() {
   // Evita hidratar con un número que difiera de localStorage (SSR siempre ve 0).
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHasHydrated();
   const totalItems = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
-
-  useEffect(() => {
-    const hydrationTick = window.setTimeout(() => setMounted(true), 0);
-    return () => window.clearTimeout(hydrationTick);
-  }, []);
 
   return (
     <Link
