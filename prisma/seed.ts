@@ -185,9 +185,10 @@ async function importRealCatalog() {
         where: { sku },
         create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name, collection.audience), colors, tags, priceRef, priceWholesale, images: { create: images } },
         // Repetir el seed solo refresca las fotos entregadas: nombre,
-        // descripción, categoría, tallas, etiquetas, etc. pueden haberse
-        // editado desde /admin y no deben pisarse.
-        update: { name, description, priceRef, priceWholesale, images: { deleteMany: {}, create: images } },
+        // descripción, precios, categoría, tallas, etiquetas, etc. pueden
+        // haberse editado desde /admin y no deben pisarse (los cambios de
+        // precios y nombres entregados van en migraciones de datos).
+        update: { images: { deleteMany: {}, create: images } },
       });
       imported += 1;
 

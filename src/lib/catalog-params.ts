@@ -2,6 +2,7 @@ import type { Audience, ProductTagType } from "@prisma/client";
 
 import { CATALOG_AUDIENCES, PRODUCT_TAG_LABELS } from "@/lib/constants";
 import { formatCatalogColor } from "@/lib/catalog-colors";
+import { normalizeSizes } from "@/lib/sizes";
 import { toArray, toPositiveInt, toSingle, type RawSearchParams } from "@/lib/search-params";
 
 export type CatalogSort = "relevancia" | "nombre-asc" | "recientes";
@@ -45,7 +46,7 @@ export function parseCatalogParams(params: RawSearchParams): CatalogParams {
   return {
     q: rawQuery || undefined,
     publico: publico && isAudience(publico) ? publico : undefined,
-    talla: [...new Set(toArray(params.talla))].slice(0, MAX_MULTI_VALUES),
+    talla: normalizeSizes(toArray(params.talla)).slice(0, MAX_MULTI_VALUES),
     color: [...new Set(toArray(params.color).map(formatCatalogColor))].slice(0, MAX_MULTI_VALUES),
     etiqueta: [...new Set(toArray(params.etiqueta).filter(isProductTag))],
     // "Relevancia" es el orden natural del catálogo. No se conserva como

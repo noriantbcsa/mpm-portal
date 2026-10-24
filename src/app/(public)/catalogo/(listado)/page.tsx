@@ -96,6 +96,7 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
           </ResponsiveFilters>
         </aside>
         <div>
+          <h2 className="sr-only">Prendas</h2>
           <ProductGrid products={items} showPrices={settings.showPrices} emptyActionHref="/catalogo" selectedColor={color[0]} />
           <Pagination page={page} pageCount={pageCount} buildHref={buildHref} />
         </div>

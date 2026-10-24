@@ -52,9 +52,10 @@ const ITEM = {
   priceRefSnapshot: null,
 };
 
-// Lo que devuelve `resolveCartItems` de verdad: incluye el precio mayorista,
-// que NO es una columna de `CartRequestItem` (Prisma rechaza el campo).
+// Lo que devuelve `resolveCartItems`: incluye el precio mayorista vigente.
 const RESOLVED_ITEM = { ...ITEM, priceWholesaleSnapshot: 24000 };
+// Lo que se guarda: ambos snapshots y el precio unitario realmente aplicado.
+const STORED_ITEM = { ...ITEM, priceWholesaleSnapshot: 24000, unitPriceApplied: null };
 
 function form(overrides: Record<string, string | null> = {}) {
   const base: Record<string, string> = {
@@ -78,7 +79,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   counter += 1;
   requestKey = `ip-${counter}`; // el límite de frecuencia es por origen
-  resolveCartItemsMock.mockResolvedValue([ITEM]);
+  resolveCartItemsMock.mockResolvedValue([RESOLVED_ITEM]);
   getCartSessionTokenMock.mockResolvedValue(null);
   cartSessionFindUniqueMock.mockResolvedValue(null);
   recentFindManyMock.mockResolvedValue([]);
@@ -93,15 +94,39 @@ beforeEach(() => {
 });
 
 describe("submitCartRequestAction", () => {
-  it("no envía a Prisma campos que no son columnas de CartRequestItem (precio mayorista)", async () => {
+  it("congela ambos precios y el unitario aplicado de cada línea", async () => {
     resolveCartItemsMock.mockResolvedValue([RESOLVED_ITEM]);
 
     const result = await submitCartRequestAction(idle, form());
 
     expect(result.status).toBe("success");
     const data = cartRequestCreateMock.mock.calls[0][0].data;
-    expect(data.items.create).toEqual([ITEM]);
-    expect(data.items.create[0]).not.toHaveProperty("priceWholesaleSnapshot");
+    expect(data.items.create).toEqual([STORED_ITEM]);
+  });
+
+  it("guarda modalidad mayorista y total al llegar a seis prendas", async () => {
+    resolveCartItemsMock.mockResolvedValue([
+      { ...RESOLVED_ITEM, quantity: 4, priceRefSnapshot: 40000 },
+      { ...RESOLVED_ITEM, productId: "p2", quantity: 2, priceRefSnapshot: 40000, priceWholesaleSnapshot: null },
+    ]);
+
+    await submitCartRequestAction(idle, form());
+
+    const data = cartRequestCreateMock.mock.calls[0][0].data;
+    expect(data.isWholesale).toBe(true);
+    // 4 × 24.000 (mayorista) + 2 × 40.000 (sin precio mayorista: usa el detal)
+    expect(data.totalAmount).toBe(176000);
+    expect(data.items.create.map((item: { unitPriceApplied: number }) => item.unitPriceApplied)).toEqual([24000, 40000]);
+  });
+
+  it("guarda precio al detal por debajo de seis prendas", async () => {
+    resolveCartItemsMock.mockResolvedValue([{ ...RESOLVED_ITEM, quantity: 2, priceRefSnapshot: 40000 }]);
+
+    await submitCartRequestAction(idle, form());
+
+    const data = cartRequestCreateMock.mock.calls[0][0].data;
+    expect(data.isWholesale).toBe(false);
+    expect(data.totalAmount).toBe(80000);
   });
 
   it("guarda la solicitud con consentimiento, estado NUEVO y evento CREATED, y devuelve el enlace de WhatsApp", async () => {
@@ -119,7 +144,7 @@ describe("submitCartRequestAction", () => {
       events: { create: { type: "CREATED" } },
     });
     expect(data.consentedAt).toBeInstanceOf(Date);
-    expect(data.items.create).toEqual([ITEM]);
+    expect(data.items.create).toEqual([STORED_ITEM]);
     expect(clearCartSessionCookieMock).toHaveBeenCalledTimes(1);
   });
 

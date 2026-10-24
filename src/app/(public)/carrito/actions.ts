@@ -15,6 +15,7 @@ import {
   type RawCartItem,
 } from "@/lib/cart/resolve-items";
 import { cartItemsSchema, submitCartRequestSchema } from "@/lib/validation/cart-request";
+import { getAppliedUnitPrice, getCartPricing } from "@/lib/pricing";
 import { getSiteSettings } from "@/lib/site-config";
 import { buildCartRequestMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import { consumeRateLimit, getRequestRateLimitKey } from "@/lib/security/rate-limit";
@@ -64,18 +65,23 @@ export async function syncCartSessionAction(items: RawCartItem[]): Promise<CartR
     update: { sessionToken: token },
   });
 
-  const previousItems = await prisma.cartSessionItem.findMany({
-    where: { cartSessionId: session.id },
-    select: { productId: true },
-  });
-  const previousProductIds = new Set(previousItems.map((i) => i.productId).filter(Boolean));
-  const newlyAddedProductIds = [
-    ...new Set(resolved.map((i) => i.productId).filter((id) => !previousProductIds.has(id))),
-  ];
+  // Dos sincronizaciones simultáneas de la misma sesión (dos pestañas, un
+  // reintento) se serializan: sin el candado, ambas borraban y ambas creaban,
+  // dejando líneas duplicadas y contando dos veces el "agregado al carrito".
+  await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${session.id}))`;
 
-  await prisma.$transaction([
-    prisma.cartSessionItem.deleteMany({ where: { cartSessionId: session.id } }),
-    prisma.cartSessionItem.createMany({
+    const previousItems = await tx.cartSessionItem.findMany({
+      where: { cartSessionId: session.id },
+      select: { productId: true },
+    });
+    const previousProductIds = new Set(previousItems.map((i) => i.productId).filter(Boolean));
+    const newlyAddedProductIds = [
+      ...new Set(resolved.map((i) => i.productId).filter((id) => !previousProductIds.has(id))),
+    ];
+
+    await tx.cartSessionItem.deleteMany({ where: { cartSessionId: session.id } });
+    await tx.cartSessionItem.createMany({
       // CartSessionItem no guarda precio (a diferencia de CartRequestItem):
       // se listan los campos explícitamente en vez de esparcir todo `item`,
       // que ya nos rompió esto una vez con un PrismaClientValidationError
@@ -89,15 +95,13 @@ export async function syncCartSessionAction(items: RawCartItem[]): Promise<CartR
         color: item.color,
         quantity: item.quantity,
       })),
-    }),
-    ...(newlyAddedProductIds.length > 0
-      ? [
-          // SQL directo: `updateMany` de Prisma también reescribe
-          // `Product.updatedAt` (ver incrementProductViewCount).
-          prisma.$executeRaw`UPDATE "Product" SET "addToCartCount" = "addToCartCount" + 1 WHERE "id" IN (${Prisma.join(newlyAddedProductIds)})`,
-        ]
-      : []),
-  ]);
+    });
+    if (newlyAddedProductIds.length > 0) {
+      // SQL directo: `updateMany` de Prisma también reescribe
+      // `Product.updatedAt` (ver incrementProductViewCount).
+      await tx.$executeRaw`UPDATE "Product" SET "addToCartCount" = "addToCartCount" + 1 WHERE "id" IN (${Prisma.join(newlyAddedProductIds)})`;
+    }
+  });
 
   return reconciliation;
 }
@@ -248,6 +252,14 @@ export async function submitCartRequestAction(
 
   const { contact } = parsed.data;
 
+  const pricing = getCartPricing(
+    resolvedItems.map((item) => ({
+      quantity: item.quantity,
+      priceRef: item.priceRefSnapshot,
+      priceWholesale: item.priceWholesaleSnapshot,
+    })),
+  );
+
   const requestData = {
     contactName: contact.contactName,
     contactPhone: contact.contactPhone,
@@ -257,8 +269,8 @@ export async function submitCartRequestAction(
     dataConsent: true,
     consentedAt: new Date(),
     status: "NUEVO" as const,
-    // `priceWholesaleSnapshot` solo sirve para calcular el total en pantalla;
-    // no es una columna de CartRequestItem y Prisma rechazaría el campo.
+    isWholesale: pricing.isWholesale,
+    totalAmount: pricing.total,
     items: {
       create: resolvedItems.map((item) => ({
         productId: item.productId,
@@ -268,6 +280,11 @@ export async function submitCartRequestAction(
         color: item.color,
         quantity: item.quantity,
         priceRefSnapshot: item.priceRefSnapshot,
+        priceWholesaleSnapshot: item.priceWholesaleSnapshot,
+        unitPriceApplied: getAppliedUnitPrice(
+          { priceRef: item.priceRefSnapshot, priceWholesale: item.priceWholesaleSnapshot },
+          pricing.isWholesale,
+        ),
       })),
     },
     events: { create: { type: "CREATED" as const } },

@@ -116,9 +116,10 @@ describe("siteSettingsFormSchema", () => {
       heroSubtitle: "Subtitulo", heroCtaLabel: "Ver", heroCtaHref: "/catalogo",
       footerText: "Pie de página", showPrices: false,
     };
-    for (const color of ["#abc", "#abcd", "#abcdef", "#abcdef12"]) {
+    for (const color of ["#abc", "#abcd", "#123456", "#abcdef12"]) {
       expect(siteSettingsFormSchema.safeParse({ ...base, primaryColor: color }).success).toBe(true);
     }
+    expect(siteSettingsFormSchema.safeParse({ ...base, primaryColor: "#c8ff00" }).success).toBe(false);
     for (const color of ["#12345", "#1234567"]) {
       expect(siteSettingsFormSchema.safeParse({ ...base, primaryColor: color }).success).toBe(false);
     }

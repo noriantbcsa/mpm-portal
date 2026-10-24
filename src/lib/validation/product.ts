@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { normalizeSizes } from "@/lib/sizes";
 import { imageUrlSchema } from "@/lib/validation/url";
 import { formatCatalogColor, uniqueCatalogColors } from "@/lib/catalog-colors";
 
@@ -44,7 +45,7 @@ export const productFormSchema = z.object({
     .max(4000),
   categoryId: z.string().min(1, { error: "Selecciona una categoría." }),
   audience: z.enum(AUDIENCE_VALUES),
-  sizes: z.array(z.string().trim().min(1)).default([]),
+  sizes: z.array(z.string().trim().min(1)).default([]).transform(normalizeSizes),
   colors: z.array(z.string().trim().min(1).max(60)).max(100).default([]).transform(uniqueCatalogColors),
   material: z.string().trim().max(160).optional().nullable(),
   status: z.enum(PRODUCT_STATUS_VALUES).default("DISPONIBLE"),

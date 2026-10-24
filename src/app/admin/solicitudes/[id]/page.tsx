@@ -10,7 +10,7 @@ import {
   CART_REQUEST_STATUS_ORDER,
   CART_REQUEST_EVENT_LABELS,
 } from "@/lib/constants";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, formatPrice } from "@/lib/format";
 import { buildAdvisorWhatsAppLink } from "@/lib/whatsapp";
 import { changeStatusAction, assignRequestAction } from "@/app/admin/solicitudes/actions";
 import { AdminCard, AdminCardBody, AdminTable, AdminTd, AdminTh } from "@/components/admin/ui/display";
@@ -140,6 +140,7 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
                 <AdminTh>Talla</AdminTh>
                 <AdminTh>Color</AdminTh>
                 <AdminTh>Cantidad</AdminTh>
+                <AdminTh>Precio unitario</AdminTh>
               </tr>
             </thead>
             <tbody>
@@ -150,11 +151,20 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
                   <AdminTd>{item.size ?? "—"}</AdminTd>
                   <AdminTd>{item.color ?? "—"}</AdminTd>
                   <AdminTd>{item.quantity}</AdminTd>
+                  <AdminTd>{item.unitPriceApplied ? formatPrice(Number(item.unitPriceApplied)) : "—"}</AdminTd>
                 </tr>
               ))}
             </tbody>
           </AdminTable>
         </div>
+        {request.totalAmount !== null && (
+          <p className="mt-2 text-sm text-slate-700">
+            <span className="font-semibold text-slate-900">Total al enviar: {formatPrice(Number(request.totalAmount))}</span>
+            {" · "}
+            {request.isWholesale ? "Precio mayorista (6 prendas o más)" : "Precio al detal"}
+            {request.items.some((item) => item.unitPriceApplied === null) && " · hay prendas sin precio, el total es parcial"}
+          </p>
+        )}
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">

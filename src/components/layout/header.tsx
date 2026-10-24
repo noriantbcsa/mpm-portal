@@ -52,7 +52,7 @@ export async function Header() {
           {settings.logoUrl ? (
             <Image
               src={settings.logoUrl}
-              alt={settings.siteName}
+              alt=""
               width={40}
               height={40}
               placeholder="blur"

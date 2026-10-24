@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { contrastRatio } from "@/lib/campaign-style";
 import { isSitePath, optionalHttpUrlSchema, optionalImageUrlSchema } from "@/lib/validation/url";
 
 const optionalLink = optionalHttpUrlSchema.optional().nullable();
@@ -25,11 +26,18 @@ const hexColor = z
     error: "Usa un color hexadecimal de 3, 4, 6 u 8 dígitos, ej. #1F4D3D",
   });
 
+// El texto blanco se usa sobre el color primario (botones, logo, iconos): un
+// primario claro (p. ej. el lima de acento) los dejaría ilegibles.
+const primaryColor = hexColor.refine(
+  (value) => !/^#[0-9a-f]{6}$/i.test(value) || contrastRatio(value, "#ffffff") >= 4.5,
+  { error: "Elige un color primario más oscuro: el texto blanco debe leerse sobre él (contraste mínimo 4.5:1)." },
+);
+
 export const siteSettingsFormSchema = z.object({
   siteName: z.string().trim().min(1).max(80),
   tagline: z.string().trim().max(200),
   logoUrl: optionalImage,
-  primaryColor: hexColor,
+  primaryColor,
   secondaryColor: hexColor,
   accentColor: hexColor,
   whatsappNumber: z

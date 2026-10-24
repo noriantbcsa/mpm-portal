@@ -39,6 +39,15 @@ debe cambiar retroactivamente ni romperse. `productId` se conserva también
 *si todavía existe* (por ejemplo, para mostrar su foto o enlazarlo desde el
 panel), nunca como la fuente de verdad de esos datos.
 
+## Precio congelado en cada solicitud
+
+Al enviar el pedido se guardan, además del nombre y SKU, `priceRefSnapshot` y
+`priceWholesaleSnapshot` de cada línea, el `unitPriceApplied` realmente
+cobrado (detal, o mayorista desde 6 prendas) y, en `CartRequest`, `isWholesale`
+y `totalAmount`. Así el asesor ve en `/admin/solicitudes/[id]` lo mismo que vio
+el cliente aunque los precios cambien después. Las solicitudes anteriores a la
+migración `20261024100000_freeze_cart_request_pricing` quedan con valores nulos.
+
 ## Por qué `CartSession` y `CartRequest` son entidades separadas
 
 - `CartSession` = "lo que hay en el carrito de un visitante anónimo ahora
