@@ -152,7 +152,7 @@ export default async function ProductoPage({ params }: PageProps) {
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Público</dt><dd className="mt-1 text-ink">{AUDIENCE_LABELS[product.audience]}</dd></div>
               {product.material && <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Material</dt><dd className="mt-1 text-ink">{product.material}</dd></div>}
-              <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Variantes</dt><dd className="mt-1 text-ink">{product.colors.length} colores</dd></div>
+              <div><dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-soft">Variantes</dt><dd className="mt-1 text-ink">{product.colors.length} {product.colors.length === 1 ? "color" : "colores"}</dd></div>
             </dl>
           </details>
           <details className="group py-4">

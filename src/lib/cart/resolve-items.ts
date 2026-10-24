@@ -25,12 +25,17 @@ export type ResolvedCartItem = {
   priceWholesaleSnapshot: number | null;
 };
 
+function hasSize(sizes: string[], size: string) {
+  const wanted = size.trim().toLowerCase();
+  return sizes.some((candidate) => candidate.trim().toLowerCase() === wanted);
+}
+
 /**
  * Convierte líneas de carrito (solo productId + variante) en snapshots con
  * los datos reales del producto en este momento. Nunca confiamos en el
  * nombre/precio que pudiera mandar el cliente. Los productos que ya no se
  * pueden pedir (ocultos, agotados, eliminados o en una categoría oculta) se
- * descartan; `findUnavailableProductIds` dice cuáles para avisar al cliente.
+ * descartan, igual que las líneas con una talla que el producto ya no tiene; `findUnavailableProductIds` dice cuáles para avisar al cliente.
  */
 export async function resolveCartItems(items: RawCartItem[]): Promise<ResolvedCartItem[]> {
   if (items.length === 0) return [];
@@ -49,6 +54,9 @@ export async function resolveCartItems(items: RawCartItem[]): Promise<ResolvedCa
   for (const item of items) {
     const product = byId.get(item.productId);
     if (!product) continue;
+    // Una talla que el producto ya no ofrece (p. ej. carritos guardados antes
+    // de reorganizar las escalas) se descarta en vez de enviarse en el pedido.
+    if (item.size && product.sizes.length > 0 && !hasSize(product.sizes, item.size)) continue;
     resolved.push({
       productId: product.id,
       productNameSnapshot: product.name,

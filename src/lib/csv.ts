@@ -152,7 +152,7 @@ export function buildProductCsvTemplate(): string {
     "Camisetas",
     "Manga corta",
     "mujer",
-    "S;M;L;XL",
+    "XS;S;M;L",
     "Blanco;Negro;Azul oscuro",
     "Algodón 100%",
     "https://res.cloudinary.com/demo/image/upload/sample.jpg",

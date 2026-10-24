@@ -74,7 +74,7 @@ export default async function NosotrosPage() {
                     alt={photo.alt}
                     width={800}
                     height={1000}
-                    sizes="(min-width: 768px) 24rem, calc(100vw - 6rem)"
+                    sizes="(min-width: 1024px) 26rem, (min-width: 768px) calc((100vw - 11rem) / 2), calc(100vw - 9rem)"
                     className="aspect-[4/5] w-full object-cover"
                   />
                 </figure>
