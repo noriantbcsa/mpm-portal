@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Factory, Scissors, Send, Store, type LucideIcon } from "lucide-react";
 
 import { getSiteSettings } from "@/lib/site-config";
@@ -12,13 +13,19 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-type TimelineStep = { period: string; title: string; description: string; icon: LucideIcon };
+type TimelineStep = {
+  period: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  photo: { src: string; alt: string };
+};
 
 const timeline: TimelineStep[] = [
-  { period: "2017", title: "Un sueño en el Madrugón", description: "MPM comenzó distribuyendo prendas según las necesidades del mercado en el centro de Bogotá.", icon: Store },
-  { period: "El siguiente paso", title: "De distribuir a confeccionar", description: "La experiencia del sector impulsó el paso a la fabricación propia, empezando con blusones de dama en doce tonos.", icon: Scissors },
-  { period: "Hoy", title: "Moda para ella y para él", description: "Ampliamos las líneas de confección con variedad de colores y tallas para atender cada prenda con cercanía.", icon: Factory },
-  { period: "Siempre", title: "Bogotá para todo el país", description: "Desde nuestra tienda física en Bogotá acompañamos pedidos con envíos nacionales seguros y atención personalizada.", icon: Send },
+  { period: "2017", title: "Un sueño en el Madrugón", description: "MPM comenzó distribuyendo prendas según las necesidades del mercado en el centro de Bogotá.", icon: Store, photo: { src: "/nosotros/inventario-colores.webp", alt: "Pilas de camisas de MPM en naranja, rojo, beige y azul claro listas para despachar" } },
+  { period: "El siguiente paso", title: "De distribuir a confeccionar", description: "La experiencia del sector impulsó el paso a la fabricación propia, empezando con blusones de dama en doce tonos.", icon: Scissors, photo: { src: "/nosotros/taller-confeccion.webp", alt: "Taller de confección de MPM con máquinas de coser y montones de camisas de colores" } },
+  { period: "Hoy", title: "Moda para ella y para él", description: "Ampliamos las líneas de confección con variedad de colores y tallas para atender cada prenda con cercanía.", icon: Factory, photo: { src: "/nosotros/bordado-industrial.webp", alt: "Máquina de bordado industrial trabajando sobre tela roja" } },
+  { period: "Siempre", title: "Bogotá para todo el país", description: "Desde nuestra tienda física en Bogotá acompañamos pedidos con envíos nacionales seguros y atención personalizada.", icon: Send, photo: { src: "/nosotros/empaque-camisas-blancas.webp", alt: "Pilas de camisas blancas dobladas y empacadas para envíos nacionales" } },
 ];
 
 const values = ["Calidad", "Pasión", "Dedicación", "Cumplimiento"];
@@ -48,7 +55,7 @@ export default async function NosotrosPage() {
             aria-hidden="true"
             className="absolute bottom-3 top-3 left-[1.375rem] w-0.5 bg-gradient-to-b from-brand-primary/10 via-brand-primary/60 to-brand-primary/10 md:left-1/2 md:-translate-x-1/2"
           />
-          {timeline.map(({ period, title, description, icon: Icon }, index) => {
+          {timeline.map(({ period, title, description, icon: Icon, photo }, index) => {
             const left = index % 2 === 0;
             return (
               <li key={title} className="relative pb-10 pl-16 last:pb-0 md:grid md:grid-cols-2 md:gap-16 md:pl-0">
@@ -61,6 +68,16 @@ export default async function NosotrosPage() {
                   <h3 className="mt-3 text-lg font-semibold text-ink">{title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-soft">{description}</p>
                 </div>
+                <figure className={`mt-5 overflow-hidden bg-brand-accent/35 md:mt-0 ${left ? "md:col-start-2" : "md:col-start-1 md:row-start-1"}`}>
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    width={800}
+                    height={1000}
+                    sizes="(min-width: 768px) 24rem, calc(100vw - 6rem)"
+                    className="aspect-[4/5] w-full object-cover"
+                  />
+                </figure>
               </li>
             );
           })}

@@ -99,10 +99,11 @@ const catalogPricing: Record<string, readonly [number, number]> = {
   "CMCH XXL": [40000, 70000], "CMLH XXL": [42000, 75000],
 };
 
-function sizesFor(folder: string) {
+/** Damas: XS–L. Caballero: M–XL. Las líneas "plus" / XXL solo se ofrecen en XXL. */
+function sizesFor(folder: string, audience: "MUJER" | "HOMBRE") {
   if (/^(R-UNICA|UNICA)$/i.test(folder)) return ["Talla única"];
-  if (/XXL/i.test(folder)) return ["XXL"];
-  return ["XS", "S", "M", "L", "XL", "XXL"];
+  if (/XXL|PLUS/i.test(folder)) return ["XXL"];
+  return audience === "MUJER" ? ["XS", "S", "M", "L"] : ["M", "L", "XL"];
 }
 
 /** Categorías raíz "Damas" / "Caballero", sitio y las 18 referencias reales fotografiadas. */
@@ -182,7 +183,7 @@ async function importRealCatalog() {
       });
       await prisma.product.upsert({
         where: { sku },
-        create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors, tags, priceRef, priceWholesale, images: { create: images } },
+        create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name, collection.audience), colors, tags, priceRef, priceWholesale, images: { create: images } },
         // Repetir el seed solo refresca las fotos entregadas: nombre,
         // descripción, categoría, tallas, etiquetas, etc. pueden haberse
         // editado desde /admin y no deben pisarse.
