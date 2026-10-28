@@ -1,37 +1,37 @@
+# Configuración de Render para el corte hacia Neon. La base antigua de
+# Render sigue declarada temporalmente para permitir reversión.
 services:
   - type: web
     name: mpm-portal
     runtime: node
     plan: free
-    # No corras `npm run db:seed` aquí: en producción, correrlo en cada
-    # deploy es destructivo (ver docs/DEPLOYMENT.md). La siembra inicial del
-    # catálogo real y las cuentas de prueba se corre una sola vez, a mano,
-    # apuntando a esta base de datos.
-    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
+    autoDeployTrigger: off
+    # En el plan gratuito no hay preDeployCommand. Aplicar migraciones desde
+    # un entorno controlado con DIRECT_DATABASE_URL antes de desplegar.
+    buildCommand: npm ci && npx prisma generate && npm run build
     startCommand: npm run start
-    # Sin base de datos a propósito (ver src/app/healthz/route.ts): Render solo
-    # da por buena la nueva versión si el proceso responde.
     healthCheckPath: /healthz
     envVars:
       - key: NODE_VERSION
         value: "22"
+      # En un Blueprint existente sync:false NO reemplaza valores previos.
+      # Retirar la referencia fromDatabase y configurar ambas URL a mano en
+      # Environment, sin guardar credenciales en Git.
       - key: DATABASE_URL
-        fromDatabase:
-          name: mpm-portal-db
-          property: connectionString
+        sync: false
+      - key: DIRECT_DATABASE_URL
+        sync: false
+      - key: MPM_MAINTENANCE_MODE
+        sync: false
       - key: AUTH_SECRET
         generateValue: true
-      # Mantener esta clave estable entre instancias evita que una instancia
-      # rechace acciones de servidor emitidas por otra durante un deploy.
       - key: NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
-        # Debe ser base64 de 16, 24 o 32 bytes; configúrala con
-        # `openssl rand -base64 32` al escalar a más de una instancia.
         sync: false
-      # Dominio propio cuando exista (ej. https://www.mpm.com.co). Mientras no
-      # se defina se usa RENDER_EXTERNAL_URL (ver src/lib/site-url.ts).
       - key: NEXT_PUBLIC_SITE_URL
         sync: false
 
+# Conservar la base de Render durante la ventana de reversión. Retirarla de
+# la configuración y del panel solo tras confirmar copias y estabilidad.
 databases:
   - name: mpm-portal-db
     plan: free
