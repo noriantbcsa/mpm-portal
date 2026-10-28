@@ -34,6 +34,16 @@ export async function proxy(request: NextRequest) {
     return response;
   };
 
+  // El plan web gratuito de Render no ofrece modo de mantenimiento. Durante
+  // el corte de base se bloquean también las Server Actions (POST sobre la
+  // ruta de la página); las comprobaciones de salud siguen disponibles.
+  if (process.env.MPM_MAINTENANCE_MODE === "1" && pathname !== "/healthz" && pathname !== "/readyz") {
+    return withSecurityHeaders(new NextResponse("Portal temporalmente en mantenimiento.", {
+      status: 503,
+      headers: { "Cache-Control": "no-store", "Retry-After": "300" },
+    }));
+  }
+
   // Un byte nulo (%00) en la ruta o en un parámetro llega tal cual a
   // PostgreSQL, que lo rechaza ("invalid byte sequence for encoding UTF8"):
   // la página falla con 500 (/catalogo/a%00b) o muestra el error genérico
@@ -72,10 +82,6 @@ export const config = {
   matcher: [
     {
       source: "/((?!_next/static|_next/image|favicon.ico).*)",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
     },
   ],
 };
