@@ -1,6 +1,6 @@
 import { connectOrSkip } from "./test-db";
 
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/lib/prisma";
 import { getCatalogFilterOptions, getProductBySlug, incrementProductViewCount, listProducts } from "@/lib/products";
@@ -79,6 +79,12 @@ if (dbAvailable) {
       },
     ],
   });
+
+  const imageProduct = await prisma.product.findUniqueOrThrow({ where: { sku: "IT-0001" }, select: { id: true } });
+  await prisma.productImage.createMany({ data: [
+    { productId: imageProduct.id, url: "/catalogo/azul.webp", alt: "Foto azul", color: "Azul", order: 0 },
+    { productId: imageProduct.id, url: "/catalogo/rojo.webp", alt: "Foto roja", color: "Rojo", order: 1 },
+  ] });
 }
 
 afterAll(async () => {
@@ -89,6 +95,32 @@ afterAll(async () => {
 });
 
 describe.skipIf(!dbAvailable)("listProducts (integración, base de datos real)", () => {
+  it("comparte el cálculo de filtros entre visitas simultáneas al mismo ámbito", async () => {
+    const query = vi.spyOn(prisma.product, "findMany");
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      const [first, second] = await Promise.all([
+        getCatalogFilterOptions("it-caballero"),
+        getCatalogFilterOptions("it-caballero"),
+      ]);
+      expect(first).toEqual(second);
+      expect(query).toHaveBeenCalledTimes(1);
+    } finally {
+      query.mockRestore();
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("lee una foto por tarjeta salvo cuando necesita buscar la del color filtrado", async () => {
+    const normal = await listProducts({ q: "IT-0001" });
+    expect(normal.items[0].images.map((image) => image.url)).toEqual(["/catalogo/azul.webp"]);
+
+    const red = await listProducts({ q: "IT-0001", colors: ["Rojo"] });
+    expect(red.items[0].images.map((image) => image.url)).toEqual([
+      "/catalogo/azul.webp", "/catalogo/rojo.webp",
+    ]);
+  });
+
   it("excluye productos OCULTO por defecto", async () => {
     const { items } = await listProducts({ categorySlug: "it-vestidos" });
     const skus = items.map((p) => p.sku).sort();

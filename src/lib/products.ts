@@ -45,9 +45,16 @@ const productListSelect = {
   priceWholesale: true,
   categoryId: true,
   category: { select: { id: true, name: true, slug: true, parent: { select: { name: true, slug: true } } } },
-  // La tarjeta solo pinta una foto, pero conserva las rutas de las variantes
-  // para usar la imagen que corresponde al color filtrado. El navegador no
-  // descarga las demás porque ProductCard renderiza un único <Image>.
+  // En el listado sin filtro de color solo se muestra la primera foto.
+  // Cada prenda puede tener decenas: limitar aquí evita transferirlas todas
+  // desde PostgreSQL en cada visita al catálogo.
+  images: { orderBy: { order: "asc" as const }, take: 1 },
+} satisfies Prisma.ProductSelect;
+
+const colorProductListSelect = {
+  ...productListSelect,
+  // El filtro de color sí necesita recorrer variantes para escoger la foto
+  // correspondiente. Se conserva el comportamiento anterior solo en ese caso.
   images: { orderBy: { order: "asc" as const } },
 } satisfies Prisma.ProductSelect;
 
@@ -141,7 +148,12 @@ export async function countProducts(filters: CatalogFilters = {}) {
 // acentos y con números naturales ("Ref 2" antes de "Ref 10").
 const NAME_COLLATOR = new Intl.Collator("es", { sensitivity: "base", numeric: true });
 
-async function listProductsByName(where: Prisma.ProductWhereInput, requestedPage: number, pageSize: number) {
+async function listProductsByName(
+  where: Prisma.ProductWhereInput,
+  requestedPage: number,
+  pageSize: number,
+  select: typeof productListSelect | typeof colorProductListSelect,
+) {
   // Solo id y nombre de los que cumplen los filtros (liviano aun con cientos de
   // referencias); después se traen completas únicamente las de la página.
   const names = await prisma.product.findMany({ where, select: { id: true, name: true } });
@@ -152,7 +164,7 @@ async function listProductsByName(where: Prisma.ProductWhereInput, requestedPage
   const page = Math.min(requestedPage, pageCount);
   const ids = names.slice((page - 1) * pageSize, page * pageSize).map((row) => row.id);
 
-  const found = await prisma.product.findMany({ where: { id: { in: ids } }, select: productListSelect });
+  const found = await prisma.product.findMany({ where: { id: { in: ids } }, select });
   const byId = new Map(found.map((product) => [product.id, product]));
   const items = ids.map((id) => byId.get(id)).filter((product): product is ListedProduct => Boolean(product));
 
@@ -165,13 +177,14 @@ export async function listProducts(filters: CatalogFilters = {}) {
   const requestedPage = Math.max(1, filters.page ?? 1);
   const pageSize = filters.pageSize ?? CATALOG_PAGE_SIZE;
   const where = await buildWhere(filters);
-  if (filters.sort === "nombre-asc") return listProductsByName(where, requestedPage, pageSize);
+  const select = filters.colors?.length ? colorProductListSelect : productListSelect;
+  if (filters.sort === "nombre-asc") return listProductsByName(where, requestedPage, pageSize, select);
   const orderBy = buildOrderBy(filters.sort);
 
   const [firstItems, total] = await Promise.all([
     prisma.product.findMany({
       where,
-      select: productListSelect,
+      select,
       orderBy,
       skip: (requestedPage - 1) * pageSize,
       take: pageSize,
@@ -188,7 +201,7 @@ export async function listProducts(filters: CatalogFilters = {}) {
       ? firstItems
       : await prisma.product.findMany({
           where,
-          select: productListSelect,
+          select,
           orderBy,
           skip: (page - 1) * pageSize,
           take: pageSize,
@@ -225,43 +238,57 @@ const PRODUCT_TAG_ORDER: ProductTagType[] = ["OFERTA", "TENDENCIA", "NUEVO", "RE
 
 const FILTER_OPTIONS_TTL_MS = 60_000;
 const filterOptionsCache = new Map<string, { expiresAt: number; value: CatalogFilterOptions }>();
+const filterOptionsPending = new Map<string, Promise<CatalogFilterOptions>>();
 
 export async function getCatalogFilterOptions(categorySlug?: string): Promise<CatalogFilterOptions> {
   const cacheKey = categorySlug ?? "";
   const useCache = process.env.NODE_ENV !== "test";
   const cached = useCache ? filterOptionsCache.get(cacheKey) : undefined;
   if (cached && cached.expiresAt > Date.now()) return cached.value;
+  const pending = useCache ? filterOptionsPending.get(cacheKey) : undefined;
+  if (pending) return pending;
 
-  const where = await buildWhere({ categorySlug });
-  const products = await prisma.product.findMany({
-    where,
-    select: { sizes: true, colors: true, tags: true, audience: true },
-  });
+  const calculate = async (): Promise<CatalogFilterOptions> => {
+    const where = await buildWhere({ categorySlug });
+    const products = await prisma.product.findMany({
+      where,
+      select: { sizes: true, colors: true, tags: true, audience: true },
+    });
 
-  const uniqueSorted = (values: string[]) =>
-    [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort((a, b) =>
-      a.localeCompare(b, "es", { sensitivity: "base" }),
-    );
+    const uniqueSorted = (values: string[]) =>
+      [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b, "es", { sensitivity: "base" }),
+      );
 
-  const presentTags = new Set(products.flatMap((product) => product.tags));
-  const presentAudiences = new Set(products.map((product) => product.audience));
-  const value: CatalogFilterOptions = {
-    audiences: CATALOG_AUDIENCES.filter((audience) => presentAudiences.has(audience)),
-    tags: PRODUCT_TAG_ORDER.filter((tag) => presentTags.has(tag)),
-    sizes: withStandardSizes(uniqueSorted(products.flatMap((product) => product.sizes).filter(isFilterableCatalogSize))),
-    colors: uniqueSorted(
-      products
-        .flatMap((product) => product.colors)
-        .filter(isFilterableCatalogColor)
-        .map(formatCatalogColor),
-    ),
+    const presentTags = new Set(products.flatMap((product) => product.tags));
+    const presentAudiences = new Set(products.map((product) => product.audience));
+    const value: CatalogFilterOptions = {
+      audiences: CATALOG_AUDIENCES.filter((audience) => presentAudiences.has(audience)),
+      tags: PRODUCT_TAG_ORDER.filter((tag) => presentTags.has(tag)),
+      sizes: withStandardSizes(uniqueSorted(products.flatMap((product) => product.sizes).filter(isFilterableCatalogSize))),
+      colors: uniqueSorted(
+        products
+          .flatMap((product) => product.colors)
+          .filter(isFilterableCatalogColor)
+          .map(formatCatalogColor),
+      ),
+    };
+
+    if (useCache) {
+      if (filterOptionsCache.size > 200) filterOptionsCache.clear();
+      filterOptionsCache.set(cacheKey, { expiresAt: Date.now() + FILTER_OPTIONS_TTL_MS, value });
+    }
+    return value;
   };
 
-  if (useCache) {
-    if (filterOptionsCache.size > 200) filterOptionsCache.clear();
-    filterOptionsCache.set(cacheKey, { expiresAt: Date.now() + FILTER_OPTIONS_TTL_MS, value });
+  if (!useCache) return calculate();
+  const promise = calculate();
+  filterOptionsPending.set(cacheKey, promise);
+  try {
+    return await promise;
+  } finally {
+    filterOptionsPending.delete(cacheKey);
   }
-  return value;
 }
 
 const productDetailInclude = {

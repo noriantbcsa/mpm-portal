@@ -152,7 +152,8 @@ model ProductImage {
   publicId  String?
   createdAt DateTime @default(now())
 
-  @@index([productId])
+  // Primera foto del catálogo y orden de fotos en las vistas de integración.
+  @@index([productId, order, createdAt])
 }
 
 // ---------------------------------------------------------------------------
@@ -313,9 +314,12 @@ model CartRequest {
   items  CartRequestItem[]
   events CartRequestEvent[]
 
-  @@index([status])
-  @@index([assignedToId])
   @@index([createdAt])
+  // El envío público comprueba solicitudes recientes del mismo teléfono.
+  @@index([contactPhone, createdAt])
+  // La bandeja filtra por estado o asesor y ordena por fecha.
+  @@index([status, createdAt])
+  @@index([assignedToId, createdAt])
 }
 
 model CartRequestItem {

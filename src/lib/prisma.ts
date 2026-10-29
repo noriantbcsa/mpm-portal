@@ -23,13 +23,19 @@ function createPrismaClient() {
     );
   }
 
+  const configuredPoolMax = process.env.DATABASE_POOL_MAX;
+  const poolMax = configuredPoolMax === undefined ? 5 : Number(configuredPoolMax);
+  if (!Number.isInteger(poolMax) || poolMax < 1 || poolMax > 50) {
+    throw new Error("DATABASE_POOL_MAX debe ser un entero entre 1 y 50.");
+  }
+
   // El pool por defecto del driver (10 conexiones, sin tiempo de espera) es
   // demasiado para una base pequeña (plan gratuito de Render) y, si se
   // satura, las consultas esperaban indefinidamente. Acotado y con límite de
   // espera para que un problema se vea como error en vez de colgar la página.
   const adapter = new PrismaPg({
     connectionString,
-    max: Number(process.env.DATABASE_POOL_MAX) || 5,
+    max: poolMax,
     connectionTimeoutMillis: 10_000,
     // Tope por consulta: una consulta atascada no debe retener una de las 5
     // conexiones indefinidamente (todas las páginas dinámicas dependen del pool).
