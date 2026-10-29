@@ -15,11 +15,10 @@ services:
       - key: NODE_VERSION
         value: "22"
       # En un Blueprint existente sync:false NO reemplaza valores previos.
-      # Retirar la referencia fromDatabase y configurar ambas URL a mano en
-      # Environment, sin guardar credenciales en Git.
+      # La URL pooled del usuario de aplicación se configura en Environment.
+      # La URL directa del propietario se conserva solo fuera del servicio web
+      # para migraciones y respaldos.
       - key: DATABASE_URL
-        sync: false
-      - key: DIRECT_DATABASE_URL
         sync: false
       - key: MPM_MAINTENANCE_MODE
         sync: false
