@@ -39,8 +39,7 @@ async function counts(connectionString) {
 
 async function command(args) {
   const child = spawn("docker", args, { cwd: root, stdio: ["ignore", "ignore", "pipe"] });
-  let stderr = "";
-  child.stderr.on("data", chunk => { stderr += chunk.toString(); });
+  child.stderr.resume();
   const code = await new Promise((resolveDone, reject) => {
     child.on("error", reject);
     child.on("close", resolveDone);
