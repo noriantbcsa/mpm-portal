@@ -1,10 +1,14 @@
 "use server";
 
+import { createHash } from "node:crypto";
+
 import { prisma } from "@/lib/prisma";
 import {
   getOrCreateCartSessionToken,
   getCartSessionToken,
   clearCartSessionCookie,
+  getRecentlySubmittedCart,
+  rememberSubmittedCart,
 } from "@/lib/cart-session";
 import { Prisma } from "@prisma/client";
 
@@ -44,6 +48,12 @@ export async function syncCartSessionAction(items: RawCartItem[]): Promise<CartR
     unavailableProductIds: findUnavailableProductIds(parsedItems.data, resolved),
     prices: currentPrices(resolved),
   };
+
+  // El envío de la solicitud puede adelantarse al debounce de esta acción.
+  // Si esa misma cesta ya se envió, no crear una sesión huérfana después.
+  if (resolved.length > 0 && await getRecentlySubmittedCart() === cartItemsSignatureHash(resolved)) {
+    return reconciliation;
+  }
 
   if (resolved.length === 0) {
     const existingToken = await getCartSessionToken();
@@ -112,6 +122,12 @@ function cartItemsSignature(
     .map((i) => [i.productId, i.size ?? "", i.color ?? "", i.quantity].join("|"))
     .sort()
     .join(";");
+}
+
+function cartItemsSignatureHash(
+  items: { productId: string | null; size: string | null; color: string | null; quantity: number }[],
+) {
+  return createHash("sha256").update(cartItemsSignature(items)).digest("hex");
 }
 
 /** Lo que la persona escribió, para repoblar el formulario tras un error. */
@@ -316,6 +332,7 @@ export async function submitCartRequestAction(
   });
   const whatsappUrl = buildWhatsAppLink(settings.whatsappNumber, message);
 
+  await rememberSubmittedCart(cartItemsSignatureHash(resolvedItems));
   await clearCartSessionCookie();
 
   return { status: "success", whatsappUrl };

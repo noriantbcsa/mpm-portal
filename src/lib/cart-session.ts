@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { CART_SESSION_COOKIE_NAME } from "@/lib/constants";
 
 const CART_SESSION_MAX_AGE = 60 * 60 * 24 * 120; // 120 días
+const RECENT_SUBMIT_COOKIE_NAME = "mpm_recent_cart_submit";
 
 /** Devuelve el token de sesión de carrito del visitante, creándolo si hace falta. */
 export async function getOrCreateCartSessionToken(): Promise<string> {
@@ -32,4 +33,19 @@ export async function getCartSessionToken(): Promise<string | null> {
 export async function clearCartSessionCookie() {
   const cookieStore = await cookies();
   cookieStore.delete(CART_SESSION_COOKIE_NAME);
+}
+
+/** Evita que una sincronización tardía recree el carrito tras enviar la solicitud. */
+export async function rememberSubmittedCart(signature: string) {
+  (await cookies()).set(RECENT_SUBMIT_COOKIE_NAME, signature, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 10 * 60,
+  });
+}
+
+export async function getRecentlySubmittedCart() {
+  return (await cookies()).get(RECENT_SUBMIT_COOKIE_NAME)?.value ?? null;
 }

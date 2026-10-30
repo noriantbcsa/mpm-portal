@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
@@ -9,6 +10,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const resolveCartItemsMock = vi.fn();
 const getCartSessionTokenMock = vi.fn();
 const clearCartSessionCookieMock = vi.fn();
+const getRecentlySubmittedCartMock = vi.fn();
+const rememberSubmittedCartMock = vi.fn();
 const cartSessionFindUniqueMock = vi.fn();
 const executeRawMock = vi.fn();
 const recentFindManyMock = vi.fn();
@@ -27,6 +30,8 @@ vi.mock("@/lib/cart-session", () => ({
   getOrCreateCartSessionToken: vi.fn(),
   getCartSessionToken: (...a: unknown[]) => getCartSessionTokenMock(...a),
   clearCartSessionCookie: (...a: unknown[]) => clearCartSessionCookieMock(...a),
+  getRecentlySubmittedCart: (...a: unknown[]) => getRecentlySubmittedCartMock(...a),
+  rememberSubmittedCart: (...a: unknown[]) => rememberSubmittedCartMock(...a),
 }));
 vi.mock("@/lib/cart/resolve-items", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/cart/resolve-items")>()),
@@ -44,7 +49,7 @@ vi.mock("@/lib/security/shared-rate-limit", async () => {
   return { consumeSharedRateLimit: async (...args: Parameters<typeof consumeRateLimit>) => consumeRateLimit(...args) };
 });
 
-const { submitCartRequestAction } = await import("@/app/(public)/carrito/actions");
+const { submitCartRequestAction, syncCartSessionAction } = await import("@/app/(public)/carrito/actions");
 
 const ITEM = {
   productId: "p1",
@@ -84,6 +89,7 @@ beforeEach(() => {
   requestKey = `ip-${counter}`; // el límite de frecuencia es por origen
   resolveCartItemsMock.mockResolvedValue([ITEM]);
   getCartSessionTokenMock.mockResolvedValue(null);
+  getRecentlySubmittedCartMock.mockResolvedValue(null);
   cartSessionFindUniqueMock.mockResolvedValue(null);
   recentFindManyMock.mockResolvedValue([]);
   cartRequestCreateMock.mockResolvedValue({});
@@ -124,6 +130,7 @@ describe("submitCartRequestAction", () => {
     });
     expect(data.consentedAt).toBeInstanceOf(Date);
     expect(data.items.create).toEqual([ITEM]);
+    expect(rememberSubmittedCartMock).toHaveBeenCalledWith(expect.stringMatching(/^[a-f0-9]{64}$/));
     expect(clearCartSessionCookieMock).toHaveBeenCalledTimes(1);
   });
 
@@ -244,5 +251,18 @@ describe("submitCartRequestAction", () => {
     const sixth = await submitCartRequestAction(idle, form());
     expect(sixth).toMatchObject({ status: "error", message: expect.stringContaining("muchas solicitudes") });
     expect(transactionMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("syncCartSessionAction tras un envío", () => {
+  it("no recrea una sesión si la misma cesta ya fue enviada", async () => {
+    const signature = createHash("sha256").update("p1|M|Negro|2").digest("hex");
+    getRecentlySubmittedCartMock.mockResolvedValue(signature);
+
+    const result = await syncCartSessionAction([{ productId: "p1", size: "M", color: "Negro", quantity: 2 }]);
+
+    expect(result).not.toBeNull();
+    expect(getCartSessionTokenMock).not.toHaveBeenCalled();
+    expect(cartSessionFindUniqueMock).not.toHaveBeenCalled();
   });
 });
