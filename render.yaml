@@ -1,5 +1,4 @@
-# Configuración de Render para el corte hacia Neon. La base antigua de
-# Render sigue declarada temporalmente para permitir reversión.
+# Servicio web en Render con PostgreSQL externo en Neon.
 services:
   - type: web
     name: mpm-portal
@@ -28,9 +27,3 @@ services:
         sync: false
       - key: NEXT_PUBLIC_SITE_URL
         sync: false
-
-# Conservar la base de Render durante la ventana de reversión. Retirarla de
-# la configuración y del panel solo tras confirmar copias y estabilidad.
-databases:
-  - name: mpm-portal-db
-    plan: free
