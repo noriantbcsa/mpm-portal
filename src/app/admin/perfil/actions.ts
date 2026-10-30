@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth/dal";
 import { hashPassword, verifyPassword } from "@/lib/auth/passwords";
 import { createSessionCookie } from "@/lib/auth/session";
-import { consumeRateLimit } from "@/lib/security/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/security/shared-rate-limit";
 import { changePasswordSchema, profileNameSchema } from "@/lib/validation/profile";
 
 export type ProfileFormState =
@@ -64,7 +64,7 @@ export async function changeOwnPasswordAction(
   // tenga una sesión robada: se limita por usuario, además del costo de bcrypt.
   // Va DESPUÉS de validar el formulario: un error de tipeo en la confirmación
   // no es un intento de adivinar la contraseña y no debe bloquear a la persona.
-  const rateLimit = consumeRateLimit(`own-password:${user.id}`, { limit: 5, windowMs: 15 * 60_000 });
+  const rateLimit = await consumeSharedRateLimit(`own-password:${user.id}`, { limit: 5, windowMs: 15 * 60_000 });
   if (!rateLimit.allowed) {
     return {
       status: "error",

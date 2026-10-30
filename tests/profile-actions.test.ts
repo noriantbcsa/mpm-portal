@@ -19,6 +19,10 @@ vi.mock("@/lib/auth/session", () => ({
 }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
+vi.mock("@/lib/security/shared-rate-limit", async () => {
+  const { consumeRateLimit } = await import("@/lib/security/rate-limit");
+  return { consumeSharedRateLimit: async (...args: Parameters<typeof consumeRateLimit>) => consumeRateLimit(...args) };
+});
 
 const { changeOwnPasswordAction, updateProfileNameAction } = await import("@/app/admin/perfil/actions");
 const { hashPassword } = await import("@/lib/auth/passwords");

@@ -17,7 +17,8 @@ import {
 import { cartItemsSchema, submitCartRequestSchema } from "@/lib/validation/cart-request";
 import { getSiteSettings } from "@/lib/site-config";
 import { buildCartRequestMessage, buildWhatsAppLink } from "@/lib/whatsapp";
-import { consumeRateLimit, getRequestRateLimitKey } from "@/lib/security/rate-limit";
+import { getRequestRateLimitKey } from "@/lib/security/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/security/shared-rate-limit";
 
 /**
  * Lo que el navegador necesita para corregir su copia local del carrito:
@@ -29,7 +30,7 @@ export type CartReconciliation = {
 };
 
 export async function syncCartSessionAction(items: RawCartItem[]): Promise<CartReconciliation | null> {
-  const rateLimit = consumeRateLimit(`cart-sync:${await getRequestRateLimitKey()}`, {
+  const rateLimit = await consumeSharedRateLimit(`cart-sync:${await getRequestRateLimitKey()}`, {
     limit: 30,
     windowMs: 60_000,
   });
@@ -153,7 +154,7 @@ export async function submitCartRequestAction(
   _prevState: SubmitCartRequestState,
   formData: FormData,
 ): Promise<SubmitCartRequestState> {
-  const rateLimit = consumeRateLimit(`cart-submit:${await getRequestRateLimitKey()}`, {
+  const rateLimit = await consumeSharedRateLimit(`cart-submit:${await getRequestRateLimitKey()}`, {
     limit: 5,
     windowMs: 15 * 60_000,
   });

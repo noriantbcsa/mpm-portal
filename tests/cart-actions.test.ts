@@ -39,6 +39,10 @@ vi.mock("@/lib/security/rate-limit", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/security/rate-limit")>()),
   getRequestRateLimitKey: async () => requestKey,
 }));
+vi.mock("@/lib/security/shared-rate-limit", async () => {
+  const { consumeRateLimit } = await import("@/lib/security/rate-limit");
+  return { consumeSharedRateLimit: async (...args: Parameters<typeof consumeRateLimit>) => consumeRateLimit(...args) };
+});
 
 const { submitCartRequestAction } = await import("@/app/(public)/carrito/actions");
 
