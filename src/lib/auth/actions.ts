@@ -61,10 +61,11 @@ export async function loginAction(
   }
 
   if (user.lockedUntil && user.lockedUntil > new Date()) {
-    const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
-    return {
-      error: `Demasiados intentos fallidos. Intenta de nuevo en ${minutesLeft} ${minutesLeft === 1 ? "minuto" : "minutos"}.`,
-    };
+    // Una respuesta distinta o mucho más rápida confirmaría que este correo
+    // pertenece a una cuenta. Mantener el mismo mensaje y costo de bcrypt
+    // que para un correo inexistente, incluso con la contraseña correcta.
+    await verifyPassword(password, await DUMMY_PASSWORD_HASH);
+    return genericError;
   }
 
   const validPassword = await verifyPassword(password, user.passwordHash);
@@ -87,9 +88,7 @@ export async function loginAction(
           lockedUntil: new Date(Date.now() + LOCKOUT_MINUTES * 60_000),
         },
       });
-      return {
-        error: `Demasiados intentos fallidos. Tu cuenta quedó bloqueada por ${LOCKOUT_MINUTES} minutos.`,
-      };
+      return genericError;
     }
     return genericError;
   }

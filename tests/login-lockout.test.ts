@@ -115,7 +115,7 @@ describe("loginAction — bloqueo por intentos fallidos", () => {
 
     const result = await loginAction(undefined, formDataFor("user@mpm.local", "Incorrecta"));
 
-    expect(result?.error).toContain("bloqueada por 15 minutos");
+    expect(result).toEqual({ error: "Correo o contraseña incorrectos." });
     expect(updateMock).toHaveBeenLastCalledWith({
       where: { id: "u1" },
       data: { failedLoginAttempts: 0, lockedUntil: expect.any(Date) },
@@ -134,9 +134,12 @@ describe("loginAction — bloqueo por intentos fallidos", () => {
       name: "Test",
     });
 
+    const verifySpy = vi.spyOn(passwords, "verifyPassword");
     const result = await loginAction(undefined, formDataFor("user@mpm.local", "Correcta123!"));
 
-    expect(result?.error).toMatch(/Intenta de nuevo en \d+ minutos?\./);
+    expect(result).toEqual({ error: "Correo o contraseña incorrectos." });
+    expect(verifySpy).toHaveBeenCalledTimes(1);
+    verifySpy.mockRestore();
     expect(updateMock).not.toHaveBeenCalled();
   });
 
