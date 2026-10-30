@@ -6,7 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validation/user";
 import { hashPassword, verifyPassword } from "@/lib/auth/passwords";
 import { createSessionCookie, clearSessionCookie, getSessionFromCookies } from "@/lib/auth/session";
-import { consumeRateLimit, getRequestRateLimitKey } from "@/lib/security/rate-limit";
+import { getRequestRateLimitKey } from "@/lib/security/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/security/shared-rate-limit";
 
 export type LoginFormState = { error: string } | undefined;
 
@@ -39,9 +40,9 @@ export async function loginAction(
   // Dos límites: por IP + correo (frena la fuerza bruta contra una cuenta) y
   // por IP sola (frena probar muchos correos distintos: la clave con correo
   // la elige el atacante y por sí sola no limita ese caso).
-  const ipLimit = consumeRateLimit(`login-ip:${rateLimitKey}`, { limit: 30, windowMs: 15 * 60_000 });
+  const ipLimit = await consumeSharedRateLimit(`login-ip:${rateLimitKey}`, { limit: 30, windowMs: 15 * 60_000 });
   const rateLimit = ipLimit.allowed
-    ? consumeRateLimit(`login:${rateLimitKey}:${email.toLowerCase()}`, { limit: 10, windowMs: 15 * 60_000 })
+    ? await consumeSharedRateLimit(`login:${rateLimitKey}:${email.toLowerCase()}`, { limit: 10, windowMs: 15 * 60_000 })
     : ipLimit;
   if (!rateLimit.allowed) {
     return {

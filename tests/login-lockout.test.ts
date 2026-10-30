@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const findUniqueMock = vi.fn();
 const updateMock = vi.fn();
+const sharedRateLimitMock = vi.fn();
+
+vi.mock("@/lib/security/shared-rate-limit", () => ({
+  consumeSharedRateLimit: (...args: unknown[]) => sharedRateLimitMock(...args),
+}));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -34,6 +39,17 @@ describe("loginAction — bloqueo por intentos fallidos", () => {
   beforeEach(() => {
     findUniqueMock.mockReset();
     updateMock.mockReset();
+    sharedRateLimitMock.mockReset();
+    sharedRateLimitMock.mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
+  });
+
+  it("rechaza el acceso cuando el contador compartido supera el límite", async () => {
+    sharedRateLimitMock.mockResolvedValueOnce({ allowed: false, retryAfterSeconds: 120 });
+
+    const result = await loginAction(undefined, formDataFor("user@mpm.local", "x"));
+
+    expect(result?.error).toContain("Demasiados intentos");
+    expect(findUniqueMock).not.toHaveBeenCalled();
   });
 
   it("da un mensaje genérico si el usuario no existe (no revela si el correo existe)", async () => {

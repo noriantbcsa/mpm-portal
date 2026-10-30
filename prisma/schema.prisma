@@ -44,6 +44,16 @@ model User {
   @@index([role])
 }
 
+// Contador compartido entre procesos para limitar intentos de acceso.
+// La clave es un SHA-256; no se guarda correo ni dirección IP en claro.
+model RateLimitBucket {
+  key     String   @id @db.VarChar(64)
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
 // ---------------------------------------------------------------------------
 // Catálogo: categorías, productos, imágenes
 // ---------------------------------------------------------------------------
