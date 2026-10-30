@@ -190,6 +190,30 @@ describe("carritos — un vendedor no le quita a otro un carrito que ya gestiona
     expect(sessionUpdateMany).not.toHaveBeenCalled();
   });
 
+  it("ADMIN cambia el estado sin quitarle un carrito al asesor asignado", async () => {
+    requireUserMock.mockResolvedValue(admin);
+    sessionFindUnique.mockResolvedValue({ handledById: "beto", convertedRequest: null });
+
+    await actions.changeCartSessionStatusAction(form({ cartSessionId: "c1", status: "CONTACTADO" }));
+
+    expect(sessionUpdateMany).toHaveBeenCalledWith({
+      where: { id: "c1", convertedRequest: null, handledById: "beto" },
+      data: { commercialStatus: "CONTACTADO" },
+    });
+  });
+
+  it("ADMIN toma un carrito libre solo si sigue libre y sin convertir", async () => {
+    requireUserMock.mockResolvedValue(admin);
+    sessionFindUnique.mockResolvedValue({ handledById: null, convertedRequest: null });
+
+    await actions.changeCartSessionStatusAction(form({ cartSessionId: "c1", status: "CONTACTADO" }));
+
+    expect(sessionUpdateMany).toHaveBeenCalledWith({
+      where: { id: "c1", convertedRequest: null, handledById: null },
+      data: { commercialStatus: "CONTACTADO", handledById: "admin1", handledAt: expect.any(Date) },
+    });
+  });
+
   it("solo un administrador puede asignar un carrito a otro asesor", async () => {
     requireUserMock.mockResolvedValue(ana);
 

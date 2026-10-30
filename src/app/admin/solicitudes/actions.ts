@@ -192,11 +192,17 @@ export async function changeCartSessionStatusAction(formData: FormData): Promise
   if (!isAdmin && cart.handledById !== user.id) return;
 
   await prisma.cartSession.updateMany({
-    where: isAdmin ? { id: parsed.data.cartSessionId } : { id: parsed.data.cartSessionId, handledById: user.id },
+    // El carrito no debe convertirse ni cambiar de responsable entre la
+    // lectura y la escritura. ADMIN puede editar el estado sin quitarle el
+    // carrito al asesor al que ya lo asignó.
+    where: {
+      id: parsed.data.cartSessionId,
+      convertedRequest: null,
+      handledById: cart.handledById,
+    },
     data: {
       commercialStatus: parsed.data.status,
-      handledById: user.id,
-      handledAt: new Date(),
+      ...(cart.handledById === null ? { handledById: user.id, handledAt: new Date() } : {}),
     },
   });
 
