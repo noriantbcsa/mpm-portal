@@ -7,8 +7,10 @@ const eventCreate = vi.fn();
 const userFindFirst = vi.fn();
 const sessionFindUnique = vi.fn();
 const sessionUpdateMany = vi.fn();
+const lockedRequest = vi.fn();
 
 const tx = {
+  $queryRaw: (...a: unknown[]) => lockedRequest(...a),
   cartRequest: { updateMany: (...a: unknown[]) => cartRequestUpdateMany(...a) },
   cartRequestEvent: { create: (...a: unknown[]) => eventCreate(...a) },
 };
@@ -43,6 +45,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   cartRequestUpdateMany.mockResolvedValue({ count: 1 });
   userFindFirst.mockResolvedValue({ id: "ana" });
+  lockedRequest.mockResolvedValue([{ assignedToId: "ana" }]);
 });
 
 describe("solicitudes — un vendedor solo gestiona lo que le asignaron", () => {
@@ -141,7 +144,7 @@ describe("solicitudes — un vendedor solo gestiona lo que le asignaron", () => 
 
   it("agregar una nota a una solicitud ajena devuelve un error claro y no escribe", async () => {
     requireUserMock.mockResolvedValue(ana);
-    cartRequestFindUnique.mockResolvedValue({ assignedToId: "beto" });
+    lockedRequest.mockResolvedValue([{ assignedToId: "beto" }]);
 
     const result = await actions.addNoteAction(
       { status: "idle" },
@@ -150,6 +153,21 @@ describe("solicitudes — un vendedor solo gestiona lo que le asignaron", () => 
 
     expect(result.status).toBe("error");
     expect(eventCreate).not.toHaveBeenCalled();
+  });
+
+  it("agrega la nota dentro de la transacción que bloquea la solicitud asignada", async () => {
+    requireUserMock.mockResolvedValue(ana);
+
+    const result = await actions.addNoteAction(
+      { status: "idle" },
+      form({ cartRequestId: "r1", note: "Seguimiento" }),
+    );
+
+    expect(result).toEqual({ status: "success" });
+    expect(lockedRequest).toHaveBeenCalledTimes(1);
+    expect(eventCreate).toHaveBeenCalledWith({
+      data: { cartRequestId: "r1", type: "NOTE", note: "Seguimiento", authorId: "ana" },
+    });
   });
 });
 

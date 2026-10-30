@@ -46,18 +46,31 @@ export async function addNoteAction(
     return { status: "error", message: parsed.error.issues[0]?.message ?? "Escribe una nota." };
   }
 
-  if (!(await canManageCartRequest(user, parsed.data.cartRequestId))) {
+  // Bloquear la solicitud hasta guardar la nota: una reasignación concurrente
+  // no puede cambiar el propietario entre la comprobación y la escritura.
+  const saved = await prisma.$transaction(async (tx) => {
+    const requests = await tx.$queryRaw<{ assignedToId: string | null }[]>`
+      SELECT "assignedToId" FROM "CartRequest"
+      WHERE id = ${parsed.data.cartRequestId}
+      FOR UPDATE
+    `;
+    if (!requests[0] || (user.role !== "ADMIN" && requests[0].assignedToId !== user.id)) {
+      return false;
+    }
+
+    await tx.cartRequestEvent.create({
+      data: {
+        cartRequestId: parsed.data.cartRequestId,
+        type: "NOTE",
+        note: parsed.data.note,
+        authorId: user.id,
+      },
+    });
+    return true;
+  });
+  if (!saved) {
     return { status: "error", message: NOT_YOURS_MESSAGE };
   }
-
-  await prisma.cartRequestEvent.create({
-    data: {
-      cartRequestId: parsed.data.cartRequestId,
-      type: "NOTE",
-      note: parsed.data.note,
-      authorId: user.id,
-    },
-  });
 
   revalidatePath(`/admin/solicitudes/${parsed.data.cartRequestId}`);
   return { status: "success" };
