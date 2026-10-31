@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/dal";
-import { invalidWomenSizes, productFormSchema, PRODUCT_TAG_VALUES } from "@/lib/validation/product";
+import { catalogSizeError, productFormSchema, PRODUCT_TAG_VALUES } from "@/lib/validation/product";
 import { imageUrlSchema } from "@/lib/validation/url";
 import { uniqueSlug } from "@/lib/slug";
 import { decodeCsvBytes, parseCopPrice, parseProductsCsv, splitMultiValue } from "@/lib/csv";
@@ -300,8 +300,14 @@ export async function bulkImportProductsAction(
     }
 
     const rowSizes = data.tallas ? splitMultiValue(data.tallas) : (sizesBySku.get(data.referencia) ?? []);
-    if ((audienceValue ?? audienceBySku.get(data.referencia)) === "MUJER" && invalidWomenSizes(rowSizes).length > 0) {
-      rowErrors.push(`Fila ${row}: las prendas de mujer llegan hasta la talla L (o talla única).`);
+    const sizeError = catalogSizeError(
+      audienceValue ?? audienceBySku.get(data.referencia) ?? "UNISEX",
+      data.referencia,
+      data.nombre,
+      rowSizes,
+    );
+    if (sizeError) {
+      rowErrors.push(`Fila ${row}: ${sizeError}`);
       skipped += 1;
       continue;
     }

@@ -148,6 +148,15 @@ describe("bulkImportProductsAction", () => {
     expect(productUpdate).not.toHaveBeenCalled();
   });
 
+  it("acepta solo XXL en una nueva referencia Plus", async () => {
+    const accepted = await run(csvFile("NUEVA-PLUS,Camisa plus,Una camisa de prueba,Damas,,mujer,XXL,,,,,,,")) as Success;
+    expect(accepted).toMatchObject({ created: 1, skipped: 0 });
+    expect(productCreate.mock.calls[0][0].data.sizes).toEqual(["XXL"]);
+    const rejected = await run(csvFile("OTRA-PLUS,Camisa plus,Una camisa de prueba,Damas,,mujer,L;XXL,,,,,,,")) as Success;
+    expect(rejected).toMatchObject({ created: 0, skipped: 1 });
+    expect(rejected.errors[0]).toContain("únicamente la talla XXL");
+  });
+
   it("al actualizar, una celda opcional vacía CONSERVA el valor actual (no borra tallas ni vuelve visible un producto oculto)", async () => {
     const result = (await run(csvFile("EXISTE-1,Nombre nuevo,Descripción nueva,Vestidos,,,,,,,,,,"))) as Success;
 

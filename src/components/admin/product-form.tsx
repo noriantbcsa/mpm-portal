@@ -113,7 +113,7 @@ export function ProductForm({
             name="sizesText"
             error={errors?.sizes}
             defaultValue={initial?.sizes.join(", ")}
-            hint="Sepáralas con comas. Mujer: XS, S, M, L o talla única."
+            hint="Mujer regular: hasta L. Hombre regular: hasta XL. Referencias Plus/XXL: solo XXL."
           />
           <AdminTextField
             label="Colores"

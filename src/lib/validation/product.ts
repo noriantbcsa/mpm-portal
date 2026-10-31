@@ -18,9 +18,22 @@ export const PRODUCT_TAG_VALUES = [
 ] as const;
 
 const WOMEN_SIZES = new Set(["XS", "S", "M", "L", "TALLA ÚNICA"]);
+const MEN_SIZES = new Set(["XS", "S", "M", "L", "XL", "TALLA ÚNICA"]);
 
-export function invalidWomenSizes(sizes: string[]) {
-  return sizes.filter((size) => !WOMEN_SIZES.has(size.trim().toLocaleUpperCase("es-CO")));
+export function catalogSizeError(audience: string, sku: string, name: string, sizes: string[]) {
+  if (audience !== "MUJER" && audience !== "HOMBRE") return null;
+  const normalized = sizes.map((size) => size.trim().toLocaleUpperCase("es-CO"));
+  if (/\b(?:PLUS|XXL)\b/i.test(`${sku} ${name}`)) {
+    return normalized.length === 1 && normalized[0] === "XXL"
+      ? null : "Las referencias Plus/XXL tienen únicamente la talla XXL.";
+  }
+  const allowed = audience === "MUJER" ? WOMEN_SIZES : MEN_SIZES;
+  if (normalized.some((size) => !allowed.has(size))) {
+    return audience === "MUJER"
+      ? "Las prendas de mujer regulares llegan hasta la talla L."
+      : "Las prendas de hombre regulares llegan hasta la talla XL.";
+  }
+  return null;
 }
 
 export const skuSchema = z
@@ -66,9 +79,8 @@ export const productFormSchema = z.object({
     .transform((v) => (v === undefined ? null : v)),
   images: z.array(productImageInputSchema).max(100).default([]),
 }).superRefine((product, ctx) => {
-  if (product.audience === "MUJER" && invalidWomenSizes(product.sizes).length > 0) {
-    ctx.addIssue({ code: "custom", path: ["sizes"], message: "Las prendas de mujer llegan hasta la talla L (o talla única)." });
-  }
+  const sizeError = catalogSizeError(product.audience, product.sku, product.name, product.sizes);
+  if (sizeError) ctx.addIssue({ code: "custom", path: ["sizes"], message: sizeError });
   if (product.priceWholesale != null && product.priceRef == null) {
     ctx.addIssue({ code: "custom", path: ["priceRef"], message: "Agrega el precio al detal antes del precio mayorista." });
   }

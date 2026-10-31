@@ -74,13 +74,17 @@ describe("productFormSchema", () => {
     expect(productFormSchema.safeParse(base).success).toBe(true);
   });
 
-  it("acepta hasta L y talla única para mujer, pero rechaza XL", () => {
+  it("separa las tallas regulares de mujer y hombre de las referencias Plus/XXL", () => {
     expect(productFormSchema.safeParse({ ...base, audience: "MUJER", sizes: ["XS", "S", "M", "L"] }).success).toBe(true);
     expect(productFormSchema.safeParse({ ...base, audience: "MUJER", sizes: ["Talla única"] }).success).toBe(true);
     const invalid = productFormSchema.safeParse({ ...base, audience: "MUJER", sizes: ["M", "XL"] });
     expect(invalid.success).toBe(false);
     if (!invalid.success) expect(invalid.error.issues[0]?.path).toEqual(["sizes"]);
     expect(productFormSchema.safeParse({ ...base, audience: "HOMBRE", sizes: ["XL"] }).success).toBe(true);
+    expect(productFormSchema.safeParse({ ...base, audience: "HOMBRE", sizes: ["XXL"] }).success).toBe(false);
+    expect(productFormSchema.safeParse({ ...base, sku: "DAM-PLUS-DAMA", name: "camisa dama plus", audience: "MUJER", sizes: ["XXL"] }).success).toBe(true);
+    expect(productFormSchema.safeParse({ ...base, sku: "DAM-PLUS-DAMA", name: "camisa dama plus", audience: "MUJER", sizes: ["L", "XXL"] }).success).toBe(false);
+    expect(productFormSchema.safeParse({ ...base, sku: "CAB-CMCH-XXL", name: "camisa hombre XXL", audience: "HOMBRE", sizes: ["XXL"] }).success).toBe(true);
   });
 
   it("rejects a SKU with spaces or special characters", () => {

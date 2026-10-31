@@ -77,7 +77,7 @@ function referenceName(folder: string) {
     "R-UNICA": "camisa talla única rayada",
     UNICA: "camisa talla única",
     OVCML: "camisa corta manga larga",
-    "PLUS DAMA": "camisa manga larga dama",
+    "PLUS DAMA": "camisa manga larga dama plus",
     CMLH: "camisa manga larga hombre",
     CMCH: "camisa manga corta hombre",
     CMLRH: "camisa manga larga rayada hombre",
@@ -101,9 +101,9 @@ const catalogPricing: Record<string, readonly [number, number]> = {
 
 function sizesFor(folder: string, audience: "MUJER" | "HOMBRE") {
   if (/^(R-UNICA|UNICA)$/i.test(folder)) return ["Talla única"];
+  if (/PLUS|XXL/i.test(folder)) return ["XXL"];
   if (audience === "MUJER") return ["XS", "S", "M", "L"];
-  if (/XXL/i.test(folder)) return ["XXL"];
-  return ["XS", "S", "M", "L", "XL", "XXL"];
+  return ["XS", "S", "M", "L", "XL"];
 }
 
 /** Categorías raíz "Damas" / "Caballero", sitio y las 18 referencias reales fotografiadas. */
@@ -177,9 +177,10 @@ async function importRealCatalog() {
       const slug = `${collection.slug}-${folder.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`;
       const tags = /NUEVO LANZAMIENTO/i.test(folder.name) ? ["NUEVO" as const] : [];
       const description = "Elaborado en popelina stretch.";
+      const photoVersion = /^(PLUS DAMA|CMCH XXL|CMLH XXL)$/.test(folder.name) ? "?v=sin-plus-20261031" : "";
       const images = files.map((file, order) => {
         const color = filenameColor(file, productDir);
-        return { url: asPublicUrl(join(productDir, file)), alt: `${name}${color ? ` · color ${color}` : ` · vista ${order + 1}`}`, color, order };
+        return { url: asPublicUrl(join(productDir, file)) + photoVersion, alt: `${name}${color ? ` · color ${color}` : ` · vista ${order + 1}`}`, color, order };
       });
       await prisma.product.upsert({
         where: { sku },
