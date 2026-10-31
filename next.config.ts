@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
   images: {
     // El catálogo entregado se sirve localmente en WebP. Cloudinary queda
     // permitido para imágenes alojadas allí y pegadas como URL.
+    localPatterns: [
+      { pathname: "/**", search: "" },
+      { pathname: "/catalogo/**", search: "?v=sin-plus-20261031" },
+    ],
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
     ],
