@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/dal";
-import { productFormSchema, PRODUCT_TAG_VALUES } from "@/lib/validation/product";
+import { invalidWomenSizes, productFormSchema, PRODUCT_TAG_VALUES } from "@/lib/validation/product";
 import { imageUrlSchema } from "@/lib/validation/url";
 import { uniqueSlug } from "@/lib/slug";
 import { decodeCsvBytes, parseCopPrice, parseProductsCsv, splitMultiValue } from "@/lib/csv";
@@ -191,9 +191,11 @@ export async function bulkImportProductsAction(
   // 2000 filas podía agotar el tiempo de la petición.
   const existingProducts = await prisma.product.findMany({
     where: { sku: { in: rows.map((r) => r.data.referencia) } },
-    select: { sku: true, priceWholesale: true },
+    select: { sku: true, audience: true, sizes: true, priceWholesale: true },
   });
   const existingSkus = new Set(existingProducts.map((product) => product.sku));
+  const audienceBySku = new Map(existingProducts.map((product) => [product.sku, product.audience]));
+  const sizesBySku = new Map(existingProducts.map((product) => [product.sku, product.sizes]));
   const wholesaleBySku = new Map(existingProducts.map((product) => [product.sku, product.priceWholesale ? Number(product.priceWholesale) : null]));
   const takenSlugs = new Set((await prisma.product.findMany({ select: { slug: true } })).map((p) => p.slug));
 
@@ -297,6 +299,13 @@ export async function bulkImportProductsAction(
       continue;
     }
 
+    const rowSizes = data.tallas ? splitMultiValue(data.tallas) : (sizesBySku.get(data.referencia) ?? []);
+    if ((audienceValue ?? audienceBySku.get(data.referencia)) === "MUJER" && invalidWomenSizes(rowSizes).length > 0) {
+      rowErrors.push(`Fila ${row}: las prendas de mujer llegan hasta la talla L (o talla única).`);
+      skipped += 1;
+      continue;
+    }
+
     try {
       if (existing) {
         // Una celda opcional vacía conserva el valor actual: reimportar una
@@ -320,6 +329,8 @@ export async function bulkImportProductsAction(
             ...(images.length > 0 ? { images: { deleteMany: {}, create: images } } : {}),
           },
         });
+        if (audienceValue) audienceBySku.set(data.referencia, audienceValue);
+        if (data.tallas) sizesBySku.set(data.referencia, splitMultiValue(data.tallas));
         updated += 1;
       } else {
         const slug = await uniqueSlug(data.nombre, async (candidate) => takenSlugs.has(candidate));
@@ -344,6 +355,8 @@ export async function bulkImportProductsAction(
         // Una misma referencia repetida más abajo en el archivo se actualiza,
         // y un nombre repetido recibe otro slug.
         existingSkus.add(data.referencia);
+        audienceBySku.set(data.referencia, audienceValue!);
+        sizesBySku.set(data.referencia, splitMultiValue(data.tallas));
         takenSlugs.add(slug);
         created += 1;
       }

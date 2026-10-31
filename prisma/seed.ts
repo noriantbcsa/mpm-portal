@@ -5,7 +5,7 @@
  * y crea las dos cuentas de prueba si todavía no existen — ambas
  * operaciones son upserts seguros de repetir. (La limpieza del catálogo
  * sintético de versiones anteriores del portal fue un paso de una sola vez;
- * vive en `scripts/remove-demo-content.ts`, no aquí, para que correr este
+ * vive en `scripts/database/remove-demo-content.ts`, no aquí, para que correr este
  * seed en cada despliegue no pueda borrar contenido real por coincidencia
  * de slug.)
  */
@@ -77,7 +77,7 @@ function referenceName(folder: string) {
     "R-UNICA": "camisa talla única rayada",
     UNICA: "camisa talla única",
     OVCML: "camisa corta manga larga",
-    "PLUS DAMA": "camisa manga larga dama plus",
+    "PLUS DAMA": "camisa manga larga dama",
     CMLH: "camisa manga larga hombre",
     CMCH: "camisa manga corta hombre",
     CMLRH: "camisa manga larga rayada hombre",
@@ -99,8 +99,9 @@ const catalogPricing: Record<string, readonly [number, number]> = {
   "CMCH XXL": [40000, 70000], "CMLH XXL": [42000, 75000],
 };
 
-function sizesFor(folder: string) {
+function sizesFor(folder: string, audience: "MUJER" | "HOMBRE") {
   if (/^(R-UNICA|UNICA)$/i.test(folder)) return ["Talla única"];
+  if (audience === "MUJER") return ["XS", "S", "M", "L"];
   if (/XXL/i.test(folder)) return ["XXL"];
   return ["XS", "S", "M", "L", "XL", "XXL"];
 }
@@ -182,7 +183,7 @@ async function importRealCatalog() {
       });
       await prisma.product.upsert({
         where: { sku },
-        create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name), colors, tags, priceRef, priceWholesale, images: { create: images } },
+        create: { sku, name, slug, description, categoryId: category.id, audience: collection.audience, sizes: sizesFor(folder.name, collection.audience), colors, tags, priceRef, priceWholesale, images: { create: images } },
         // Repetir el seed solo refresca las fotos entregadas: nombre,
         // descripción, categoría, tallas, etiquetas, etc. pueden haberse
         // editado desde /admin y no deben pisarse.

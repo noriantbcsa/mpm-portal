@@ -17,6 +17,12 @@ export const PRODUCT_TAG_VALUES = [
   "RECOMENDADO",
 ] as const;
 
+const WOMEN_SIZES = new Set(["XS", "S", "M", "L", "TALLA ÚNICA"]);
+
+export function invalidWomenSizes(sizes: string[]) {
+  return sizes.filter((size) => !WOMEN_SIZES.has(size.trim().toLocaleUpperCase("es-CO")));
+}
+
 export const skuSchema = z
   .string()
   .trim()
@@ -60,6 +66,9 @@ export const productFormSchema = z.object({
     .transform((v) => (v === undefined ? null : v)),
   images: z.array(productImageInputSchema).max(100).default([]),
 }).superRefine((product, ctx) => {
+  if (product.audience === "MUJER" && invalidWomenSizes(product.sizes).length > 0) {
+    ctx.addIssue({ code: "custom", path: ["sizes"], message: "Las prendas de mujer llegan hasta la talla L (o talla única)." });
+  }
   if (product.priceWholesale != null && product.priceRef == null) {
     ctx.addIssue({ code: "custom", path: ["priceRef"], message: "Agrega el precio al detal antes del precio mayorista." });
   }

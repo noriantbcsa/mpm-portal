@@ -113,7 +113,7 @@ export function ProductForm({
             name="sizesText"
             error={errors?.sizes}
             defaultValue={initial?.sizes.join(", ")}
-            hint="Sepáralas con comas, ej: S, M, L, XL"
+            hint="Sepáralas con comas. Mujer: XS, S, M, L o talla única."
           />
           <AdminTextField
             label="Colores"

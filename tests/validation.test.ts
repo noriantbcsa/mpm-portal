@@ -74,6 +74,15 @@ describe("productFormSchema", () => {
     expect(productFormSchema.safeParse(base).success).toBe(true);
   });
 
+  it("acepta hasta L y talla única para mujer, pero rechaza XL", () => {
+    expect(productFormSchema.safeParse({ ...base, audience: "MUJER", sizes: ["XS", "S", "M", "L"] }).success).toBe(true);
+    expect(productFormSchema.safeParse({ ...base, audience: "MUJER", sizes: ["Talla única"] }).success).toBe(true);
+    const invalid = productFormSchema.safeParse({ ...base, audience: "MUJER", sizes: ["M", "XL"] });
+    expect(invalid.success).toBe(false);
+    if (!invalid.success) expect(invalid.error.issues[0]?.path).toEqual(["sizes"]);
+    expect(productFormSchema.safeParse({ ...base, audience: "HOMBRE", sizes: ["XL"] }).success).toBe(true);
+  });
+
   it("rejects a SKU with spaces or special characters", () => {
     const result = productFormSchema.safeParse({ ...base, sku: "MPM 0001!" });
     expect(result.success).toBe(false);

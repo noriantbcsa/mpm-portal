@@ -125,6 +125,29 @@ describe("bulkImportProductsAction", () => {
     expect(data.slug).not.toBe("camiseta"); // ya existía ese slug: recibe otro
   });
 
+  it("rechaza tallas mayores que L para mujer en altas y actualizaciones CSV", async () => {
+    const newProduct = await run(csvFile("NUEVA-MUJER,Camisa,Una camisa de prueba,Damas,,mujer,XL,,,,,,,")) as Success;
+    expect(newProduct).toMatchObject({ created: 0, skipped: 1 });
+    expect(newProduct.errors[0]).toContain("hasta la talla L");
+    expect(productCreate).not.toHaveBeenCalled();
+
+    productFindMany.mockImplementation(async (args: { select?: Record<string, boolean> }) =>
+      args.select?.sku ? [{ sku: "EXISTE-1", audience: "MUJER", sizes: ["S", "M"] }] : []);
+    const existing = await run(csvFile("EXISTE-1,Camisa,Una camisa de prueba,Damas,,,S;XL,,,,,,,")) as Success;
+    expect(existing).toMatchObject({ updated: 0, skipped: 1 });
+    expect(existing.errors[0]).toContain("hasta la talla L");
+    expect(productUpdate).not.toHaveBeenCalled();
+  });
+
+  it("no cambia un producto con XL de hombre a mujer sin corregir antes sus tallas", async () => {
+    productFindMany.mockImplementation(async (args: { select?: Record<string, boolean> }) =>
+      args.select?.sku ? [{ sku: "EXISTE-1", audience: "HOMBRE", sizes: ["M", "XL"] }] : []);
+    const result = await run(csvFile("EXISTE-1,Camisa,Una camisa de prueba,Damas,,mujer,,,,,,,,")) as Success;
+    expect(result).toMatchObject({ updated: 0, skipped: 1 });
+    expect(result.errors[0]).toContain("hasta la talla L");
+    expect(productUpdate).not.toHaveBeenCalled();
+  });
+
   it("al actualizar, una celda opcional vacía CONSERVA el valor actual (no borra tallas ni vuelve visible un producto oculto)", async () => {
     const result = (await run(csvFile("EXISTE-1,Nombre nuevo,Descripción nueva,Vestidos,,,,,,,,,,"))) as Success;
 
